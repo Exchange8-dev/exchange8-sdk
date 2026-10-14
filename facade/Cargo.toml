@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: Copyright Logically Magic Inc. <hello@logicallymagic.com>
+# SPDX-FileCopyrightText: Copyright Hamid Jahanzad <Hamid@Jahanzad.com>
+# SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "exchange8"
+version = "0.1.0"
+edition = "2021"
+license = "UNLICENSED"
+description = "exchange8 namespace facade — every exchange8 crate imports as exchange8::{leaf} (architecture-principles §2.1)."
+
+[dependencies]
+exchange8-book.workspace = true
+exchange8-contracts.workspace = true
+exchange8-me-client.workspace = true
+exchange8-fix.workspace = true
+exchange8-fixed.workspace = true
+exchange8-itch.workspace = true
+exchange8-mold.workspace = true
+exchange8-soup.workspace = true
+exchange8-stamp.workspace = true
+exchange8-wire.workspace = true

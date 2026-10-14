@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: Copyright Logically Magic Inc. <hello@logicallymagic.com>
+# SPDX-FileCopyrightText: Copyright Hamid Jahanzad <Hamid@Jahanzad.com>
+# SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "exchange8-sim-harness"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+thiserror = { workspace = true }
+# Facade dep: the #[path]-included service modules (gateway submission,
+# me engine, clearing projector) reference `exchange8::{leaf}` paths.
+exchange8.workspace = true
+exchange8-fixed = { workspace = true }
+exchange8-contracts = { workspace = true }
+
+# Flow tests (tests/flow_gateway_me_clearing.rs) include me/engine.rs,
+# which pulls exchange8_book. Test-only.
+[dev-dependencies]
+exchange8-book = { workspace = true }
+tokio = { workspace = true }
