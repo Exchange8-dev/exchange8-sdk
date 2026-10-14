@@ -452,7 +452,6 @@ pub struct ExchangeOrder {
     pub timestamp_us: u64,
 }
 
-
 /// Cross order extension (FIX 380 cross-order fields).
 ///
 /// Carries the obligor details of a cross order for regulatory records.

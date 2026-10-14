@@ -441,7 +441,7 @@ mod tests {
         let big = vec![0xAB; 1300];
         assert!(p.add_message(1, &big));
         // Only ~98 bytes left; a second 100-byte block won't fit.
-        assert!(!p.add_message(2, &vec![0xCD; 100]));
+        assert!(!p.add_message(2, &[0xCD; 100]));
         assert_eq!(p.message_count(), 1);
         // Null message ignored (platform spec).
         assert!(!p.add_message(3, &[]));

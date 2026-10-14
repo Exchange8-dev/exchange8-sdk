@@ -759,7 +759,7 @@ mod tests {
         assert_eq!(levels.len(), 2);
         assert!(levels[0].visible);
         assert!(!levels[1].visible);
-        assert_eq!(sb.best_visible().unwrap().visible, true);
+        assert!(sb.best_visible().unwrap().visible);
     }
 
     #[test]

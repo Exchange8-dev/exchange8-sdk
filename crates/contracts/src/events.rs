@@ -31,7 +31,7 @@ use crate::enums::{
 ///
 /// # Examples
 ///
- /// ```
+/// ```
 /// use exchange8_contracts::{Envelope, OrderKilled, KillReason};
 ///
 /// let env: Envelope<OrderKilled> = Envelope {
