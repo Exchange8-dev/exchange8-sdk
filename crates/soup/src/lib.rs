@@ -146,13 +146,11 @@ impl LoginRequest {
     /// decoded tolerantly (non-numeric text falls back to 0).
     ///
     /// # Errors
-    ///
     /// Returns [`SoupError::BadLoginLen`] when `payload.len()` differs
     /// from [`LOGIN_REQUEST_LEN`] — the peer is then not a Soup endpoint
     /// or the frame is corrupt.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_soup::LoginRequest;
     ///
@@ -192,7 +190,6 @@ impl LoginRequest {
     /// characters. Encoding is total for any `u32` sequence.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_soup::LoginRequest;
     ///
@@ -236,7 +233,6 @@ impl LoginAccept {
     /// exactly `2 + [LOGIN_ACCEPT_LEN]` = 33 bytes.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_soup::LoginAccept;
     ///
@@ -257,12 +253,10 @@ impl LoginAccept {
     /// prefix); inverse of [`LoginAccept::encode`].
     ///
     /// # Errors
-    ///
     /// Returns [`SoupError::BadLoginLen`] when `payload.len()` differs
     /// from [`LOGIN_ACCEPT_LEN`] (31).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_soup::LoginAccept;
     ///
@@ -292,7 +286,6 @@ impl LoginAccept {
 /// [`reject_reason`] (`A` not authorized, `S` no session).
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_soup::{login_rejected, reject_reason};
 ///
@@ -343,7 +336,6 @@ pub fn logout() -> Vec<u8> {
 /// `exchange8::itch`, never the framing layer.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_soup::{next_frame_len, sequenced_data};
 ///
@@ -368,7 +360,6 @@ pub fn sequenced_data(itch_payload: &[u8]) -> Vec<u8> {
 /// error. The value counts prefix + type byte + payload.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_soup::{next_frame_len, sequenced_data};
 ///
@@ -390,13 +381,11 @@ pub fn next_frame_len(buf: &[u8]) -> Option<usize> {
 /// slice, never an error.
 ///
 /// # Errors
-///
 /// Returns [`SoupError::TooShort`] when the frame is shorter than the
 /// 3-byte minimum (length prefix + type byte); accumulate more bytes
 /// first using [`next_frame_len`].
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_soup::{logout, split_frame};
 ///

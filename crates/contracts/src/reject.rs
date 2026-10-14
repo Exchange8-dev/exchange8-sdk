@@ -25,7 +25,6 @@ use serde::{Deserialize, Serialize};
 /// variants.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_contracts::RejectCode;
 ///
@@ -178,7 +177,6 @@ impl RejectCode {
     /// must not be presented as numeric codes to clients.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::RejectCode;
     /// assert_eq!(RejectCode::UnknownSymbol.wire_code(), Some(1));
@@ -254,7 +252,6 @@ impl RejectCode {
     /// unchanged.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::RejectCode;
     /// assert_eq!(RejectCode::UnknownSymbol.as_str(), "Unknown symbol");

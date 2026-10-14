@@ -30,7 +30,6 @@ use crate::enums::{
 /// regardless of transport (bus produce or framed direct stream).
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_contracts::{Envelope, OrderKilled, KillReason};
 ///

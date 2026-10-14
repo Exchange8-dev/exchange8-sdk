@@ -49,7 +49,6 @@ impl OrderType {
     /// Wire char (`L`/`F`/`I`/`P`/`B`).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::OrderType;
     /// assert_eq!(OrderType::Limit.as_char(), 'L');
@@ -69,7 +68,6 @@ impl OrderType {
     /// Returns `None` for any char outside `L`/`F`/`I`/`P`/`B`.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::OrderType;
     /// assert_eq!(OrderType::from_char('B'), Some(OrderType::Bypass));
@@ -104,7 +102,6 @@ impl Side {
     /// ME wire char (`B` bid / `A` ask).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::Side;
     /// assert_eq!(Side::Bid.as_char(), 'B');
@@ -121,7 +118,6 @@ impl Side {
     /// Returns `None` for any char outside `B`/`A`.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::Side;
     /// assert_eq!(Side::from_char('A'), Some(Side::Ask));
@@ -138,7 +134,6 @@ impl Side {
     /// Opposite side of the book.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::Side;
     /// assert_eq!(Side::Bid.opposite(), Side::Ask);
@@ -169,7 +164,6 @@ impl Visibility {
     /// ME wire char (`D` display / `H` hidden).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::Visibility;
     /// assert_eq!(Visibility::Hidden.as_char(), 'H');
@@ -186,7 +180,6 @@ impl Visibility {
     /// Returns `None` for any char outside `D`/`H`.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::Visibility;
     /// assert_eq!(Visibility::from_char('D'), Some(Visibility::Display));
@@ -203,7 +196,6 @@ impl Visibility {
     /// True when the visibility prints on the lit feed.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::Visibility;
     /// assert!(Visibility::Display.is_visible());
@@ -231,7 +223,6 @@ impl Capacity {
     /// ME wire char (`A` agency / `P` principal).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::Capacity;
     /// assert_eq!(Capacity::Principal.as_char(), 'P');
@@ -248,7 +239,6 @@ impl Capacity {
     /// Returns `None` for any char outside `A`/`P`.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::Capacity;
     /// assert_eq!(Capacity::from_char('A'), Some(Capacity::Agency));
@@ -282,7 +272,6 @@ impl PriceProtection {
     /// ME wire char (`K` kill / `P` post).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::PriceProtection;
     /// assert_eq!(PriceProtection::Kill.as_char(), 'K');
@@ -299,7 +288,6 @@ impl PriceProtection {
     /// Returns `None` for any char outside `K`/`P`.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::PriceProtection;
     /// assert_eq!(PriceProtection::from_char('P'),
@@ -334,7 +322,6 @@ impl InstrumentStatus {
     /// Feed wire char (`O` open / `H` halted / `Q` quotation only).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::InstrumentStatus;
     /// assert_eq!(InstrumentStatus::QuotationOnly.as_char(), 'Q');
@@ -352,7 +339,6 @@ impl InstrumentStatus {
     /// Returns `None` for any char outside `O`/`H`/`Q`.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::InstrumentStatus;
     /// assert_eq!(InstrumentStatus::from_char('H'),
@@ -393,7 +379,6 @@ impl MarketStatus {
     /// Feed wire char (`O`/`H`/`P`/`S`/`D`).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::MarketStatus;
     /// assert_eq!(MarketStatus::PostponeShutdown.as_char(), 'D');
@@ -413,7 +398,6 @@ impl MarketStatus {
     /// Returns `None` for any char outside `O`/`H`/`P`/`S`/`D`.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::MarketStatus;
     /// assert_eq!(MarketStatus::from_char('S'), Some(MarketStatus::Shutdown));
@@ -465,7 +449,6 @@ impl KillReason {
     /// Kill wire char (catalog `kill_reason` table).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::KillReason;
     /// assert_eq!(KillReason::SelfTrade.as_char(), 'S');
@@ -491,7 +474,6 @@ impl KillReason {
     /// `kill_reason` table (`H`/`C`/`A`/`I`/`F`/`S`/`R`/`P`/`M`/`E`).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::KillReason;
     /// assert_eq!(KillReason::from_char('I'), Some(KillReason::Ioc));
@@ -542,7 +524,6 @@ impl MeRejectReason {
     /// (`H`/`F`/`W`/`U`/`E`/`V`).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::MeRejectReason;
     /// assert_eq!(MeRejectReason::Compliance.as_char(), 'V');
@@ -576,7 +557,6 @@ impl Liquidity {
     /// Execution wire char (`A` added / `R` removed).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::Liquidity;
     /// assert_eq!(Liquidity::Added.as_char(), 'A');
@@ -602,7 +582,6 @@ impl LotType {
     /// Execution wire char (`1` odd / `2` board).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::LotType;
     /// assert_eq!(LotType::Board.as_char(), '2');
@@ -643,7 +622,6 @@ impl SystemEventCode {
     /// ITCH `S` payload char (`O`/`C`/`Q`/`M`/`S`/`E`/`P`).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::SystemEventCode;
     /// assert_eq!(SystemEventCode::MarketPreopen.as_char(), 'P');
@@ -666,7 +644,6 @@ impl SystemEventCode {
     /// (`O`/`C`/`Q`/`M`/`S`/`E`/`P`).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::SystemEventCode;
     /// assert_eq!(SystemEventCode::from_char('O'),

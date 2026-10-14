@@ -111,7 +111,6 @@ use serde::{Deserialize, Serialize};
 /// re-resolving external references.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_book::{RestingOrder};
 /// use exchange8_contracts::Side;
@@ -192,7 +191,6 @@ impl RestingOrder {
     /// not the iceberg test).
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_book::RestingOrder;
     /// # use exchange8_contracts::Side;
@@ -256,7 +254,6 @@ impl PriceKey {
 /// the owning `SideBook` prunes a level whose queue drains.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_book::PriceLevel;
 /// use exchange8_fixed::Price;
@@ -354,7 +351,6 @@ impl SideBook {
     /// update.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_book::{RestingOrder, SideBook};
     /// use exchange8_contracts::{Side, Visibility};
@@ -447,7 +443,6 @@ impl SideBook {
     /// so callers surface a not-found rather than panicking.
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_book::{RestingOrder, SideBook};
     /// # use exchange8_contracts::{Side, Visibility};
@@ -510,7 +505,6 @@ impl SideBook {
     /// reduce-only sweep).
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_book::{RestingOrder, SideBook};
     /// # use exchange8_contracts::{Side, Visibility};
@@ -557,7 +551,6 @@ impl SideBook {
     /// flag is part of the level identity, not a filter.
     ///
     /// # Returns
-    ///
     /// `None` when no level exists at that (price, visibility) pair; the
     /// front order otherwise — the next to fill under time priority.
     pub fn front_at(&self, price: Price, visible: bool) -> Option<&RestingOrder> {
@@ -574,7 +567,6 @@ impl SideBook {
     /// all executable liquidity, not only the display.
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_book::{RestingOrder, SideBook};
     /// # use exchange8_contracts::{Side, Visibility};
@@ -614,7 +606,6 @@ impl SideBook {
 /// an explicit read used by parity checks and market-status logic.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_book::Book;
 /// use exchange8_contracts::Side;
@@ -664,7 +655,6 @@ impl Book {
     /// as crossed.
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_book::{Book, RestingOrder};
     /// # use exchange8_contracts::{Side, Visibility};

@@ -203,7 +203,6 @@ fn parse_px(s: &str) -> Option<i128> {
 /// (`10.50` → `105_000`).
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_sim_harness::{parse_script, Action};
 ///
@@ -216,7 +215,6 @@ fn parse_px(s: &str) -> Option<i128> {
 /// ```
 ///
 /// # Errors
-///
 /// Returns [`ParseError`] with the 1-based line number: `BadVerb` for an
 /// unknown verb, `MissingField` for an absent required parameter,
 /// `BadNumber` for an unparseable numeric value. A failing line fails the
@@ -475,7 +473,6 @@ pub fn parse_script(src: &str) -> Result<Vec<Action>, ParseError> {
 /// with validation left to the consuming engine.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_contracts::OrderSide;
 /// use exchange8_sim_harness::side_of;
@@ -498,7 +495,6 @@ pub fn side_of(c: char) -> OrderSide {
 /// `OrderRequest` it accompanies; the mapping does not read it.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_contracts::{OrdType, Tif};
 /// use exchange8_sim_harness::order_type_of;

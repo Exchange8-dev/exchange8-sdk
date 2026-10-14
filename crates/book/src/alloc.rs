@@ -40,7 +40,6 @@ use std::collections::BTreeMap;
 /// `None` rather than a default.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_book::AllocationMethod;
 ///
@@ -69,7 +68,6 @@ impl AllocationMethod {
     /// default policy.
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_book::AllocationMethod;
     /// assert_eq!(
@@ -107,7 +105,6 @@ impl AllocationMethod {
 /// applies the returned fills through the book's own primitives.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_book::{AllocationMethod, RestingQty, allocate};
 ///
@@ -150,7 +147,6 @@ pub struct Fill {
 /// (pure integer math, no floats, no wall-clock inputs).
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_book::{AllocationMethod, Fill, RestingQty, allocate};
 ///

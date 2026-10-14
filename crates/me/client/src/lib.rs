@@ -64,7 +64,6 @@ use serde::Serialize;
 /// what makes recorded sessions replay byte-identically.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_contracts::Envelope;
 /// use exchange8_me_client::{decode_envelope, encode_envelope};
@@ -94,7 +93,6 @@ pub fn encode_envelope<T: Serialize>(value: &Envelope<T>) -> Vec<u8> {
 /// rejoin/replay.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_contracts::Envelope;
 /// use exchange8_me_client::{decode_envelope, encode_envelope};
@@ -112,7 +110,6 @@ pub fn encode_envelope<T: Serialize>(value: &Envelope<T>) -> Vec<u8> {
 /// ```
 ///
 /// # Errors
-///
 /// Returns the codec's [`exchange8_wire::DecodeError`] unchanged:
 /// `TooShort` for a truncated frame, `TooLarge` for a payload over
 /// `MAX_FRAME`, `Json` for an unparseable payload. No other error type is

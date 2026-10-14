@@ -82,7 +82,6 @@ impl BookToken {
     /// True when the instrument prints on the lit book.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::BookToken;
     /// assert!(BookToken('L').is_lit());
@@ -129,7 +128,6 @@ impl OrderSide {
     /// (`"1"`, `"2"`, `"5"`, `"6"`, `"8"`, `"9"`).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::OrderSide;
     /// assert_eq!(OrderSide::from_fix("1"), Some(OrderSide::Buy));
@@ -150,7 +148,6 @@ impl OrderSide {
     /// ME side (crosses collapse to the aggressor side at the GW).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::OrderSide;
     /// assert_eq!(OrderSide::Cross.me_side(),
@@ -166,7 +163,6 @@ impl OrderSide {
     /// True when the side is `ShortSell` or `ShortExempt`.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::OrderSide;
     /// assert!(OrderSide::ShortSell.is_short());
@@ -179,7 +175,6 @@ impl OrderSide {
     /// True when the side is `Cross` or `CrossShort`.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::OrderSide;
     /// assert!(OrderSide::Cross.is_cross());
@@ -226,7 +221,6 @@ impl Tif {
     /// Interpret a FIX 59 code (empty = Day).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::Tif;
     /// assert_eq!(Tif::from_fix(None), Some(Tif::Day));
@@ -270,7 +264,6 @@ impl OrdType {
     /// (`"2"` limit, `"P"` pegged).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::OrdType;
     /// assert_eq!(OrdType::from_fix("P"), Some(OrdType::Pegged));
@@ -314,7 +307,6 @@ impl PegType {
     /// Returns `None` for any char outside `M`/`P`/`R`/`D`.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::PegType;
     /// assert_eq!(PegType::from_char('M'), Some(PegType::Midpoint));
@@ -477,7 +469,6 @@ impl ExchangeOrder {
     /// aggregate and release reservations per session.
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_contracts::{ExchangeOrder, BookToken};
     /// # // Constructing an `ExchangeOrder` fixture field-by-field is
@@ -489,7 +480,6 @@ impl ExchangeOrder {
     /// ```
     ///
     /// # Panics
-    ///
     /// Never panics — a `const` field read.
     pub const fn connection_id(&self) -> u16 {
         self.connection_id
@@ -500,7 +490,6 @@ impl ExchangeOrder {
     /// unknown id).
     ///
     /// # Errors
-    ///
     /// Not an error-returning function; the reject code is the mapped value
     /// the caller converts into a reject path.
     pub fn unresolved_instrument_code(&self) -> crate::reject::RejectCode {
@@ -546,7 +535,6 @@ impl OrdStatus {
     /// FIX 39 execution-status character.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::OrdStatus;
     /// assert_eq!(OrdStatus::PendingNew.as_char(), 'A');
@@ -574,7 +562,6 @@ impl OrdStatus {
     /// Terminal states are `Fill`, `Canceled`, `Rejected`, and `Expired`.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_contracts::OrdStatus;
     /// assert!(OrdStatus::Fill.is_terminal());

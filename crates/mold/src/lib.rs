@@ -73,7 +73,6 @@ pub const BLOCK_LEN_LEN: usize = 2;
 /// parsing an inbound packet.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_mold::{parse, MoldError};
 ///
@@ -103,7 +102,6 @@ pub enum MoldError {
 /// state always serializes to identical bytes.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_mold::MoldPacket;
 ///
@@ -131,7 +129,6 @@ impl MoldPacket {
     /// strings are truncated to 10 bytes.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_mold::MoldPacket;
     ///
@@ -163,7 +160,6 @@ impl MoldPacket {
     /// block's 2-byte length prefix and payload.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_mold::{MoldPacket, BLOCK_OFFSET, BLOCK_LEN_LEN};
     ///
@@ -195,12 +191,10 @@ impl MoldPacket {
     ///   unchanged — the caller starts the next packet.
     ///
     /// # Returns
-    ///
     /// `true` when the block was stored; `false` when refused (empty
     /// payload or insufficient remaining capacity).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_mold::MoldPacket;
     ///
@@ -264,7 +258,6 @@ impl MoldPacket {
     /// sequence advance. The output is exactly [`BLOCK_OFFSET`] (20) bytes.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_mold::{MoldPacket, BLOCK_OFFSET};
     ///
@@ -317,13 +310,11 @@ pub struct ParsedPacket {
 /// buffer by offset; no payload bytes are copied.
 ///
 /// # Errors
-///
 /// Returns [`MoldError::TooShort`] when the buffer is smaller than the
 /// 20-byte fixed header, and [`MoldError::BlockOverrun`] when a declared
 /// block length extends beyond the packet.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_mold::{MoldPacket, parse};
 ///
@@ -383,7 +374,6 @@ pub fn parse(packet: &[u8]) -> Result<ParsedPacket, MoldError> {
 /// the first missing sequence, and how many messages are wanted.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_mold::{SESSION_LEN, retransmission_request};
 ///

@@ -87,7 +87,6 @@ pub const MAX_HEART_BT_INT: u32 = 120;
 /// caller keeps buffering.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_fix::{FixError, FixMessage};
 ///
@@ -128,7 +127,6 @@ pub enum FixError {
 /// §3.6).
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_fix::{FixMessage, msg_type};
 ///
@@ -186,7 +184,6 @@ pub mod msg_type {
 /// these constants with [`FixMessage::set`]/[`FixMessage::get`].
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_fix::{FixMessage, tag};
 ///
@@ -407,7 +404,6 @@ pub mod tag {
 /// occurrence.
 ///
 /// # Examples
-///
 /// ```
 /// use exchange8_fix::{FixMessage, tag};
 ///
@@ -434,7 +430,6 @@ impl FixMessage {
     /// start with MsgType (35) preset.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_fix::FixMessage;
     ///
@@ -451,7 +446,6 @@ impl FixMessage {
     /// FIX header rule.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_fix::{FixMessage, msg_type};
     ///
@@ -472,7 +466,6 @@ impl FixMessage {
     /// design's tag-reuse convention.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_fix::FixMessage;
     ///
@@ -506,7 +499,6 @@ impl FixMessage {
     /// QuoteType (537) = 1 (tradeable).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_fix::FixMessage;
     ///
@@ -543,7 +535,6 @@ impl FixMessage {
     /// 0) the tradeable quote as-is.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_fix::FixMessage;
     ///
@@ -564,7 +555,6 @@ impl FixMessage {
     /// expiry), `4`=expired. The optional `reason` rides tag 58 (Text).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_fix::FixMessage;
     ///
@@ -597,7 +587,6 @@ impl FixMessage {
     /// wire representation stays a string either way.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_fix::{FixMessage, tag};
     ///
@@ -619,7 +608,6 @@ impl FixMessage {
     /// First occurrence of a tag, if present.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_fix::{FixMessage, tag};
     ///
@@ -639,7 +627,6 @@ impl FixMessage {
     /// tag 35 somewhere on the frame, but [`FixMessage::new`] starts empty).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_fix::{FixMessage, msg_type};
     ///
@@ -657,7 +644,6 @@ impl FixMessage {
     /// integer — callers decide whether absence is an error.
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_fix::{FixMessage, tag};
     ///
@@ -682,7 +668,6 @@ impl FixMessage {
     /// encodes with no MsgType field (the caller's contract).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_fix::{FixMessage, msg_type, tag};
     ///
@@ -730,7 +715,6 @@ impl FixMessage {
     /// verbatim (no schema check).
     ///
     /// # Errors
-    ///
     /// Returns the [`FixError`] variants for structural violations: a short
     /// buffer that does not even start with `8=` is
     /// [`TooShort`](FixError::TooShort), a wrong/missing BeginString is
@@ -740,7 +724,6 @@ impl FixMessage {
     /// [`Checksum`](FixError::Checksum).
     ///
     /// # Examples
-    ///
     /// ```
     /// use exchange8_fix::{FixMessage, msg_type};
     ///

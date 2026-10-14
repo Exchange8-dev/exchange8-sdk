@@ -56,7 +56,6 @@ use thiserror::Error;
 /// anything else is [`StampError::NoControlHeader`].
 ///
 /// # Examples
-///
 /// ```
 /// # use exchange8_stamp::{CONTROL_HEADER_CHAR, StampMessage};
 /// let mut frame = vec![CONTROL_HEADER_CHAR];
@@ -80,7 +79,6 @@ pub const EQUAL_CHAR: u8 = b'=';
 /// STAMP protocol version string carried in the control header (`tag 65`).
 ///
 /// # Examples
-///
 /// ```
 /// # use exchange8_stamp::STAMP_VERSION_NUMBER;
 /// assert_eq!(STAMP_VERSION_NUMBER, "Version 4.0");
@@ -95,7 +93,6 @@ pub const STAMP_VERSION_NUMBER: &str = "Version 4.0";
 /// the names the exchange addresses directly.
 ///
 /// # Examples
-///
 /// ```
 /// # use exchange8_stamp::tag;
 /// assert_eq!(tag::SYMBOL, 55);
@@ -232,7 +229,6 @@ pub mod tag {
 /// classifies the payload; [`StampMessage::business_class`] reads it back.
 ///
 /// # Examples
-///
 /// ```
 /// # use exchange8_stamp::{StampMessage, business_class};
 /// let msg = StampMessage::build(business_class::ORDER_ACK, vec![]);
@@ -265,7 +261,6 @@ pub mod business_class {
 /// typed errors; the codec never repairs malformed input silently.
 ///
 /// # Examples
-///
 /// ```
 /// # use exchange8_stamp::{StampError, StampMessage};
 /// // Not starting with the control-header byte.
@@ -310,7 +305,6 @@ pub struct StampField {
 /// [`StampSection::get_indexed`] matches an exact index, and
 /// [`StampSection::get_all`] returns every value for a tag in stored order.
 /// # Examples
-///
 /// ```
 /// # use exchange8_stamp::{StampSection, StampMessage, tag};
 /// let parsed = StampMessage::parse(b"\x01\x1c55=ABC\x1e55.1=XYZ\x1d").unwrap();
@@ -352,7 +346,6 @@ impl StampSection {
     /// First value for `tag` with index 0.
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_stamp::{StampMessage, tag};
     /// let msg = StampMessage::parse(b"\x01\x1c55=ABC").unwrap();
@@ -369,7 +362,6 @@ impl StampSection {
     /// Indexed value (`tag.1`, `tag.2`, …).
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_stamp::{StampField, StampMessage, tag};
     /// let mut msg = StampMessage::default();
@@ -389,7 +381,6 @@ impl StampSection {
     /// All values for `tag` across indices, in stored order.
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_stamp::{StampField, StampMessage, tag};
     /// let mut msg = StampMessage::default();
@@ -467,7 +458,6 @@ fn parse_field(bytes: &[u8]) -> Result<StampField, StampError> {
 /// Owns every decoded value; there are no lifetimes, so a parsed message
 /// can outlive the read buffer and be handed across tasks freely.
 /// # Examples
-///
 /// ```
 /// # use exchange8_stamp::{StampMessage, business_class, tag};
 /// let msg = StampMessage::build(
@@ -492,7 +482,6 @@ impl StampMessage {
     /// Business-class accessor (`tag 6` in the business section).
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_stamp::{StampMessage, business_class};
     /// let msg = StampMessage::build(business_class::ORDER_ACK, vec![]);
@@ -520,7 +509,6 @@ impl StampMessage {
     ///   identifiers.
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_stamp::{StampMessage, tag, business_class};
     /// let msg = StampMessage::build(
@@ -582,7 +570,6 @@ impl StampMessage {
     /// exists, and the trailer delimiter only when a trailer is present.
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_stamp::{StampMessage, CONTROL_HEADER_CHAR, BUSINESS_CONTENT_CHAR};
     /// let msg = StampMessage::build("010", vec![]);
@@ -614,7 +601,6 @@ impl StampMessage {
     /// as needed.
     ///
     /// # Examples
-    ///
     /// ```
     /// # use exchange8_stamp::{StampMessage, tag, business_class};
     /// let msg = StampMessage::build(
