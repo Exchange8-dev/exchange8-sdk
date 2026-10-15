@@ -21,14 +21,15 @@ vertical. It owns:
 - price/tif/side mapping helpers (`parse_px`, `side_of`, `order_type_of`)
   and the contained `ParseError` taxonomy;
 - the canonical cross-service flow test
-  (`tests/flow_gateway_me_clearing.rs`) that `#[path]`-includes real
-  service-core modules and drives them through the submit → match →
-  project chain.
+  (`tests/flow_gateway_me_clearing.rs`) that embeds real
+  service-core modules (tree-layout-only — see §9) and drives them
+  through the submit → match → project chain.
 
 It explicitly does **not** own:
 
 - any matching, book, routing or projection logic — drivers bring real
-  service cores (`#[path]` include), the crate stays parse-only;
+  service cores (embedded via the `include!`-in-mod pattern, §9), the
+  crate stays parse-only;
 - transport (no HTTP, no FIX/ITCH/Mold/Soup — those codecs are separate
   crates), no sockets, no files;
 - time: no clock abstraction, no RNG — scripts are the sole source of
@@ -344,7 +345,7 @@ rationale.
 graph TD
     subgraph PYR["Test pyramid participation for the crate"]
         U["Unit (in-crate #[cfg(test)]) — parse golden tests: verbs D/F, cancel families,<br/>quotes/sweep/two-sided, bare-int scaling, bad-verb/missing-field errors"]
-        I["Integration (tests/flow_gateway_me_clearing.rs) — #[path]-included service cores:<br/>gateway route order + policy rejects, ME matching + two-side-event invariant,<br/>halting reject path, clearing projection pairs, DSL-script happy path"]
+        I["Integration (tests/flow_gateway_me_clearing.rs) — tree-layout-only embedded service cores:<br/>gateway route order + policy rejects, ME matching + two-side-event invariant,<br/>halting reject path, clearing projection pairs, DSL-script happy path"]
         P["Property + golden (sibling crates) — ME price-time/STP/iceberg property tests,<br/>codec golden tests vs behavior-catalog (out of this crate's scope)"]
         E["E2E UI (e2e-ts) — browser-level order flow through BFF (out of scope here;<br/>sim harness feeds its fixtures)"]
     end
@@ -370,6 +371,16 @@ graph TD
 - **Deliberately NOT tested here:** wall-clock behavior (none exists),
   transport (out of crate scope), and any DB-dependent path — the harness
   is DB-free by construction and must stay so.
+- **Tree-layout-only flow test (embedding contract):** the flow test
+  embeds the REAL service-core modules (`exchange8-gateway` submission,
+  `exchange8-me` engine, `exchange8-clearing` projector) via `include!`
+  inside feature-gated inline `mod`s (`#[cfg(feature = "tree_flows")]`),
+  with paths relative to the aggregation-tree layout
+  (`../../../exchange8-{gateway,me,clearing}/src/…`). `include!` is opaque
+  to rustfmt — a single-repo checkout (CI) stays format-clean — and
+  resolves only when the `tree_flows` feature is on, which requires the
+  sibling repos checked out side by side. In single-repo CI the target
+  contributes zero tests; the blocking fmt/build/test gates stay green.
 
 ## 10. Open Questions
 

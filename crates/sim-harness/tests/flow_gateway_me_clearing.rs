@@ -16,19 +16,36 @@
 //! is covered by the per-service `sql_matrix.rs` suites, the route/ME/
 //! projection invariants by the in-module unit tests.
 //!
-//! Design: `crates/sim-harness/DESIGN.md` §2 (core path),
+//! Design: `crates/sim-harness/DESIGN.md` §2 (core path), §9 (tree-layout
+//! embedding contract),
 //! `design/sentin8-exchange8-technical-design.md` §13b (verification &
 //! parity).
 
-#[path = "../../../services/gateway/src/submission.rs"]
-mod submission;
+// Tree-layout-only target: with the feature off (single-repo CI) the
+// whole file contributes zero tests; with `--features tree_flows`
+// (aggregation-tree layout) the REAL service cores are embedded.
+#![cfg(feature = "tree_flows")]
 
-#[path = "../../../services/me/src/engine.rs"]
+// The REAL service cores, embedded via `include!` inside feature-gated
+// inline mods — `include!` is opaque to rustfmt (single-repo CI fmt
+// stays green) and resolves only under the tree layout
+// (exchange8-{gateway,me,clearing} checked out side by side).
+
+#[cfg(feature = "tree_flows")]
+mod submission {
+    include!("../../../../exchange8-gateway/src/submission.rs");
+}
+
+#[cfg(feature = "tree_flows")]
 #[allow(dead_code)] // bin-module helpers unreachable from the test crate
-mod engine;
+mod engine {
+    include!("../../../../exchange8-me/src/engine.rs");
+}
 
-#[path = "../../../services/clearing/src/projector.rs"]
-mod projector;
+#[cfg(feature = "tree_flows")]
+mod projector {
+    include!("../../../../exchange8-clearing/src/projector.rs");
+}
 
 use exchange8_contracts::enums::{Capacity, Liquidity, OrderType, Side, Visibility};
 use exchange8_contracts::events::{AddOrder, TransactionRejected};

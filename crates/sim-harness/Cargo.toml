@@ -25,3 +25,11 @@ exchange8-contracts = { workspace = true }
 [dev-dependencies]
 exchange8-book = { workspace = true }
 tokio = { workspace = true }
+
+[features]
+default = []
+# Tree-layout-only flow test (tests/flow_gateway_me_clearing.rs — see its
+# header and DESIGN.md §9): embeds the REAL gateway/me/clearing cores via
+# include! paths that resolve only in the aggregation-tree layout. CI
+# (single-repo checkout) leaves this OFF; the tree operator turns it on.
+tree_flows = []
