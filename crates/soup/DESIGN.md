@@ -10,7 +10,7 @@ heartbeat, logout), sequenced-data wrapping, and the stream read support
 (`next_frame_len`/`split_frame`). It explicitly does **not** own:
 
 - sockets, connection state, heartbeat intervals, reconnection — the
-  consuming services' session tasks (Ex8:MD soup servers, Ex8:VFeeds
+  consuming services' session tasks (Exchange8:MD soup servers, Exchange8:VFeeds
   session paths) per the market-data design §4.3;
 - credential verification and authorization — the shell/platform
   (Sentin8:Auth, Sentin8:Proxy) decides; the crate only carries the
@@ -28,12 +28,12 @@ the facade `exchange8::soup` (package `exchange8-soup`, workspace member
 
 ```mermaid
 graph TD
-    subgraph MDSESS["Ex8:MD — Soup session (publisher / replay side)"]
+    subgraph MDSESS["Exchange8:MD — Soup session (publisher / replay side)"]
         AUTHZ["credential + session verification<br/>(platform policy upstream)"]
         REP["replay from persisted md_message rows<br/>+ live stream continuation"]
     end
 
-    subgraph VFSESS["Ex8:VFeeds — subscriber-side session paths"]
+    subgraph VFSESS["Exchange8:VFeeds — subscriber-side session paths"]
         HB["heartbeat supervision · logout"]
         ACC["frame accumulation loop"]
     end
@@ -96,7 +96,7 @@ Its "architecture" is the module map of one file and the two call shapes
 sequenceDiagram
     autonumber
     participant C as Client session (subscriber)
-    participant S as Publisher session (Ex8:MD)
+    participant S as Publisher session (Exchange8:MD)
     participant L as LoginRequest (soup)
     participant A as LoginAccept (soup)
 
@@ -208,7 +208,7 @@ does not apply.
 
 ```mermaid
 graph TD
-    subgraph PUBLISHER["Ex8:MD soup session (owns socket)"]
+    subgraph PUBLISHER["Exchange8:MD soup session (owns socket)"]
         AUTH["credential verify · session policy"]
         LIVE["live projector bytes"]
         REPQ["replay reads → ITCH rows"]
@@ -360,7 +360,7 @@ graph TD
         U1["golden login request (offset-by-offset + round trip)<br/>bad-length rejection<br/>accept round trip<br/>control frames (H/R/O/J)<br/>sequenced wrap + len lookahead<br/>partial-frame branch"]
     end
     subgraph P2["Layer 2 — integration (consumer binaries)"]
-        U2["session-path tests (publisher/replay/receive<br/>flows in Ex8:MD / Ex8:VFeeds tasks)"]
+        U2["session-path tests (publisher/replay/receive<br/>flows in Exchange8:MD / Exchange8:VFeeds tasks)"]
     end
     subgraph P3["Layer 3 — E2E / platform"]
         U3["subscriber E2E + replay corpora<br/>(covered by the platform testing strategy, not here)"]
@@ -376,7 +376,7 @@ graph TD
   `partial_frame_needs_more` (accumulate-more branch). All tests are
   pure byte assertions, no fixtures outside the crate.
 - **Deliberately NOT tested here:** socket/stream behavior, heartbeat
-  timing policy, replay reads (`exchange8::mold`, Ex8:MD session
+  timing policy, replay reads (`exchange8::mold`, Exchange8:MD session
   design), and ITCH payload semantics (`exchange8::itch`).
 - **Run:** part of the vertical workspace test pipeline — the
   `crates/soup` unit tests are compiled and executed with the

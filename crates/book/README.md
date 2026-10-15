@@ -9,7 +9,7 @@ order-identity index, and the per-contract within-level allocation policies
 (`fifo`, `pro_rata_round_lot`, `pro_rata_fifo_remainder`). It is a pure
 domain library with no HTTP surface, no database presence, and no process of
 its own; it is consumed by exchange8 services — principally the matching
-engine (Ex8:ME), which is the only authoritative writer — and by the
+engine (Exchange8:ME), which is the only authoritative writer — and by the
 simulation harness.
 
 ## 2. Motivation
@@ -45,9 +45,9 @@ allocations; the library never performs I/O, scheduling, or persistence.
 ```mermaid
 graph TD
     subgraph Consumers["exchange8 services (consumers)"]
-        ME["Ex8:ME matching engine<br/>(authoritative writer)"]
+        ME["Exchange8:ME matching engine<br/>(authoritative writer)"]
         SIM["sim-harness<br/>(test/replay consumer)"]
-        MDM["Ex8:MD and other mirrors<br/>(via derived book updates)"]
+        MDM["Exchange8:MD and other mirrors<br/>(via derived book updates)"]
     end
 
     subgraph Facade["exchange8 namespace facade"]

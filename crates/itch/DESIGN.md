@@ -10,7 +10,7 @@ text-mode families and their width-expansion rules, the safe big-endian
 word readers, and the type→length table. It explicitly does **not** own:
 
 - event→message policy — which internal event becomes which message is
-  Ex8:MD's projector (per the market-data design §4.2);
+  Exchange8:MD's projector (per the market-data design §4.2);
 - transport — MoldUDP64 packets (`exchange8::mold`) and SoupBinTCP
   frames (`exchange8::soup`) carry ITCH bytes;
 - numeric semantics — wire `u32` ticks ↔ `exchange8::fixed` conversions
@@ -28,7 +28,7 @@ runtime of its own: the crate is a pure codec compiled into the facade
 
 ```mermaid
 graph TD
-    subgraph PRODUCER["Ex8:MD — projector / book layer"]
+    subgraph PRODUCER["Exchange8:MD — projector / book layer"]
         BOOK["book.rs event mapping<br/>add/execute/cancel/delete/replace"]
     end
 
@@ -93,7 +93,7 @@ call shapes the consumers drive.
 ```mermaid
 sequenceDiagram
     autonumber
-    participant P as Publisher (Ex8:MD book.rs)
+    participant P as Publisher (Exchange8:MD book.rs)
     participant M as AddOrder (itch struct)
     participant E as encode()
     participant F as Framing (mold packet)
@@ -185,7 +185,7 @@ does not apply.
 
 ```mermaid
 graph TD
-    subgraph MDPUB["Ex8:MD publish path (owns transport)"]
+    subgraph MDPUB["Exchange8:MD publish path (owns transport)"]
         EVT["book event structs"] --> MAP["projector: which message(s)"]
         MAP --> ENC["itch::encode / encode_text"]
         ENC --> MOLDP["MoldPacket blocks (L2 session)"]
@@ -254,7 +254,7 @@ flowchart TD
 
 ```mermaid
 graph LR
-    subgraph CONSUMER["consumer process (Ex8:MD projector)"]
+    subgraph CONSUMER["consumer process (Exchange8:MD projector)"]
         T["single-threaded publish task per session"]
         C["encode calls per event"]
     end
@@ -321,7 +321,7 @@ graph TD
         U1["golden binary layout per message<br/>all_sizes_match_catalog<br/>message_len table<br/>text layouts narrow + wide<br/>threshold constants"]
     end
     subgraph P2["Layer 2 — integration (consumer binaries)"]
-        U2["Ex8:MD book.rs flow tests<br/>event→message→length assertions"]
+        U2["Exchange8:MD book.rs flow tests<br/>event→message→length assertions"]
     end
     subgraph P3["Layer 3 — E2E / platform"]
         U3["feed E2E + downstream capture checks<br/>(covered by the platform testing strategy, not here)"]
@@ -339,7 +339,7 @@ graph TD
   `text_order_delete_layout`, and `text_length_constants_match_spec`
   (pins the whole text block). All tests are pure byte assertions.
 - **Deliberately NOT tested here:** transport framing (`mold`/`soup`),
-  event→message policy (Ex8:MD), and end-to-end feed flows
+  event→message policy (Exchange8:MD), and end-to-end feed flows
   (platform-level).
 - **Run:** part of the vertical workspace gate — inside
   `cargo test -p exchange8-itch` in the workspace test pipeline.

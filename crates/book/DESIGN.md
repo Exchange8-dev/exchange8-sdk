@@ -18,20 +18,20 @@
 
 | Concern | Owning unit |
 |---|---|
-| Matching policy (when to match, STP actions, price protection, post-only, TIF kills, board/odd routing) | Ex8:ME matching engine |
-| Order state persistence, journaling, and recovery replay | Ex8:ME (journal + shard state) |
-| Trade-id sequencing, execution envelopes, event fan-out | Ex8:ME + platform sequence plane |
-| Market-data publication and depth snapshots derived from the book | Ex8:MD / book-update consumers |
+| Matching policy (when to match, STP actions, price protection, post-only, TIF kills, board/odd routing) | Exchange8:ME matching engine |
+| Order state persistence, journaling, and recovery replay | Exchange8:ME (journal + shard state) |
+| Trade-id sequencing, execution envelopes, event fan-out | Exchange8:ME + platform sequence plane |
+| Market-data publication and depth snapshots derived from the book | Exchange8:MD / book-update consumers |
 | Price/quantity value types and precision helpers | `exchange8::fixed` |
 | Order/contract domain enums (`Side`, `Visibility`) | `exchange8::contracts` |
-| Contract master (allocation method per instrument) | Ex8:RefData schema |
+| Contract master (allocation method per instrument) | Exchange8:RefData schema |
 | Thread ownership of a book (single-writer scheduling) | the hosting service |
 
 **System context:**
 
 ```mermaid
 graph TD
-    subgraph ME["Ex8:ME matching engine (single writer per instrument)"]
+    subgraph ME["Exchange8:ME matching engine (single writer per instrument)"]
         ENG["engine::match walk"]
     end
     subgraph BOOK["exchange8::book (library, in-process)"]
@@ -42,7 +42,7 @@ graph TD
         FIXED["exchange8::fixed<br/>Price / Qty"]
         CONTRACTS["exchange8::contracts<br/>Side / Visibility"]
     end
-    MD["Ex8:MD mirrors / depth readers"]
+    MD["Exchange8:MD mirrors / depth readers"]
     SIM["sim-harness (replay tests)"]
 
     FIXED -->|"Price, Qty value types"| SB
@@ -88,7 +88,7 @@ same primitives below — the library never distinguishes the disciplines.
 ```mermaid
 sequenceDiagram
     autonumber
-    participant E as Ex8:ME shard task<br/>(single writer)
+    participant E as Exchange8:ME shard task<br/>(single writer)
     participant SB as SideBook<br/>(opposite side)
     participant PL as PriceLevel deque
 
@@ -120,7 +120,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant E as Ex8:ME shard task
+    participant E as Exchange8:ME shard task
     participant SB as SideBook
     participant AL as alloc::allocate
     E->>E: resolve contract's AllocationMethod<br/>(snapshot of contract master)
@@ -429,7 +429,7 @@ derived updates, never through concurrent references into a live book.
 
 ```mermaid
 graph LR
-    subgraph Host["Hosting process (Ex8:ME shard task)"]
+    subgraph Host["Hosting process (Exchange8:ME shard task)"]
         W["single writer task<br/>owns one instrument's books"]
         B["Book"]
         SB1["SideBook bids<br/>BTreeMap levels + id index"]

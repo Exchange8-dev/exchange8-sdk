@@ -38,11 +38,11 @@
 
 | Concern | Owned by |
 |---|---|
-| Socket/TCP connection management | Ex8:MD / Ex8:VFeeds session tasks |
+| Socket/TCP connection management | Exchange8:MD / Exchange8:VFeeds session tasks |
 | Heartbeat intervals and drop policy | Session tasks (platform config) |
 | Credential verification and authorization policy | Sentin8:Auth / Sentin8:Proxy at the service shell |
-| Payload content inside data frames | `exchange8::itch` + Ex8:MD publisher |
-| Replay persistence and sequencing | Ex8:MD published-session model (DB-backed replay) |
+| Payload content inside data frames | `exchange8::itch` + Exchange8:MD publisher |
+| Replay persistence and sequencing | Exchange8:MD published-session model (DB-backed replay) |
 | Persistence, identity, audit, event delivery | Sentin8:DB, Sentin8:Auth, Sentin8:Sys, Sentin8:Bus platform planes |
 
 ## 3. Business Capabilities
@@ -63,7 +63,7 @@
 - None. The library emits no events and holds no state. **Observable
   effects it enables:** subscriber sessions (authentication, replay from
   a historical sequence, live continuation, liveness) — those are
-  Ex8:MD / Ex8:VFeeds behaviors on top of these frames.
+  Exchange8:MD / Exchange8:VFeeds behaviors on top of these frames.
 
 ### Inbound (consumed)
 
@@ -91,7 +91,7 @@
 
 | Persona | What they do with it |
 |---|---|
-| Market-data session engineer | Builds the Soup publisher side: accept, heartbeats, replay-from-login in Ex8:MD |
+| Market-data session engineer | Builds the Soup publisher side: accept, heartbeats, replay-from-login in Exchange8:MD |
 | Connectivity engineer | Builds subscriber-facing receive loops that parse inbound frames into (type, payload) |
 | QA / replay engineer | Verifies recorded handshake and data frames round-trip and that malformed lengths fail typed |
 | Platform integrator | Confirms handshake field offsets before enabling a subscriber class |
@@ -110,7 +110,7 @@
 
 - **`exchange8::itch`** — the market-data payloads this framing wraps in
   sequenced data.
-- **Consuming services (Ex8:MD, Ex8:VFeeds)** — own sockets, heartbeat
+- **Consuming services (Exchange8:MD, Exchange8:VFeeds)** — own sockets, heartbeat
   schedules, reconnection, replay reads, and credential verification;
   the library cannot connect, listen, or authenticate.
 - **`thiserror`** — the typed failure surface.

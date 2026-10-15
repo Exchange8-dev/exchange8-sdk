@@ -36,11 +36,11 @@
 
 | Concern | Owned by |
 |---|---|
-| Event→message policy (which event becomes which message) | Ex8:MD book/projector layer |
+| Event→message policy (which event becomes which message) | Exchange8:MD book/projector layer |
 | Packet framing and multicast transport | `exchange8::mold`, `exchange8::soup` + session tasks |
 | Price/quantity numeric semantics | `exchange8::fixed` (wire `u32` ticks convert at the boundary) |
-| Broker anonymization / suppression policy | Ex8:MD per the platform's participant-privacy rules |
-| Sequencing, replay, and retransmission | Ex8:MD publisher session model |
+| Broker anonymization / suppression policy | Exchange8:MD per the platform's participant-privacy rules |
+| Sequencing, replay, and retransmission | Exchange8:MD publisher session model |
 | Persistence, identity, audit, event delivery | Sentin8:DB, Sentin8:Auth, Sentin8:Sys, Sentin8:Bus platform planes |
 
 ## 3. Business Capabilities
@@ -63,7 +63,7 @@
 
 - None. The library emits no events and holds no state. **Observable
   effects it enables:** the public market tape and snapshot replay that
-  downstream subscribers consume — those arrive as Ex8:MD / Ex8:VFeeds
+  downstream subscribers consume — those arrive as Exchange8:MD / Exchange8:VFeeds
   behaviors riding this codec's bytes.
 
 ### Inbound (consumed)
@@ -91,7 +91,7 @@
 
 | Persona | What they do with it |
 |---|---|
-| Market-data engineer | Maps book events to ITCH messages in Ex8:MD; builds the L1/L2 published payload |
+| Market-data engineer | Maps book events to ITCH messages in Exchange8:MD; builds the L1/L2 published payload |
 | Connectivity engineer | Uses the length table to parse a session stream or verify an external consumer's capture |
 | QA / replay engineer | Verifies recorded messages byte-match the catalog and reconstruct expected lengths |
 | Downstream integrator | Reads the pinned type/length vocabulary to build reliable book builders against the feed |
@@ -108,7 +108,7 @@
 
 ## 8. Dependencies & Reliance on Other Services
 
-- **Ex8:MD** — the only code consumer today: the book projector maps
+- **Exchange8:MD** — the only code consumer today: the book projector maps
   internal events onto this crate's structs and bytes (order adds,
   executions, cancels, deletes, replaces).
 - **Framing crates** — `exchange8::mold` (multicast packets) and
@@ -141,7 +141,7 @@
   text forms (and their width quirks) is an integration census; encoders
   remain wired for them until policy retires them.
 - **Timestamp cadence** — seconds/millis marker emission is a publisher
-  policy choice (Ex8:MD), not an encoding one.
+  policy choice (Exchange8:MD), not an encoding one.
 - **Additional directories** — book-id/venue-specific directory
   extensions beyond the catalog may need a vocabulary pass-through
   decision.

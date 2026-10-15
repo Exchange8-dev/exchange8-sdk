@@ -11,8 +11,8 @@ framing, the 1400-byte packet cap, the count-0 heartbeat form, and the
 - block payloads — ITCH VER2 message bytes are `exchange8::itch`'s
   (the crate is payload-agnostic by design);
 - transport — sockets, multicast A/B legs, heartbeat intervals, and the
-  retransmit server are the consuming services' (Ex8:MD publisher,
-  Ex8:VFeeds) per the market-data design §4.3;
+  retransmit server are the consuming services' (Exchange8:MD publisher,
+  Exchange8:VFeeds) per the market-data design §4.3;
 - sequencing policy — increments, snapshot-from-seq semantics, and the
   per-stream ring buffers live with the publisher session model;
 - SoupBinTCP session framing — `exchange8::soup`.
@@ -26,12 +26,12 @@ facade `exchange8::mold` (package `exchange8-mold`, workspace member
 
 ```mermaid
 graph TD
-    subgraph MD["Ex8:MD — publisher (L2 session per book)"]
+    subgraph MD["Exchange8:MD — publisher (L2 session per book)"]
         PUBT["publisher task<br/>sequences events · packets tick batches"]
         RTR["retransmit service<br/>(ring buffer server side)"]
     end
 
-    subgraph VF["Ex8:VFeeds — consumer"]
+    subgraph VF["Exchange8:VFeeds — consumer"]
         RXT["receive task<br/>parses · detects gaps · re-requests"]
     end
 
@@ -88,7 +88,7 @@ Its "architecture" is the module map of one file and the two call shapes
 ```mermaid
 sequenceDiagram
     autonumber
-    participant T as Publisher task (Ex8:MD)
+    participant T as Publisher task (Exchange8:MD)
     participant MP as MoldPacket
     participant IT as exchange8::itch
 
@@ -110,7 +110,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant T as Receive task (Ex8:VFeeds)
+    participant T as Receive task (Exchange8:VFeeds)
     participant FN as mold::parse
     participant IT as exchange8::itch
 
@@ -206,14 +206,14 @@ does not apply.
 
 ```mermaid
 graph TD
-    subgraph PUBSIDE["Publish side (Ex8:MD publisher task)"]
+    subgraph PUBSIDE["Publish side (Exchange8:MD publisher task)"]
         EV["ITCH event structs"] -->|"encode"| BYTES["message bytes"]
         BYTES --> ADD["MoldPacket::add_message"]
         ADD -->|"true"| ENC["encode() → datagram"]
         ADD -->|"false: null / no capacity"| SKIP["next packet"]
         ENC --> ALEG["A leg · B leg sockets"]
     end
-    subgraph RXSIDE["Receive side (Ex8:VFeeds)"]
+    subgraph RXSIDE["Receive side (Exchange8:VFeeds)"]
         SOCK["UDP datagrams"] --> PARSE["parse()"]
         PARSE -->|"Ok(ParsedPacket)"| GAP["sequence gap check"]
         PARSE -->|"Err(TooShort / BlockOverrun)"| ALERT["typed error path"]
@@ -285,7 +285,7 @@ flowchart TD
 ```mermaid
 graph LR
     subgraph CONSUMER["consumer process"]
-        PT["publisher task<br/>(Ex8:MD, one per session)"]
+        PT["publisher task<br/>(Exchange8:MD, one per session)"]
         RT["receive task(s)"]
     end
     subgraph LIB["exchange8::mold — no shared state"]
@@ -352,7 +352,7 @@ graph TD
         U1["golden header layout (field-by-field)<br/>first-seq capture · capacity/refusal<br/>heartbeat format · round-trips<br/>truncation taxonomy · retransmit layout"]
     end
     subgraph P2["Layer 2 — integration (consumer binaries)"]
-        U2["publisher + receive-path tests<br/>(Ex8:MD book→packet flow, gap walk)"]
+        U2["publisher + receive-path tests<br/>(Exchange8:MD book→packet flow, gap walk)"]
     end
     subgraph P3["Layer 3 — E2E / platform"]
         U3["feed E2E + replay corpora<br/>(covered by the platform testing strategy, not here)"]

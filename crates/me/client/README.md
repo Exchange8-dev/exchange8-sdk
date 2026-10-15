@@ -4,9 +4,9 @@
 
 `exchange8::me::client` (package `exchange8-me-client`, sources in
 `crates/me/client/src/lib.rs`) is the typed client library for the exchange8
-**direct ME streams** — the point-to-point channels over which Ex8:Gateway,
-Ex8:OMS and other order-flow participants exchange `Envelope<T>` messages with
-Ex8:ME. It provides exactly two functions today, `encode_envelope` and
+**direct ME streams** — the point-to-point channels over which Exchange8:Gateway,
+Exchange8:OMS and other order-flow participants exchange `Envelope<T>` messages with
+Exchange8:ME. It provides exactly two functions today, `encode_envelope` and
 `decode_envelope`, which wrap the service-agnostic framing codec
 (`exchange8::wire`) around the typed `exchange8::contracts::Envelope<T>` shape.
 

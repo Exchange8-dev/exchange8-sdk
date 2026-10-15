@@ -35,8 +35,8 @@ vendor dialects:
 ## 3. Architecture & High-Level Design
 
 The crate is a single module (`src/lib.rs`) of pure functions and owned
-value types. Consumers (venue-feed adapter tasks inside Ex8:VFeeds, the
-Ex8:SOR feed path per its design) hold the sockets, heartbeat supervision,
+value types. Consumers (venue-feed adapter tasks inside Exchange8:VFeeds, the
+Exchange8:SOR feed path per its design) hold the sockets, heartbeat supervision,
 and retransmission loops, and call the codec in-process for every frame.
 The exchange8 namespace facade exposes the crate as `exchange8::stamp`.
 
@@ -47,8 +47,8 @@ graph TD
     end
 
     subgraph CONSUMERS["exchange8 services — own transport tasks"]
-        VF["Ex8:VFeeds adapter task<br/>(stamp_cbbo payload kind)"]
-        SOR["Ex8:SOR — feed codec consumer (per sor design)"]
+        VF["Exchange8:VFeeds adapter task<br/>(stamp_cbbo payload kind)"]
+        SOR["Exchange8:SOR — feed codec consumer (per sor design)"]
     end
 
     subgraph FACADE["exchange8 namespace facade"]

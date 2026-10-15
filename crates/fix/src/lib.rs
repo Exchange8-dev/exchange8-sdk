@@ -15,7 +15,7 @@
 //! of everything before `10=`.
 //!
 //! It owns no transport, no session state, and no persistence: the FIX
-//! session state machine (logon/gap/resend/logout) lives in Ex8:Gateway
+//! session state machine (logon/gap/resend/logout) lives in Exchange8:Gateway
 //! (`services/gateway/src/session.rs`), which consumes this crate through
 //! the workspace facade (`exchange8::fix`).
 //!
@@ -118,7 +118,7 @@ pub enum FixError {
     Checksum { declared: u8, computed: u8 },
 }
 
-/// MsgType (35) values spoken by Ex8:Gateway (the platform wire spec).
+/// MsgType (35) values spoken by Exchange8:Gateway (the platform wire spec).
 ///
 /// Session-administration messages (`0`–`5`, `A`) follow FIX 4.2 session
 /// semantics; application messages cover order entry (`D`/`F`/`G`/`H`),
@@ -177,7 +177,7 @@ pub mod msg_type {
     pub const QUOTE_STATUS_REPORT: &str = "AJ";
 }
 
-/// Standard FIX 4.2 tag constants used by the codec and Ex8:Gateway
+/// Standard FIX 4.2 tag constants used by the codec and Exchange8:Gateway
 /// (the platform wire spec, `FixTags` of the reference platform), plus the
 /// venue-dialect custom tags (6749–9730) and the FIX 4.4 FX quote family
 /// (§3.6). Values are FIX tag numbers ([`i32`]); fields are addressed by

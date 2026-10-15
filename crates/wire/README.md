@@ -23,7 +23,7 @@ facade level (`exchange8::wire`) per architecture principles §2.1.
 ## 2. Motivation
 
 - **One framing for the internal direct-stream tier.** Order flow between
-  Ex8:Gateway, Ex8:ME, Ex8:OMS and Ex8:SOR rides point-to-point framed streams
+  Exchange8:Gateway, Exchange8:ME, Exchange8:OMS and Exchange8:SOR rides point-to-point framed streams
   (master design §5.2, §7.2), not HTTP and not bus-relayed payloads. Without a
   shared codec, every service re-implements — and subtly diverges on — length
   prefixes, truncation handling and error semantics.

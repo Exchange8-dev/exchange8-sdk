@@ -31,12 +31,12 @@
 
 | Concern | Owning component |
 |---|---|
-| Actual order matching and prices | Ex8:ME matching engine service |
-| Order acceptance policy and validation | Ex8:Gateway submission policy |
-| Business record of orders/trades | Ex8:Clearing (event-sourced ledger) |
-| Market data distribution to customers | Ex8:MD |
-| Pre-trade risk checks | Ex8:Risk |
-| FIX/external venue connectivity | Ex8:Gateway + connectivity codecs (fix/itch/mold/soup) |
+| Actual order matching and prices | Exchange8:ME matching engine service |
+| Order acceptance policy and validation | Exchange8:Gateway submission policy |
+| Business record of orders/trades | Exchange8:Clearing (event-sourced ledger) |
+| Market data distribution to customers | Exchange8:MD |
+| Pre-trade risk checks | Exchange8:Risk |
+| FIX/external venue connectivity | Exchange8:Gateway + connectivity codecs (fix/itch/mold/soup) |
 | Live market operation, entitlements, audit | Exchange8 services + Sentin8 platform |
 
 ## 3. Business Capabilities
@@ -121,7 +121,7 @@ driver* of behavior, never a source of record.
 | Reliance on | For |
 |---|---|
 | `exchange8-contracts` / `exchange8-fixed` (libraries) | Order-type vocabulary and exact price arithmetic. |
-| Ex8:Gateway / Ex8:ME / Ex8:Clearing service cores (in tests) | The real behavior being verified — the harness replaces nothing. |
+| Exchange8:Gateway / Exchange8:ME / Exchange8:Clearing service cores (in tests) | The real behavior being verified — the harness replaces nothing. |
 | Per-service test suites (`sql_matrix` etc.) | Tenancy/persistence guarantees the DB-free harness deliberately avoids. |
 | Sentin8 platform (indirect) | Production authorization and event persistence, upstream of everything the harness verifies. |
 

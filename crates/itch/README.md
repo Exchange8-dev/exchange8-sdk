@@ -10,7 +10,7 @@ NASDAQ ITCH 4.1 spec — in both the binary packet forms (14 message types,
 text-mode forms including their width-expansion variants. It is a pure
 library: no sockets, no database, no endpoints, no process of its own.
 Message content policy (which event becomes which message) belongs to the
-Ex8:MD projector; transport framing to `exchange8::mold` / `exchange8::soup`.
+Exchange8:MD projector; transport framing to `exchange8::mold` / `exchange8::soup`.
 
 ## 2. Motivation
 
@@ -36,7 +36,7 @@ the established feed, byte for byte:
 ## 3. Architecture & High-Level Design
 
 The crate is a single module (`src/lib.rs`) of value structs and pure
-encode functions. Ex8:MD's projector constructs structs from engine
+encode functions. Exchange8:MD's projector constructs structs from engine
 events and encodes them; `mold`/`soup` wrap the bytes for transport; the
 length table and word readers support consumers parsing a stream back.
 The `exchange8` namespace facade exposes the crate as `exchange8::itch`.
@@ -44,8 +44,8 @@ The `exchange8` namespace facade exposes the crate as `exchange8::itch`.
 ```mermaid
 graph TD
     subgraph CONSUMERS["exchange8 services"]
-        MD["Ex8:MD projector / book.rs<br/>event → ITCH mapping"]
-        VFRX["Ex8:VFeeds receive paths<br/>(length table + readers)"]
+        MD["Exchange8:MD projector / book.rs<br/>event → ITCH mapping"]
+        VFRX["Exchange8:VFeeds receive paths<br/>(length table + readers)"]
     end
 
     subgraph FACADE["exchange8 namespace facade"]
@@ -178,7 +178,7 @@ No traits, no dyn dispatch — value structs plus module tables.
   consumers that parse them; a formal consumer census decides if/when
   they can go (the binary forms are the primary contract).
 - **Timestamp emission cadence.** Which sessions emit `T`/`M` markers,
-  and when, is publisher policy (Ex8:MD), not codec work — the codec
+  and when, is publisher policy (Exchange8:MD), not codec work — the codec
   models the message only.
 - **Streaming encode helpers.** Writing messages directly into a
   session buffer (avoiding per-message `Vec`s) could shave allocations

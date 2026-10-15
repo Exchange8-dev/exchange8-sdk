@@ -38,12 +38,12 @@
 
 | Concern | Owning unit (business view) |
 |---|---|
-| Session rules (logon procedure, sequence numbers, resends, gaps, disconnects) | Ex8:Gateway order-entry service |
-| Credential checking and session authentication | Sentin8:Auth + Ex8:Gateway |
-| Order validation (symbol resolution, limits, risk pre-checks) | Ex8:Gateway submission pipeline + Ex8:Risk |
-| Matching, executions, and trade lifecycle | Ex8:ME and downstream services |
+| Session rules (logon procedure, sequence numbers, resends, gaps, disconnects) | Exchange8:Gateway order-entry service |
+| Credential checking and session authentication | Sentin8:Auth + Exchange8:Gateway |
+| Order validation (symbol resolution, limits, risk pre-checks) | Exchange8:Gateway submission pipeline + Exchange8:Risk |
+| Matching, executions, and trade lifecycle | Exchange8:ME and downstream services |
 | Price/qty arithmetic and display precision | exchange8::fixed values library |
-| Connectivity for other wire protocols (ITCH feeds, OUCH, stamp) | Their own protocol libraries, consumed by Ex8:Gateway |
+| Connectivity for other wire protocols (ITCH feeds, OUCH, stamp) | Their own protocol libraries, consumed by Exchange8:Gateway |
 
 ## 3. Business Capabilities
 
@@ -81,14 +81,14 @@ elsewhere:
 
 | FIX message (this library's vocabulary) | Business meaning | Business owner |
 |---|---|---|
-| 35=D / F / G / H | Client order intent and lifecycle actions | Ex8:Gateway order pipeline |
-| 35=8 ExecutionReport | Order accepted / filled / cancelled / rejected / replaced | Ex8:ME → Ex8:Gateway reporting |
-| 35=9 / 35=j | Cancel rejected / business rejected | Ex8:Gateway |
-| 35=R / s / aj / AJ | FX RFQ request / quote / accept / terminal state | Ex8:RFQ FX business |
-| 35=A / 0 / 1 / 2 / 3 / 4 / 5 | Session lifecycle (logon, keepalive, resync, logout) | Ex8:Gateway session engine |
+| 35=D / F / G / H | Client order intent and lifecycle actions | Exchange8:Gateway order pipeline |
+| 35=8 ExecutionReport | Order accepted / filled / cancelled / rejected / replaced | Exchange8:ME → Exchange8:Gateway reporting |
+| 35=9 / 35=j | Cancel rejected / business rejected | Exchange8:Gateway |
+| 35=R / s / aj / AJ | FX RFQ request / quote / accept / terminal state | Exchange8:RFQ FX business |
+| 35=A / 0 / 1 / 2 / 3 / 4 / 5 | Session lifecycle (logon, keepalive, resync, logout) | Exchange8:Gateway session engine |
 
 Inbound (consumed): FIX frames arriving from order-entry counterparties;
-the library validates framing and hands structured messages to Ex8:Gateway.
+the library validates framing and hands structured messages to Exchange8:Gateway.
 
 ## 5. Business Rules & Invariants
 
@@ -112,7 +112,7 @@ the library validates framing and hands structured messages to Ex8:Gateway.
 
 ## 6. Target-User Roles & Use Cases
 
-| Persona | What they do with the library (through Ex8:Gateway) |
+| Persona | What they do with the library (through Exchange8:Gateway) |
 |---|---|
 | Buy-side institutional desk | Submits electronic orders and receives execution reports in the industry-standard dialect their OMS already speaks |
 | Vendor / broker-dealer | Connects a multi-client order-entry session, attributing orders to beneficiaries on the wire |
@@ -141,9 +141,9 @@ the library validates framing and hands structured messages to Ex8:Gateway.
 
 | Relies on | For |
 |---|---|
-| Ex8:Gateway | Being the sole transport/session host: sockets, logon rules, sequencing, resend storage, credential checks |
+| Exchange8:Gateway | Being the sole transport/session host: sockets, logon rules, sequencing, resend storage, credential checks |
 | Exchange8:ME (via Gateway) | The lifecycle events that become ExecutionReport messages |
-| Ex8:RFQ / FX business | The quote state machine whose business outcomes the quote messages carry |
+| Exchange8:RFQ / FX business | The quote state machine whose business outcomes the quote messages carry |
 | `exchange8::fixed` (sibling library) | Scaled price/quantity arithmetic *outside* this codec — the FIX layer deliberately stays in string space |
 | `thiserror` (single dependency) | Structured error taxonomy |
 

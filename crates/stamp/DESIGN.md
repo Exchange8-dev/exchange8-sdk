@@ -10,13 +10,13 @@ with `RS 0x1E`-separated fields. It explicitly does **not** own:
 
 - transport and session supervision — SoupBinTCP framing lives in
   `exchange8::soup`, MoldUDP64 in `exchange8::mold`, and the socket,
-  heartbeat, and A/B recovery tasks in the consuming services (Ex8:VFeeds
-  per the venue-feed design; the Ex8:SOR feed path per the SOR design);
+  heartbeat, and A/B recovery tasks in the consuming services (Exchange8:VFeeds
+  per the venue-feed design; the Exchange8:SOR feed path per the SOR design);
 - value semantics — prices, volumes, and quantities stay verbatim UTF-8;
   scale and arithmetic are `exchange8::fixed` and adapter concerns;
 - normalization — bytes-to-`VenueQuoteEvent` translation is the adapter
   layer's job, not the codec's;
-- FIX 4.2 — the order-entry protocol is `exchange8::fix` + Ex8:Gateway.
+- FIX 4.2 — the order-entry protocol is `exchange8::fix` + Exchange8:Gateway.
 
 There is no HTTP surface, no database presence, no event emission, no
 runtime of its own: the crate is a pure function library compiled into the
@@ -32,8 +32,8 @@ graph TD
     end
 
     subgraph CONSUMERS["exchange8 services (in-process codec calls)"]
-        VFT["Ex8:VFeeds adapter task<br/>stamp_cbbo payload kind"]
-        SORT["Ex8:SOR feed path<br/>(per sor design)"]
+        VFT["Exchange8:VFeeds adapter task<br/>stamp_cbbo payload kind"]
+        SORT["Exchange8:SOR feed path<br/>(per sor design)"]
     end
 
     subgraph FACADE["exchange8 namespace facade"]

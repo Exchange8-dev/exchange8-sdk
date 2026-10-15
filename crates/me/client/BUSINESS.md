@@ -32,9 +32,9 @@
 | Concern | Owning component |
 |---|---|
 | Establishing streams, TLS certificates, reconnects | Sentin8:TLS transport + consumer service shells |
-| Granting access to trade (entitlement, limits) | Ex8:Risk + Sentin8:Auth authorization pipeline |
-| Deciding trade validity, matching, prices | Ex8:ME (matching engine service) |
-| Persisting orders/trades for the business record | Ex8:Clearing via Sentin8:Bus (inbox-first mirror) |
+| Granting access to trade (entitlement, limits) | Exchange8:Risk + Sentin8:Auth authorization pipeline |
+| Deciding trade validity, matching, prices | Exchange8:ME (matching engine service) |
+| Persisting orders/trades for the business record | Exchange8:Clearing via Sentin8:Bus (inbox-first mirror) |
 | Defining the meaning of order/trade messages | `exchange8::contracts` (typed event catalog) |
 | Queue backpressure and id-lease blocks | `exchange8::wire` transport primitives |
 
@@ -114,7 +114,7 @@ event-driven bookkeeping happens.
 | `exchange8::contracts` (library) | The typed envelope and all order/trade message definitions. |
 | Sentin8:TLS + Sentin8:Auth (platform) | Authenticated, certificate-bound stream transport. |
 | Consumer service shells (Gateway, OMS, ME) | Stream lifecycle: connect, reconnect, backpressure, recovery policy. |
-| Ex8:Clearing via Sentin8:Bus | Durable business record of everything that flowed on a stream. |
+| Exchange8:Clearing via Sentin8:Bus | Durable business record of everything that flowed on a stream. |
 
 ## 9. Acceptance Criteria
 

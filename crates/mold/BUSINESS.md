@@ -33,10 +33,10 @@
 
 | Concern | Owned by |
 |---|---|
-| Message content inside blocks | `exchange8::itch` (VER2 ITCH codecs) + Ex8:MD event mapping |
-| Multicast sockets, A/B legs, heartbeat intervals | Ex8:MD publisher / Ex8:VFeeds session tasks |
-| Retransmission storage and serving (ring buffer) | Ex8:MD publisher service design |
-| Sequencing policy (increments, snapshots from a seq) | Ex8:MD published-session model |
+| Message content inside blocks | `exchange8::itch` (VER2 ITCH codecs) + Exchange8:MD event mapping |
+| Multicast sockets, A/B legs, heartbeat intervals | Exchange8:MD publisher / Exchange8:VFeeds session tasks |
+| Retransmission storage and serving (ring buffer) | Exchange8:MD publisher service design |
+| Sequencing policy (increments, snapshots from a seq) | Exchange8:MD published-session model |
 | Persistence, identity, audit, event delivery | Sentin8:DB, Sentin8:Auth, Sentin8:Sys, Sentin8:Bus platform planes |
 
 ## 3. Business Capabilities
@@ -56,8 +56,8 @@
 - None. The library emits no events of its own. **Observable effects it
   enables:** the downstream receivers' view of
   depth (`L2` session packets), liveness (heartbeats), and repair
-  (retransmission) — those arrive as events/actions owned by Ex8:MD and
-  Ex8:VFeeds on top of this framing.
+  (retransmission) — those arrive as events/actions owned by Exchange8:MD and
+  Exchange8:VFeeds on top of this framing.
 
 ### Inbound (consumed)
 
@@ -82,8 +82,8 @@
 
 | Persona | What they do with it |
 |---|---|
-| Market-data publisher engineer | Frames the depth stream into multicast packets with correct sequencing in Ex8:MD |
-| Connectivity engineer | Parses received packets and issues retransmission requests in Ex8:VFeeds receive paths |
+| Market-data publisher engineer | Frames the depth stream into multicast packets with correct sequencing in Exchange8:MD |
+| Connectivity engineer | Parses received packets and issues retransmission requests in Exchange8:VFeeds receive paths |
 | QA / replay engineer | Confirms recorded packets round-trip byte-identically and truncated captures fail with documented errors |
 | Platform integrator | Validates session/sequence framing before enabling a downstream consumer |
 
@@ -102,7 +102,7 @@
 - **`exchange8::itch`** — produces/consumes the bytes `mold` packets
   carry; the crates are payload-agnostically decoupled (blocks are
   opaque).
-- **Consuming services (Ex8:MD publisher, Ex8:VFeeds)** — own sockets,
+- **Consuming services (Exchange8:MD publisher, Exchange8:VFeeds)** — own sockets,
   session sequencing, heartbeat timing, A/B leg strategy, and the
   retransmission server; the library cannot send or receive anything.
 - **`thiserror`** — the typed failure surface.

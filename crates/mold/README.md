@@ -8,8 +8,8 @@ message blocks), parses inbound packets back into header + block ranges, and
 formats retransmission requests. It is a pure library — no sockets, no
 database, no endpoints, and no process of its own. Packet framing is
 everything it owns; the session lifecycle, heartbeat intervals, A/B legs,
-and socket I/O belong to the consuming services (Ex8:MD publisher,
-Ex8:VFeeds session tasks).
+and socket I/O belong to the consuming services (Exchange8:MD publisher,
+Exchange8:VFeeds session tasks).
 
 ## 2. Motivation
 
@@ -43,8 +43,8 @@ crate as `exchange8::mold`.
 ```mermaid
 graph TD
     subgraph CONSUMERS["exchange8 services"]
-        MDPUB["Ex8:MD publisher task<br/>L2 session → MoldUDP64 (A + B legs)"]
-        VFRX["Ex8:VFeeds receive path<br/>gap handling · retransmit"]
+        MDPUB["Exchange8:MD publisher task<br/>L2 session → MoldUDP64 (A + B legs)"]
+        VFRX["Exchange8:VFeeds receive path<br/>gap handling · retransmit"]
     end
 
     subgraph FACADE["exchange8 namespace facade"]

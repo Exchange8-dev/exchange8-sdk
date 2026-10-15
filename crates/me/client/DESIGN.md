@@ -51,7 +51,7 @@ graph TD
         FACADE["sdk/rust/exchange8 — pub mod me { pub use exchange8_me_client as client }"]
     end
 
-    ME["exchange8-me (Ex8:ME service — stream peer)"]
+    ME["exchange8-me (Exchange8:ME service — stream peer)"]
 
     GW -- "typed frames" --> TYPED
     OMS -- "typed frames" --> TYPED

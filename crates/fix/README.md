@@ -7,7 +7,7 @@ codec of the exchange8 vertical: it models a FIX message as an ordered
 `(tag, value)` field list, writes complete wire frames, and reads byte
 streams back into validated messages. It is a pure, synchronous, dependency
 -light library (`thiserror` only) with no I/O, no session state, and no
-persistence. Ex8:Gateway is the sole in-workspace consumer; it uses the
+persistence. Exchange8:Gateway is the sole in-workspace consumer; it uses the
 codec as the data plane of its FIX 4.2 order-entry sessions, plus the FIX
 4.4 RFQ quote family constructors for the FX business.
 
@@ -33,7 +33,7 @@ becomes a reconnect-storm or drop-reason incident. A single codec owns:
 The crate is a data plane: stateless value construction plus two directional
 transformations (encode, parse). The session state machine that decides
 *what* to send and *whether* an inbound message is in sequence lives in
-Ex8:Gateway's `session.rs` and consumes this crate through the workspace
+Exchange8:Gateway's `session.rs` and consumes this crate through the workspace
 facade (`exchange8::fix`).
 
 ```mermaid
@@ -47,7 +47,7 @@ graph TD
         FE["FixError — framing failure taxonomy"]
     end
 
-    GW["Ex8:Gateway session engine (session.rs)"]
+    GW["Exchange8:Gateway session engine (session.rs)"]
     RFQ["FX RFQ quote flow (QuoteReq / Quote / aj / AJ constructors)"]
     WIRE["TCP — FIX counterparty"]
 
@@ -85,7 +85,7 @@ graph TD
   BeginString.
 - **Heartbeat bounds** — `DEFT_HEART_BT_INT` (30 s default), `MIN_HEART_BT_INT`
   (10 s lower clamp), `MAX_HEART_BT_INT` (120 s upper clamp); the session
-  shell (Ex8:Gateway) applies the clamps.
+  shell (Exchange8:Gateway) applies the clamps.
 - **`pub mod msg_type`** — MsgType (35) string constants: session admin
   (`0`, `1`, `2`, `3`, `4`, `5`, `A`), order entry (`D`, `F`, `G`, `H`),
   lifecycle reports (`8`, `9`, `j`), and the FIX 4.4 FX RFQ family
@@ -136,7 +136,7 @@ The FIX wire format as implemented:
   CheckSum already present in the field list, eliminating stale-digest
   corruption (a classic failure mode when messages are cached for resend).
 - **No transport, no session state in the library.** Rejected alternative:
-  a full FIX engine crate — Ex8:Gateway already owns sequence/resend/
+  a full FIX engine crate — Exchange8:Gateway already owns sequence/resend/
   logout semantics against its DB-persisted counters; embedding session
   state in a codec would couple it to a transport and block the gateway
   testability (pure `FixSession` over an abstract transport).
@@ -179,7 +179,7 @@ Invariants that are always true:
 ## 7. Unresolved Questions / Future Designs
 
 - FIX 5.0 frames (`FIXT.1.1`) are negotiated at the session layer
-  (Ex8:Gateway `submission.rs`); this codec's frames are always
+  (Exchange8:Gateway `submission.rs`); this codec's frames are always
   `FIX.4.2`-stamped. Whether a multi-BeginString codec belongs in this
   crate is a future design once a 5.0 order-entry consumer exists.
 - Repeating groups (e.g. NoContraBrokers 382 on executions) are stored as

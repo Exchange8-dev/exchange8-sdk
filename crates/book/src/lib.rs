@@ -11,7 +11,7 @@
 //! matching engine deterministic within-level allocation policies. It is a
 //! pure domain library: no I/O, no threads, no persistence — consumers own
 //! the lifecycle and the single-writer schedule. The authoritative consumer
-//! is the matching engine (Ex8:ME); market-data mirrors and the simulation
+//! is the matching engine (Exchange8:ME); market-data mirrors and the simulation
 //! harness consume the same structures so displayed depth and simulation
 //! behavior cannot drift from the matching truth.
 //!

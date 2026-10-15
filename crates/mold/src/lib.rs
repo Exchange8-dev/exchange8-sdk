@@ -12,7 +12,7 @@
 //! next-expected sequence) and the 20-byte retransmission request. It is a
 //! pure library — no sockets, no database, no runtime of its own; session
 //! sequencing, heartbeat timing, and transport belong to the consuming
-//! services (Ex8:MD publisher, Ex8:VFeeds receive path).
+//! services (Exchange8:MD publisher, Exchange8:VFeeds receive path).
 //!
 //! Byte layout (big-endian throughout):
 //!

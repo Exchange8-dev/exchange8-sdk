@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Exchange8 ME client — typed client library for the Ex8:ME direct
+//! Exchange8 ME client — typed client library for the Exchange8:ME direct
 //! streams (order entry + lifecycle + recovery).
 //!
 //! Two functions over one shape: `encode_envelope` / `decode_envelope`

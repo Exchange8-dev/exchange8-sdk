@@ -45,13 +45,13 @@ models, and every service that prices an instrument call it in-process.
 ```mermaid
 graph TD
     subgraph CONSUMERS["exchange8 services — in-process value calls"]
-        ME["Ex8:ME engine<br/>match events, FX scale"]
-        OMS["Ex8:OMS<br/>peg prices, doubled-tick check"]
-        BOOK["Ex8:MD book model"]
-        CL["Ex8:Clearing / Ex8:Settlement<br/>notional + splits"]
-        RISK["Ex8:Risk limit checks"]
-        SORV["Ex8:SOR routing quantities"]
-        VF["Ex8:VFeeds BBO engine"]
+        ME["Exchange8:ME engine<br/>match events, FX scale"]
+        OMS["Exchange8:OMS<br/>peg prices, doubled-tick check"]
+        BOOK["Exchange8:MD book model"]
+        CL["Exchange8:Clearing / Exchange8:Settlement<br/>notional + splits"]
+        RISK["Exchange8:Risk limit checks"]
+        SORV["Exchange8:SOR routing quantities"]
+        VF["Exchange8:VFeeds BBO engine"]
     end
 
     subgraph FACADE["exchange8 namespace facade"]

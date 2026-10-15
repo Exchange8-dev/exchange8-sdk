@@ -17,15 +17,15 @@
 
 | Concern | Owner |
 |---|---|
-| FIX session state machine (logon, heartbeat scheduling, gap detection, ResendRequest serving, PossDup re-delivery, logout) | Ex8:Gateway `services/gateway/src/session.rs` |
-| FIX listener sockets / TCP framing extraction | Ex8:Gateway service shell |
-| Credentials & session authentication (session keys are Sentin8:Auth-issued) | Ex8:Gateway + Sentin8:Auth |
-| Order-field semantic validation (symbol resolution, risk, tick/lot) | Ex8:Gateway submission pipeline + Ex8:Risk |
-| ExecutionReport field selection from ME events | Ex8:Gateway `exec_report.rs` |
+| FIX session state machine (logon, heartbeat scheduling, gap detection, ResendRequest serving, PossDup re-delivery, logout) | Exchange8:Gateway `services/gateway/src/session.rs` |
+| FIX listener sockets / TCP framing extraction | Exchange8:Gateway service shell |
+| Credentials & session authentication (session keys are Sentin8:Auth-issued) | Exchange8:Gateway + Sentin8:Auth |
+| Order-field semantic validation (symbol resolution, risk, tick/lot) | Exchange8:Gateway submission pipeline + Exchange8:Risk |
+| ExecutionReport field selection from ME events | Exchange8:Gateway `exec_report.rs` |
 | Price/quantity scaled-decimal arithmetic | `exchange8::fixed` (values cross as strings only) |
-| FIX 5.0 / FIXT session negotiation (`FixVersion`) | Ex8:Gateway `submission.rs` |
+| FIX 5.0 / FIXT session negotiation (`FixVersion`) | Exchange8:Gateway `submission.rs` |
 | ITCH / OUCH / stamp byte protocols | `exchange8::itch`, `exchange8::ouch` (gateway), `exchange8::stamp` |
-| Persistence of session counters / resend store | Ex8:Gateway tables (`exchange8_fix_session_state`, `exchange8_fix_message`) |
+| Persistence of session counters / resend store | Exchange8:Gateway tables (`exchange8_fix_session_state`, `exchange8_fix_message`) |
 
 ### System context
 
@@ -33,13 +33,13 @@
 graph TD
     subgraph exchange8["Trust boundary: exchange8 vertical workspace"]
         FIX["exchange8::fix (this library)"]
-        GW["Ex8:Gateway service"]
+        GW["Exchange8:Gateway service"]
         CONTRACTS["exchange8::contracts (order/event model)"]
-        RFQC["Ex8:RFQ engine (FX RFQ flow)"]
+        RFQC["Exchange8:RFQ engine (FX RFQ flow)"]
     end
 
     CP["FIX counterparty (client order-entry terminal)"]
-    ME["Ex8:ME"]
+    ME["Exchange8:ME"]
 
     CP -->|"TCP / FIX 4.2 frames"| GW
     GW -->|"frames"| CP
@@ -50,7 +50,7 @@ graph TD
 ```
 
 Container-level note: as a library, `exchange8::fix` runs **inside**
-Ex8:Gateway's process — there is no separate deployment, database, or
+Exchange8:Gateway's process — there is no separate deployment, database, or
 network surface. The container diagram is therefore the process-internal
 component view in §2.
 
@@ -189,7 +189,7 @@ inventory:
 
 Consumers reach these through the workspace facade: `use
 exchange8::fix::{FixMessage, msg_type, tag, …}` (`sdk/rust/exchange8`
-re-exports `exchange8_fix as fix`); Ex8:Gateway declares the
+re-exports `exchange8_fix as fix`); Exchange8:Gateway declares the
 `exchange8-fix` workspace dependency directly.
 
 ## 5. Cross-Cutting Concerns
@@ -340,12 +340,12 @@ graph LR
   unconditional, so a corrupted frame can never be decoded and processed.
 - No permissive BeginString acceptance: parse accepts exactly
   `FIX.4.2`; version negotiation for other dialects is the session layer's
-  explicit decision (Ex8:Gateway `FixVersion`), not a codec default.
+  explicit decision (Exchange8:Gateway `FixVersion`), not a codec default.
 
 ## 9. Testing Strategy
 
 Ownership: this library's correctness is pinned by its own unit tests
-(8 in-crate tests + 17 doctests) and exercised end-to-end by Ex8:Gateway's
+(8 in-crate tests + 17 doctests) and exercised end-to-end by Exchange8:Gateway's
 session tests (logon/gap/resend flows) and by the workspace `sim-harness`
 test flows. The codec deliberately does not re-test semantic order
 validation (gateway submission pipeline) or session sequencing (gateway

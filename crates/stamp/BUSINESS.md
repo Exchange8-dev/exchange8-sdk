@@ -35,11 +35,11 @@
 
 | Concern | Owned by |
 |---|---|
-| Transport/session (SoupBinTCP logins, heartbeats, sequenced data) | `exchange8::soup`, Ex8:VFeeds session tasks |
-| Multicast packaging and gap recovery | `exchange8::mold` + Ex8:VFeeds A/B recovery |
-| Quote normalization (bytes → internal quote events, price scaling) | Ex8:VFeeds / Ex8:SOR adapter layers |
-| Order routing decisions | Ex8:SOR |
-| FIX 4.2 order-entry encoding | `exchange8::fix`, Ex8:Gateway |
+| Transport/session (SoupBinTCP logins, heartbeats, sequenced data) | `exchange8::soup`, Exchange8:VFeeds session tasks |
+| Multicast packaging and gap recovery | `exchange8::mold` + Exchange8:VFeeds A/B recovery |
+| Quote normalization (bytes → internal quote events, price scaling) | Exchange8:VFeeds / Exchange8:SOR adapter layers |
+| Order routing decisions | Exchange8:SOR |
+| FIX 4.2 order-entry encoding | `exchange8::fix`, Exchange8:Gateway |
 | Persistence, identity, audit, event delivery | Sentin8:DB, Sentin8:Auth, Sentin8:Sys, Sentin8:Bus platform planes |
 
 ## 3. Business Capabilities
@@ -87,8 +87,8 @@
 
 | Persona | What they do with it |
 |---|---|
-| Market-data adapter engineer | Decodes STAMP CBBO/quote frames inside Ex8:VFeeds adapters; encodes test fixtures |
-| Trading-connectivity engineer | Builds router-side consumers (Ex8:SOR) that read consolidated quotes and author order-class messages in tests |
+| Market-data adapter engineer | Decodes STAMP CBBO/quote frames inside Exchange8:VFeeds adapters; encodes test fixtures |
+| Trading-connectivity engineer | Builds router-side consumers (Exchange8:SOR) that read consolidated quotes and author order-class messages in tests |
 | QA / replay engineer | Verifies recorded venue captures decode to identical bytes and that malformed frames produce the documented error |
 | Platform integrator | Confirms venue compatibility against the pinned tag and business-class tables before enabling a feed |
 
@@ -106,7 +106,7 @@
 
 - **The venue (TSX/TSXV)** — the protocol authority: tag numbering, class
   codes, and framing grammar are the venue's wire contract.
-- **Consuming services (Ex8:VFeeds, Ex8:SOR)** — own transport, session
+- **Consuming services (Exchange8:VFeeds, Exchange8:SOR)** — own transport, session
   supervision, and the translation of decoded fields into business events;
   the library cannot emit anything business-shaped by itself.
 - **Adjacent codec crates** — `exchange8::soup` and `exchange8::mold` frame

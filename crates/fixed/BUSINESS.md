@@ -36,11 +36,11 @@
 
 | Concern | Owned by |
 |---|---|
-| Matching decisions and book state | Ex8:ME |
-| Order lifecycle and peg rules | Ex8:OMS |
-| Limit / exposure policy over values | Ex8:Risk |
-| Venue quote interpretation | Ex8:VFeeds / Ex8:MD adapter layers |
-| FIX order-entry string formatting | `exchange8::fix`, Ex8:Gateway |
+| Matching decisions and book state | Exchange8:ME |
+| Order lifecycle and peg rules | Exchange8:OMS |
+| Limit / exposure policy over values | Exchange8:Risk |
+| Venue quote interpretation | Exchange8:VFeeds / Exchange8:MD adapter layers |
+| FIX order-entry string formatting | `exchange8::fix`, Exchange8:Gateway |
 | Display formatting and localization | Consumer applications |
 | Persistence, identity, audit, event delivery | Sentin8:DB, Sentin8:Auth, Sentin8:Sys, Sentin8:Bus platform planes |
 
@@ -62,7 +62,7 @@
 - None. The library is a pure function library: it emits no events, writes
   no journal, and communicates nothing. The events of the marketplace —
   executions, order updates, limit alerts — belong to the services that
-  use these values (Ex8:ME, Ex8:OMS, Ex8:Risk, and their peers).
+  use these values (Exchange8:ME, Exchange8:OMS, Exchange8:Risk, and their peers).
 
 ### Inbound (consumed)
 
@@ -108,8 +108,8 @@
 
 ## 8. Dependencies & Reliance on Other Services
 
-- **Owning consumers (Ex8:ME, Ex8:OMS, Ex8:Risk, Ex8:Clearing,
-  Ex8:Settlement, Ex8:SOR, Ex8:MD, Ex8:VFeeds)** — define the business
+- **Owning consumers (Exchange8:ME, Exchange8:OMS, Exchange8:Risk, Exchange8:Clearing,
+  Exchange8:Settlement, Exchange8:SOR, Exchange8:MD, Exchange8:VFeeds)** — define the business
   rules that consume values; the library defines only the number system.
 - **`serde`** — boundary serialization of value pairs across service
   contracts.

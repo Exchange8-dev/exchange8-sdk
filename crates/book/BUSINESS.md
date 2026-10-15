@@ -27,13 +27,13 @@ matching engine and, through it, to every exchange participant.
 
 | Capability | Description | Consumed by |
 |---|---|---|
-| Two-sided book keeping | Holds all resting bids and asks per instrument, ordered best-price first, arrival-correct within each price | Ex8:ME |
-| Display-depth separation | Visible and hidden orders form distinct levels; displayed depth reflects displayable liquidity only | Ex8:ME, Ex8:MD mirrors |
-| Best-price queries | Instant answers to "what is the best (displayable) bid/ask" | Ex8:ME (post-only, crossing), mirrors |
-| Depth volume queries | Cumulative volume up to a price limit — the fill-or-kill feasibility question | Ex8:ME (FOK/IOC decisions) |
-| Order lifecycle mutations | Resting, in-place partial fills, cancels, full consumption, priority re-entry | Ex8:ME |
-| Per-contract allocation | FIFO (equities), round-lot pro-rata (commodity futures), pro-rata with FIFO remainder (hybrid products) — all deterministic integer-share decisions | Ex8:ME (per contract master) |
-| Iceberg slice lifecycle | Displayed-quantity reload and time-priority reset bookkeeping per iceberg slice | Ex8:ME |
+| Two-sided book keeping | Holds all resting bids and asks per instrument, ordered best-price first, arrival-correct within each price | Exchange8:ME |
+| Display-depth separation | Visible and hidden orders form distinct levels; displayed depth reflects displayable liquidity only | Exchange8:ME, Exchange8:MD mirrors |
+| Best-price queries | Instant answers to "what is the best (displayable) bid/ask" | Exchange8:ME (post-only, crossing), mirrors |
+| Depth volume queries | Cumulative volume up to a price limit — the fill-or-kill feasibility question | Exchange8:ME (FOK/IOC decisions) |
+| Order lifecycle mutations | Resting, in-place partial fills, cancels, full consumption, priority re-entry | Exchange8:ME |
+| Per-contract allocation | FIFO (equities), round-lot pro-rata (commodity futures), pro-rata with FIFO remainder (hybrid products) — all deterministic integer-share decisions | Exchange8:ME (per contract master) |
+| Iceberg slice lifecycle | Displayed-quantity reload and time-priority reset bookkeeping per iceberg slice | Exchange8:ME |
 | Serializability | Every book state can be serialized for mirrors/replay reconstruction | journal recovery, mirrors |
 | Simulation parity | Deterministic behavior lets simulation and production share one book implementation | sim-harness, E2E suites |
 
@@ -41,13 +41,13 @@ matching engine and, through it, to every exchange participant.
 
 | Concern | Owning unit |
 |---|---|
-| Deciding *when* an order matches (post-only, price protection, STP, TIF policies) | Ex8:ME |
-| Trading halts, quotation-only status, auction mechanics | Ex8:ME + Ex8:RefData |
-| Trade ids, execution envelopes, drop-copy and audit events | Ex8:ME / Ex8:Clearing / platform audit plane |
-| Contract metadata (which allocation method applies per instrument) | Ex8:RefData contract master |
-| Order admission (risk limits, self-trade policy application) | Ex8:Risk / Ex8:OMS / Ex8:ME |
-| Market-data publishing and feed distribution | Ex8:MD |
-| Persistence, journaling, and durability | Ex8:ME + platform storage |
+| Deciding *when* an order matches (post-only, price protection, STP, TIF policies) | Exchange8:ME |
+| Trading halts, quotation-only status, auction mechanics | Exchange8:ME + Exchange8:RefData |
+| Trade ids, execution envelopes, drop-copy and audit events | Exchange8:ME / Exchange8:Clearing / platform audit plane |
+| Contract metadata (which allocation method applies per instrument) | Exchange8:RefData contract master |
+| Order admission (risk limits, self-trade policy application) | Exchange8:Risk / Exchange8:OMS / Exchange8:ME |
+| Market-data publishing and feed distribution | Exchange8:MD |
+| Persistence, journaling, and durability | Exchange8:ME + platform storage |
 
 ## 3. Business Capabilities
 
@@ -155,8 +155,8 @@ each book operation below enables its corresponding observable effect:
 |---|---|
 | `exchange8::fixed` | Price/quantity value types and their scale conventions |
 | `exchange8::contracts` | Order-side and visibility domain enums |
-| Ex8:RefData contract master | Which allocation method (and lot structure) applies to each instrument |
-| Ex8:ME | The single-writer execution of book operations, matching decisions, iceberg reloads, and STP application |
+| Exchange8:RefData contract master | Which allocation method (and lot structure) applies to each instrument |
+| Exchange8:ME | The single-writer execution of book operations, matching decisions, iceberg reloads, and STP application |
 | Platform sequence plane | Trade-id sequencing and audit attribution at the engine boundary |
 
 The library itself depends on nothing external beyond those value types and

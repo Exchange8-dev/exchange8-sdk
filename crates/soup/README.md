@@ -11,7 +11,7 @@ and supplies the incremental length-prefix logic a stream reader needs
 (`next_frame_len` / `split_frame`). It is a pure library — no sockets,
 no database, no endpoints, no process of its own. Connection lifecycle,
 heartbeat timing, and byte-stream plumbing belong to the consuming
-services (Ex8:MD publisher, Ex8:VFeeds sessions).
+services (Exchange8:MD publisher, Exchange8:VFeeds sessions).
 
 ## 2. Motivation
 
@@ -46,8 +46,8 @@ crate as `exchange8::soup`.
 ```mermaid
 graph TD
     subgraph CONSUMERS["exchange8 services"]
-        MDSESS["Ex8:MD Soup session<br/>login · replay-from-seq · live"]
-        VFSESS["Ex8:VFeeds session tasks<br/>heartbeat supervision · logout"]
+        MDSESS["Exchange8:MD Soup session<br/>login · replay-from-seq · live"]
+        VFSESS["Exchange8:VFeeds session tasks<br/>heartbeat supervision · logout"]
     end
 
     subgraph FACADE["exchange8 namespace facade"]

@@ -7,10 +7,10 @@
 rescaling, checked notional arithmetic, board/odd-lot decomposition, and the
 tick-grid validation rules. It explicitly does **not** own:
 
-- book state and matching — Ex8:ME (`crates/book` models), not a value crate;
-- order lifecycle and pegging rules — Ex8:OMS (which *calls* the doubled-tick
+- book state and matching — Exchange8:ME (`crates/book` models), not a value crate;
+- order lifecycle and pegging rules — Exchange8:OMS (which *calls* the doubled-tick
   check);
-- limit policy — Ex8:Risk consumes the checked values;
+- limit policy — Exchange8:Risk consumes the checked values;
 - protocol string forms — FIX formatting is `exchange8::fix` (gateway
   boundary), venue text decoding is `exchange8::itch` (both convert at their
   edge);
@@ -26,13 +26,13 @@ facade `exchange8::fixed` (package `exchange8-fixed`, workspace member
 ```mermaid
 graph TD
     subgraph CONSUMERS["exchange8 services (in-process value calls)"]
-        ME["Ex8:ME — matching, FX conversions"]
-        OMS["Ex8:OMS — pegs · doubled-tick"]
-        RISK["Ex8:Risk — limit checks"]
-        CLR["Ex8:Clearing / Ex8:Settlement<br/>notional · lot splits"]
-        MDB["Ex8:MD book · price bands"]
-        VF["Ex8:VFeeds BBO engine"]
-        SOR["Ex8:SOR — routing qty"]
+        ME["Exchange8:ME — matching, FX conversions"]
+        OMS["Exchange8:OMS — pegs · doubled-tick"]
+        RISK["Exchange8:Risk — limit checks"]
+        CLR["Exchange8:Clearing / Exchange8:Settlement<br/>notional · lot splits"]
+        MDB["Exchange8:MD book · price bands"]
+        VF["Exchange8:VFeeds BBO engine"]
+        SOR["Exchange8:SOR — routing qty"]
     end
 
     subgraph FACADE["exchange8 namespace facade"]
@@ -236,7 +236,7 @@ flowchart TD
 
 ```mermaid
 graph LR
-    subgraph CONSUMER["consumer process (e.g. Ex8:ME engine shard)"]
+    subgraph CONSUMER["consumer process (e.g. Exchange8:ME engine shard)"]
         T["matching/shard task<br/>single-threaded per instrument"]
         C["value calls: parse · rescale · checked_*"]
     end
@@ -257,7 +257,7 @@ graph LR
 - **No allocation.** No `String` output, no `Vec` on the hot path;
   parse allocates nothing (string-slice walking only).
 - **Task topology** is entirely the consumer's (per-shard single-threaded
-  engines in Ex8:ME; tokio tasks in services).
+  engines in Exchange8:ME; tokio tasks in services).
 
 ## 8. Invariants, Insecure-Defaults Rejected, Unsafe Rationale
 
