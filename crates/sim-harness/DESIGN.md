@@ -142,7 +142,7 @@ sequenceDiagram
     ME-->>T: MeEvent::Executed ×2 (one trade_id, Added + Removed sides) | MeEvent::Rejected on halted/empty-book rules
     T->>CL: on_executed(execution) per side | on_rejected(order)
     CL-->>T: per-side trade rows (2 per cross) | NewPending → Cancelled order-row pair
-    Note over T,CL: DB-free: projectors produce in-memory rows; RLS persistence lives in per-service sql_matrix suites
+    Note over T,CL: DB-free: projectors produce in-memory rows, RLS persistence lives in per-service sql_matrix suites
 ```
 
 There is no background lifecycle: parse once, apply, assert.

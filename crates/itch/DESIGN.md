@@ -147,8 +147,8 @@ erDiagram
     "ITCH struct" ||--|| "wire message" : "encode (exact bytes)"
     ITCH_STRUCT {
         u8 fields "single letters + pads"
-        u16 "BE (instrument, broker)"
-        u32 "BE (order, shares, price, match)"
+        u16 attribute "BE (instrument, broker)"
+        u32 attribute "BE (order, shares, price, match)"
     }
     TEXT_ENCODER ||--o{ TEXT_LEN_CONST : "narrow / wide"
     MSG_TYPE_TABLE ||--|| MSG_LEN_TABLE : "message_len(letter)"

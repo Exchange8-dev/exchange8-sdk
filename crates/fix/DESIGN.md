@@ -256,7 +256,7 @@ policy. The full taxonomy and its meaning for the session loop:
 flowchart TD
     A["bytes in buffer"] --> B{"len ≥ 16 or starts with 8= ?"}
     B -->|"short, not 8=..."| E1["Err(TooShort) — reject"]
-    B -->|"short, starts with 8=|" N1["Ok(None) — buffer more"]
+    B -->|"short, starts with 8="| N1["Ok(None) — buffer more"]
     B -->|"long enough"| C{"trailer 10=nnn| present?"}
     C -->|"no"| N1
     C -->|"yes"| D["split fields on SOH"]

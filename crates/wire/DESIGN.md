@@ -127,7 +127,7 @@ sequenceDiagram
     SVC->>PLAT: lease next block (batch UPDATE ... RETURNING at the platform surface)
     PLAT-->>SVC: disjoint block [next', next' + BATCH)
     SVC->>LS: re-arm hand-out (fresh block)
-    Note over SVC,PLAT: facility unreachable → fail-stop for new ids; the caller contract keeps in-flight work running
+    Note over SVC,PLAT: facility unreachable → fail-stop for new ids, the caller contract keeps in-flight work running
 ```
 
 The framing layers have no lifecycle at all — `encode`/`decode` are pure

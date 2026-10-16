@@ -93,17 +93,17 @@ sequenceDiagram
     participant PL as PriceLevel deque
 
     E->>SB: is_crossed / crosses check
-    loop while remainder &gt; 0 and walk not exhausted
+    loop while remainder &gt, 0 and walk not exhausted
         E->>SB: iter_levels() (best-first iteration, no rescan)<br/>→ first crossing level
-        SB-->>E: Option&lt;&amp;PriceLevel&gt;
+        SB-->>E: Option&lt,&amp,PriceLevel&gt,
         alt level crosses
             E->>PL: orders.front() (oldest resting order)
-            PL-->>E: Option&lt;&amp;RestingOrder&gt;
+            PL-->>E: Option&lt,&amp,RestingOrder&gt,
             E->>E: STP check → execute at passive price
             E->>SB: reduce(order_id, fill)
             alt remaining == 0
                 E->>SB: remove(order_id) (self-prunes level)
-            else iceberg and visible == 0 and remaining &gt; 0
+            else iceberg and visible == 0 and remaining &gt, 0
                 E->>SB: remove(order_id)
                 E->>E: reload visible = min(max_floor, remaining),<br/>sub-order count += 1
                 E->>SB: insert(order) (tail — time priority resets)
@@ -125,9 +125,9 @@ sequenceDiagram
     participant AL as alloc::allocate
     E->>E: resolve contract's AllocationMethod<br/>(snapshot of contract master)
     E->>SB: iter_levels() → find crossing level
-    E->>SB: snapshot level.orders as Vec&lt;RestingQty&gt;<br/>(order_id, remaining, seq; pass-filtered)
+    E->>SB: snapshot level.orders as Vec&lt,RestingQty&gt,<br/>(order_id, remaining, seq, pass-filtered)
     E->>AL: allocate(method, snapshot, incoming_qty)
-    AL-->>E: Vec&lt;Fill&gt; (conserving, capped, arrival-ordered)
+    AL-->>E: Vec&lt,Fill&gt, (conserving, capped, arrival-ordered)
     alt fills empty
         E->>E: level drained under pass filter → next level
     else fills non-empty
@@ -137,7 +137,7 @@ sequenceDiagram
             E->>SB: remove on full drain / iceberg reload path
         end
     end
-    Note over E,AL: Σ fills = min(incoming, level volume); fill ≤ resting per order
+    Note over E,AL: Σ fills = min(incoming, level volume), fill ≤ resting per order
 ```
 
 **Iceberg-tail reload path** (within either discipline above): a resting
@@ -249,10 +249,10 @@ snapshot/apply split is the boundary that keeps allocation pure.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Resting : SideBook::insert<br/>(seq minted, tail of level)
+    [*] --> Resting : SideBook.insert<br/>(seq minted, tail of level)
 
-    Resting --> Resting : reduce(fill) (remaining &gt; 0)
-    Resting --> Reloaded : iceberg: visible == 0, remaining &gt; 0
+    Resting --> Resting : reduce(fill) (remaining &gt, 0)
+    Resting --> Reloaded : iceberg: visible == 0, remaining &gt, 0
     Reloaded --> RestingTail : remove + insert at tail<br/>(sub-order count += 1,<br/>time priority resets)
     RestingTail --> Resting : (same order, new seq)
 
