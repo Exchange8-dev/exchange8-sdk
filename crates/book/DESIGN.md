@@ -1,4 +1,4 @@
-# DESIGN.md: exchange8::book — Detailed Design Document
+# exchange8::book — Detailed Design Document
 
 ## 1. Scope & Context
 

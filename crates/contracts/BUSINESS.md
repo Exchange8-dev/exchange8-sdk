@@ -1,4 +1,4 @@
-# BUSINESS.md: exchange8::contracts — Business Requirements & Functionality
+# exchange8::contracts — Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::contracts library **does for the business**. For architecture

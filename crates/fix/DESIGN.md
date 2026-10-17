@@ -1,4 +1,4 @@
-# DESIGN.md: exchange8::fix — Detailed Design Document
+# exchange8::fix — Detailed Design Document
 
 ## 1. Scope & Context
 

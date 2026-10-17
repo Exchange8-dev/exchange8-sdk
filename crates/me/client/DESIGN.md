@@ -1,4 +1,4 @@
-# DESIGN.md: exchange8::me::client — Detailed Design Document
+# exchange8::me::client — Detailed Design Document
 
 > Deep, implementation-complete design for the `exchange8-me-client` library
 > crate (facade `exchange8::me::client`, sources `crates/me/client/src/lib.rs`).

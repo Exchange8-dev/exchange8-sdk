@@ -1,4 +1,4 @@
-# DESIGN.md: exchange8::stamp — Detailed Design Document
+# exchange8::stamp — Detailed Design Document
 
 ## 1. Scope & Context
 

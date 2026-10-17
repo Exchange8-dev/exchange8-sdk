@@ -1,4 +1,4 @@
-# BUSINESS.md: exchange8::fix — Business Requirements & Functionality
+# exchange8::fix — Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::fix library **does for the business**. For architecture

@@ -1,4 +1,4 @@
-# BUSINESS.md: exchange8::sim-harness — Business Requirements & Functionality
+# exchange8::sim-harness — Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::sim-harness library **does for the business**. For architecture

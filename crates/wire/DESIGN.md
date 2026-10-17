@@ -1,4 +1,4 @@
-# DESIGN.md: exchange8::wire — Detailed Design Document
+# exchange8::wire — Detailed Design Document
 
 > Deep, implementation-complete design for the `exchange8-wire` library crate
 > (facade `exchange8::wire`, sources `crates/wire/src/lib.rs`). Companion

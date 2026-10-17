@@ -1,4 +1,4 @@
-# BUSINESS.md: exchange8::mold — Business Requirements & Functionality
+# exchange8::mold — Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::mold library **does for the business**. For architecture

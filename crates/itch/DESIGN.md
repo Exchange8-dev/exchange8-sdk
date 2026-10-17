@@ -1,4 +1,4 @@
-# DESIGN.md: exchange8::itch — Detailed Design Document
+# exchange8::itch — Detailed Design Document
 
 ## 1. Scope & Context
 

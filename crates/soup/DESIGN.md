@@ -1,4 +1,4 @@
-# DESIGN.md: exchange8::soup — Detailed Design Document
+# exchange8::soup — Detailed Design Document
 
 ## 1. Scope & Context
 

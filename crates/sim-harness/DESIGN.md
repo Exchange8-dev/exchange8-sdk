@@ -1,4 +1,4 @@
-# DESIGN.md: exchange8::sim-harness — Detailed Design Document
+# exchange8::sim-harness — Detailed Design Document
 
 > Deep, implementation-complete design for the `exchange8-sim-harness`
 > library crate (sources `crates/sim-harness/src/lib.rs`, integration test

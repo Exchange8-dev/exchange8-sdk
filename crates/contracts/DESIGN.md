@@ -1,4 +1,4 @@
-# DESIGN.md: exchange8::contracts — Detailed Design Document
+# exchange8::contracts — Detailed Design Document
 
 > Audience: maintainers and reviewers modifying the crate. This is a
 > **library**: it has no HTTP surface, no database, no deployment, and no

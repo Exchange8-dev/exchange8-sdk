@@ -1,4 +1,4 @@
-# BUSINESS.md: exchange8::wire — Business Requirements & Functionality
+# exchange8::wire — Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::wire library **does for the business**. For architecture
