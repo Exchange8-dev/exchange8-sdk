@@ -88,7 +88,7 @@ dotenvy = "0.15"
 prometheus = "0.13"
 opentelemetry = "0.27"
 validator = { version = "0.18", features = ["derive"] }
-sentin8 = { git = "https://github.com/Sentin8/sentin8-sdk", tag = "sdk-v0.6.5" }
+sentin8 = { git = "https://github.com/Sentin8/sentin8-sdk", tag = "sdk-v0.6.6" }
 utoipa = { version = "5", features = ["chrono", "uuid"] }
 exchange8-sim-harness = { path = "crates/sim-harness" }
 arc-swap = "1"
