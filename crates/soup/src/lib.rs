@@ -3,17 +3,17 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! SoupBinTCP session-wire codec for exchange8 market-data sessions —
+//! SoupBinTCP session-wire codec for exchange8 market-data sessions -
 //! the login handshake, control frames, sequenced-data wrapping, and the
 //! stream read support (`next_frame_len` / `split_frame`), exactly per
 //! `design/behavior-catalog/wire-formats.json`:
 //!
 //! - Every message: `[2-byte length BE][1 type byte][payload]`, the
 //!   length value counting the type byte (2-byte prefix excluded).
-//! - Login Request (`L`): 47-byte payload — user[6]@3, pwd[10]@9,
+//! - Login Request (`L`): 47-byte payload - user[6]@3, pwd[10]@9,
 //!   session[10]@19, seq[20 digits]@29 (frame offsets).
-//! - Login Accept (`A`): 31-byte payload — session[10], seq[20].
-//! - Login Reject (`J`): 2-byte payload — reason (`A` / `S`).
+//! - Login Accept (`A`): 31-byte payload - session[10], seq[20].
+//! - Login Reject (`J`): 2-byte payload - reason (`A` / `S`).
 //! - Sequenced Data (`S`): `S` + ITCH payload.
 //! - Heartbeats: server `H` (1-byte payload), client `R`;
 //!   Unsequenced Data (`U`) and Logout (`O`) carry no payload.
@@ -44,7 +44,7 @@ use thiserror::Error;
 /// framing in this crate neither interprets nor emits it.
 pub const LINE_FEED: u8 = 0x0A;
 
-/// SoupBinTCP message type characters — the single letter following
+/// SoupBinTCP message type characters - the single letter following
 /// the 2-byte length prefix in every frame.
 ///
 /// Each constant is the ASCII value of one protocol letter; see
@@ -94,7 +94,7 @@ pub const LOGIN_REJECT_LEN: usize = 2;
 /// logout (`O`) frames, whose length value is always 1.
 pub const SERVER_HEARTBEAT_FRAME: usize = 3;
 
-/// Typed failures of the fallible parse/split calls — the crate's
+/// Typed failures of the fallible parse/split calls - the crate's
 /// whole error surface.
 ///
 /// The frame-constructor functions are total and never return it.
@@ -139,7 +139,7 @@ impl LoginRequest {
     /// Decode the payload (the 47 bytes after the 2-byte length prefix).
     ///
     /// Payload layout (type-relative): type@0, user@1..7, pwd@7..17,
-    /// session@17..27, seq(20 digits)@27..47 — frame-relative these are
+    /// session@17..27, seq(20 digits)@27..47 - frame-relative these are
     /// user@3, pwd@9, session@19, seq@29 (the `wire-formats.json` anchors).
     ///
     /// Fixed-width fields have trailing blanks trimmed; sequence text is
@@ -147,7 +147,7 @@ impl LoginRequest {
     ///
     /// # Errors
     /// Returns [`SoupError::BadLoginLen`] when `payload.len()` differs
-    /// from [`LOGIN_REQUEST_LEN`] — the peer is then not a Soup endpoint
+    /// from [`LOGIN_REQUEST_LEN`] - the peer is then not a Soup endpoint
     /// or the frame is corrupt.
     ///
     /// # Examples
@@ -183,7 +183,7 @@ impl LoginRequest {
     }
 
     /// Encode the full frame `[len u16 BE][L][user][pwd][session][seq20]`
-    /// — exactly `2 + [LOGIN_REQUEST_LEN]` = 49 bytes.
+    /// - exactly `2 + [LOGIN_REQUEST_LEN]` = 49 bytes.
     ///
     /// Fixed-width fields are blank-padded (over-length inputs truncate
     /// to width); the sequence becomes 20 right-aligned decimal
@@ -229,7 +229,7 @@ pub struct LoginAccept {
 }
 
 impl LoginAccept {
-    /// Build the full frame — `[len u16 BE][A][session 10][seq 20]`,
+    /// Build the full frame - `[len u16 BE][A][session 10][seq 20]`,
     /// exactly `2 + [LOGIN_ACCEPT_LEN]` = 33 bytes.
     ///
     /// # Examples
@@ -279,7 +279,7 @@ impl LoginAccept {
     }
 }
 
-/// Build the login-rejected frame — `[len u16 BE][J][reason]`, exactly
+/// Build the login-rejected frame - `[len u16 BE][J][reason]`, exactly
 /// 4 bytes.
 ///
 /// `reason` passes through verbatim; the protocol letters live in
@@ -329,7 +329,7 @@ pub fn logout() -> Vec<u8> {
     out
 }
 
-/// Wrap a market-data payload into a Sequenced Data frame —
+/// Wrap a market-data payload into a Sequenced Data frame -
 /// `[1+len u16 BE][S][payload]`, `2 + 1 + payload.len()` bytes.
 ///
 /// The payload is carried byte-opaque; ITCH decoding belongs to
@@ -355,7 +355,7 @@ pub fn sequenced_data(itch_payload: &[u8]) -> Vec<u8> {
 /// Total frame length announced by a buffer's 2-byte big-endian
 /// length prefix, if decodable.
 ///
-/// Returns `None` while fewer than 2 bytes are available — the normal
+/// Returns `None` while fewer than 2 bytes are available - the normal
 /// "more bytes will arrive" signal for an accumulating reader, never an
 /// error. The value counts prefix + type byte + payload.
 ///
@@ -425,7 +425,7 @@ fn push_field(out: &mut Vec<u8>, value: &str, width: usize) {
 mod tests {
     use super::*;
 
-    /// Golden: Login Request layout — anchored to `wire-formats.json`
+    /// Golden: Login Request layout - anchored to `wire-formats.json`
     /// `soupbin_login`: total 47 payload, user@3, pwd@9, session@19, seq@29.
     #[test]
     fn login_request_golden() {

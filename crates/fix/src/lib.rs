@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Exchange8 minimal FIX 4.2 tagvalue codec — the wire-format data plane of
+//! Exchange8 minimal FIX 4.2 tagvalue codec - the wire-format data plane of
 //! the FIX order-entry path.
 //!
 //! The crate is a pure, synchronous library: it represents a FIX message as
@@ -42,7 +42,7 @@
 //!
 //! - encode: `BodyLength = body.len() + 7` (the trailer `10=xxx` + SOH is
 //!   7 bytes); the `9=` field is inserted right after `8=`.
-//! - parse: `computed = frame.len() - body_start` — BodyLength INCLUDES the
+//! - parse: `computed = frame.len() - body_start` - BodyLength INCLUDES the
 //!   `10=` field; checksum = sum(frame[..ck_start]) % 256 (everything
 //!   before `10=`).
 //!
@@ -57,7 +57,7 @@
 
 use thiserror::Error;
 
-/// FIX field separator (start-of-heading) — the sole field delimiter on the
+/// FIX field separator (start-of-heading) - the sole field delimiter on the
 /// wire; every `tag=value` pair on the wire ends with this byte.
 pub const SOH: u8 = 0x01;
 
@@ -83,7 +83,7 @@ pub const MAX_HEART_BT_INT: u32 = 120;
 /// yields an `Err` and nothing is delivered to the caller, so framing
 /// defects (corrupted length, corrupted checksum) can never be decoded into
 /// a half-valid [`FixMessage`]. Truncated-but-recognizable frames are not
-/// errors at all — [`FixMessage::parse`] reports them as `Ok(None)` so the
+/// errors at all - [`FixMessage::parse`] reports them as `Ok(None)` so the
 /// caller keeps buffering.
 ///
 /// # Examples
@@ -101,7 +101,7 @@ pub enum FixError {
     /// not even start with `8=`, so it cannot be a truncated FIX frame.
     #[error("frame too short")]
     TooShort,
-    /// The first field is not `8=FIX.4.2` — BeginString missing or wrong
+    /// The first field is not `8=FIX.4.2` - BeginString missing or wrong
     /// protocol version.
     #[error("missing BeginString")]
     NoBeginString,
@@ -120,10 +120,10 @@ pub enum FixError {
 
 /// MsgType (35) values spoken by Exchange8:Gateway (the platform wire spec).
 ///
-/// Session-administration messages (`0`–`5`, `A`) follow FIX 4.2 session
+/// Session-administration messages (`0`-`5`, `A`) follow FIX 4.2 session
 /// semantics; application messages cover order entry (`D`/`F`/`G`/`H`),
 /// execution lifecycle (`8`/`9`/`j`), and the FX RFQ quote family
-/// (`R`/`s`/`aj`/`AJ` — `design/sentin8-exchange8-fx-technical-design.md`
+/// (`R`/`s`/`aj`/`AJ` - `design/sentin8-exchange8-fx-technical-design.md`
 /// §3.6).
 ///
 /// # Examples
@@ -134,24 +134,24 @@ pub enum FixError {
 /// assert_eq!(heart.msg_type(), Some(msg_type::HEARTBEAT));
 /// ```
 pub mod msg_type {
-    /// Heartbeat (0) — session keepalive probe.
+    /// Heartbeat (0) - session keepalive probe.
     pub const HEARTBEAT: &str = "0";
-    /// TestRequest (1) — forces a Heartbeat reply echoing TestReqID (112).
+    /// TestRequest (1) - forces a Heartbeat reply echoing TestReqID (112).
     pub const TEST_REQUEST: &str = "1";
-    /// ResendRequest (2) — retransmit a sequence range (BeginSeqNo/EndSeqNo).
+    /// ResendRequest (2) - retransmit a sequence range (BeginSeqNo/EndSeqNo).
     pub const RESEND_REQUEST: &str = "2";
-    /// Reject (3) — session-level reject (RefSeqNum 45, RefTagID 371,
+    /// Reject (3) - session-level reject (RefSeqNum 45, RefTagID 371,
     /// SessionRejectReason 373).
     pub const REJECT: &str = "3";
-    /// SequenceReset (4) — sequence reset / GapFill (GapFillFlag 123,
+    /// SequenceReset (4) - sequence reset / GapFill (GapFillFlag 123,
     /// NewSeqNo 36).
     pub const SEQUENCE_RESET: &str = "4";
-    /// Logout (5) — session teardown notice.
+    /// Logout (5) - session teardown notice.
     pub const LOGOUT: &str = "5";
-    /// Logon (A) — session establish (HeartBtInt 108 negotiation,
+    /// Logon (A) - session establish (HeartBtInt 108 negotiation,
     /// ResetSeqNumFlag 141).
     pub const LOGON: &str = "A";
-    /// NewOrderSingle (D) — order entry.
+    /// NewOrderSingle (D) - order entry.
     pub const NEW_ORDER: &str = "D";
     /// OrderCancelRequest (F).
     pub const CANCEL_REQUEST: &str = "F";
@@ -159,7 +159,7 @@ pub mod msg_type {
     pub const REPLACE_REQUEST: &str = "G";
     /// OrderStatusRequest (H).
     pub const ORDER_STATUS_REQUEST: &str = "H";
-    /// ExecutionReport (8) — order lifecycle report (ExecType 150,
+    /// ExecutionReport (8) - order lifecycle report (ExecType 150,
     /// OrdStatus 39).
     pub const EXECUTION_REPORT: &str = "8";
     /// OrderCancelReject (9).
@@ -167,19 +167,19 @@ pub mod msg_type {
     /// BusinessMessageReject (j).
     pub const BUSINESS_REJECT: &str = "j";
     // -- FIX 4.4 FX quote flow (design §3.6) -------------------------
-    /// QuoteRequest (R) — client → venue RFQ.
+    /// QuoteRequest (R) - client → venue RFQ.
     pub const QUOTE_REQUEST: &str = "R";
-    /// Quote (s) — venue → client tradeable price.
+    /// Quote (s) - venue → client tradeable price.
     pub const QUOTE: &str = "s";
-    /// QuoteResponse (aj) — client accepts / counters a quote.
+    /// QuoteResponse (aj) - client accepts / counters a quote.
     pub const QUOTE_RESPONSE: &str = "aj";
-    /// QuoteStatusReport (AJ) — venue → client terminal state.
+    /// QuoteStatusReport (AJ) - venue → client terminal state.
     pub const QUOTE_STATUS_REPORT: &str = "AJ";
 }
 
 /// Standard FIX 4.2 tag constants used by the codec and Exchange8:Gateway
 /// (the platform wire spec, `FixTags` of the reference platform), plus the
-/// venue-dialect custom tags (6749–9730) and the FIX 4.4 FX quote family
+/// venue-dialect custom tags (6749-9730) and the FIX 4.4 FX quote family
 /// (§3.6). Values are FIX tag numbers ([`i32`]); fields are addressed by
 /// these constants with [`FixMessage::set`]/[`FixMessage::get`].
 ///
@@ -193,139 +193,139 @@ pub mod msg_type {
 /// assert_eq!(tag::MSG_TYPE, 35);
 /// ```
 pub mod tag {
-    /// Account (1) — submitting account.
+    /// Account (1) - submitting account.
     pub const ACCOUNT: i32 = 1;
-    /// AvgPx (6) — average execution price on the order.
+    /// AvgPx (6) - average execution price on the order.
     pub const AVG_PX: i32 = 6;
-    /// BeginString (8) — FIX protocol version, always first on the frame.
+    /// BeginString (8) - FIX protocol version, always first on the frame.
     pub const BEGIN_STRING: i32 = 8;
-    /// BodyLength (9) — second field; covers the body plus the CheckSum
+    /// BodyLength (9) - second field; covers the body plus the CheckSum
     /// trailer on this codec's frames.
     pub const BODY_LENGTH: i32 = 9;
-    /// CheckSum (10) — trailer; modulo-256 byte sum, always last on the frame.
+    /// CheckSum (10) - trailer; modulo-256 byte sum, always last on the frame.
     pub const CHECKSUM: i32 = 10;
-    /// ClOrdID (11) — client order id.
+    /// ClOrdID (11) - client order id.
     pub const CL_ORD_ID: i32 = 11;
-    /// CumQty (14) — total executed on the order.
+    /// CumQty (14) - total executed on the order.
     pub const CUM_QTY: i32 = 14;
-    /// ExecID (17) — execution id (the trade id on fills).
+    /// ExecID (17) - execution id (the trade id on fills).
     pub const EXEC_ID: i32 = 17;
-    /// ExecInst (18) — execution instruction flags (peg variants, dark,
+    /// ExecInst (18) - execution instruction flags (peg variants, dark,
     /// post-only, all-or-none, bypass).
     pub const EXEC_INST: i32 = 18;
-    /// ExecTransType (20) — 0=new, 1=cancel (bust), 2=correct (amend).
+    /// ExecTransType (20) - 0=new, 1=cancel (bust), 2=correct (amend).
     pub const EXEC_TRANS_TYPE: i32 = 20;
-    /// HandlInst (21) — order handling instruction.
+    /// HandlInst (21) - order handling instruction.
     pub const HANDL_INST: i32 = 21;
-    /// IDSource (22) — security identifier class (symbol/ISIN/SEDOL).
+    /// IDSource (22) - security identifier class (symbol/ISIN/SEDOL).
     pub const ID_SOURCE: i32 = 22;
-    /// SecurityID (48) — alternate security identifier.
+    /// SecurityID (48) - alternate security identifier.
     pub const SECURITY_ID: i32 = 48;
-    /// SenderCompID (49) — the sending party's CompID.
+    /// SenderCompID (49) - the sending party's CompID.
     pub const SENDER_COMP_ID: i32 = 49;
-    /// SenderSubID (50) — sub-identifier (desk/login) of the sender.
+    /// SenderSubID (50) - sub-identifier (desk/login) of the sender.
     pub const SENDER_SUB_ID: i32 = 50;
-    /// SendingTime (52) — UTCTimestamp of transmission.
+    /// SendingTime (52) - UTCTimestamp of transmission.
     pub const SENDING_TIME: i32 = 52;
-    /// Side (54) — 1=buy, 2=sell (base quantity).
+    /// Side (54) - 1=buy, 2=sell (base quantity).
     pub const SIDE: i32 = 54;
-    /// Symbol (55) — instrument symbol (currency pair for FX).
+    /// Symbol (55) - instrument symbol (currency pair for FX).
     pub const SYMBOL: i32 = 55;
-    /// TargetCompID (56) — the receiving party's CompID.
+    /// TargetCompID (56) - the receiving party's CompID.
     pub const TARGET_COMP_ID: i32 = 56;
-    /// Text (58) — free-form human context (reject reason, tenor carrier).
+    /// Text (58) - free-form human context (reject reason, tenor carrier).
     pub const TEXT: i32 = 58;
-    /// TimeInForce (59) — 0=day, 1=GTC, 2=at-open, 3=IOC, 4=FOK, 6=crossing,
+    /// TimeInForce (59) - 0=day, 1=GTC, 2=at-open, 3=IOC, 4=FOK, 6=crossing,
     /// 9=GTD (the platform's order-shape vocabulary).
     pub const TIME_IN_FORCE: i32 = 59;
-    /// TransactTime (60) — business event time.
+    /// TransactTime (60) - business event time.
     pub const TRANSACT_TIME: i32 = 60;
-    /// ExecBroker (76) — executing broker CompID.
+    /// ExecBroker (76) - executing broker CompID.
     pub const EXEC_BROKER: i32 = 76;
-    /// OrderID (37) — venue-assigned order id.
+    /// OrderID (37) - venue-assigned order id.
     pub const ORDER_ID: i32 = 37;
-    /// OrderQty (38) — ordered quantity (QuoteRequest leg quantity for 35=R).
+    /// OrderQty (38) - ordered quantity (QuoteRequest leg quantity for 35=R).
     pub const ORDER_QTY: i32 = 38;
-    /// OrdStatus (39) — 0=new, 1=partial, 2=filled, 4=canceled, 5=replaced,
+    /// OrdStatus (39) - 0=new, 1=partial, 2=filled, 4=canceled, 5=replaced,
     /// 8=rejected.
     pub const ORD_STATUS: i32 = 39;
-    /// OrdType (40) — 2=limit, P=pegged (the platform's order types).
+    /// OrdType (40) - 2=limit, P=pegged (the platform's order types).
     pub const ORD_TYPE: i32 = 40;
-    /// OrigClOrdID (41) — prior client order id on cancel/replace.
+    /// OrigClOrdID (41) - prior client order id on cancel/replace.
     pub const ORIG_CL_ORD_ID: i32 = 41;
-    /// PossDupFlag (43) — `Y` on re-delivered session traffic.
+    /// PossDupFlag (43) - `Y` on re-delivered session traffic.
     pub const POSS_DUP: i32 = 43;
-    /// Price (44) — limit price (decimal string on the wire).
+    /// Price (44) - limit price (decimal string on the wire).
     pub const PRICE: i32 = 44;
-    /// BeginSeqNo (7) — first sequence of a ResendRequest range.
+    /// BeginSeqNo (7) - first sequence of a ResendRequest range.
     pub const BEGIN_SEQ_NO: i32 = 7;
-    /// EndSeqNo (16) — last sequence of a ResendRequest range (0 = infinity).
+    /// EndSeqNo (16) - last sequence of a ResendRequest range (0 = infinity).
     pub const END_SEQ_NO: i32 = 16;
-    /// NewSeqNo (36) — new sequence number on SequenceReset/GapFill.
+    /// NewSeqNo (36) - new sequence number on SequenceReset/GapFill.
     pub const NEW_SEQ_NO: i32 = 36;
-    /// LastPx (31) — price of the last fill.
+    /// LastPx (31) - price of the last fill.
     pub const LAST_PX: i32 = 31;
-    /// LastQty (32) — quantity of the last fill (reused as deal size on
+    /// LastQty (32) - quantity of the last fill (reused as deal size on
     /// tradeable quotes, `LAST_QTY_QUOTE`).
     pub const LAST_QTY: i32 = 32;
-    /// LastMkt (30) — market of the last fill (4-byte book code).
+    /// LastMkt (30) - market of the last fill (4-byte book code).
     pub const LAST_MKT: i32 = 30;
-    /// MsgSeqNum (34) — session sequence number.
+    /// MsgSeqNum (34) - session sequence number.
     pub const MSG_SEQ_NUM: i32 = 34;
-    /// MsgType (35) — third header field; selects the message body schema.
+    /// MsgType (35) - third header field; selects the message body schema.
     pub const MSG_TYPE: i32 = 35;
     /// Cancel-on-disconnect dialect slot (tag 58, colliding with Text);
     /// cancel-on-disconnect is applied per connection by the session shell,
     /// never carried per-message on this codec's path.
     pub const CANCEL_ON_DISCONNECT: i32 = 58;
-    /// PossResend (97) — possible duplicate resend marker.
+    /// PossResend (97) - possible duplicate resend marker.
     pub const POSS_RESEND: i32 = 97;
-    /// EncryptedMethod (98) — logon schema marker; always 0 — the transport
+    /// EncryptedMethod (98) - logon schema marker; always 0 - the transport
     /// provides encryption outside the message body.
     pub const ENCRYPT_METHOD: i32 = 98;
-    /// ExDestination (100) — routing destination (SelectStrategy marker).
+    /// ExDestination (100) - routing destination (SelectStrategy marker).
     pub const EX_DESTINATION: i32 = 100;
-    /// CxlRejReason (102) — cancel-reject reason code.
+    /// CxlRejReason (102) - cancel-reject reason code.
     pub const CXL_REJ_REASON: i32 = 102;
-    /// OrdRejReason (103) — order reject reason code.
+    /// OrdRejReason (103) - order reject reason code.
     pub const ORD_REJ_REASON: i32 = 103;
-    /// HeartBtInt (108) — heartbeat interval in seconds (logon negotiation).
+    /// HeartBtInt (108) - heartbeat interval in seconds (logon negotiation).
     pub const HEART_BT_INT: i32 = 108;
-    /// ClientID (109) — client identifier.
+    /// ClientID (109) - client identifier.
     pub const CLIENT_ID: i32 = 109;
-    /// MinQty (110) — minimum execution quantity.
+    /// MinQty (110) - minimum execution quantity.
     pub const MIN_QTY: i32 = 110;
-    /// MaxFloor (111) — iceberg display quantity.
+    /// MaxFloor (111) - iceberg display quantity.
     pub const MAX_FLOOR: i32 = 111;
-    /// TestReqID (112) — echoed TestRequest identifier.
+    /// TestReqID (112) - echoed TestRequest identifier.
     pub const TESTREQ_ID: i32 = 112;
-    /// OnBehalfOfCompID (115) — vendor submitting for a beneficiary firm.
+    /// OnBehalfOfCompID (115) - vendor submitting for a beneficiary firm.
     pub const ON_BEHALF_OF_COMP_ID: i32 = 115;
-    /// OrigSendingTime (122) — original send time on retransmissions.
+    /// OrigSendingTime (122) - original send time on retransmissions.
     pub const ORIG_SENDING_TIME: i32 = 122;
-    /// GapFillFlag (123) — `Y` marks a SequenceReset as gap-fill.
+    /// GapFillFlag (123) - `Y` marks a SequenceReset as gap-fill.
     pub const GAP_FILL_FLAG: i32 = 123;
-    /// ResetSeqNumFlag (141) — `Y` restarts both counters at 1 on logon.
+    /// ResetSeqNumFlag (141) - `Y` restarts both counters at 1 on logon.
     pub const RESET_SEQ_NUM_FLAG: i32 = 141;
-    /// ExecType (150) — execution-report kind (0=new, 4=canceled, 5=replace,
+    /// ExecType (150) - execution-report kind (0=new, 4=canceled, 5=replace,
     /// 8=rejected, F=trade).
     pub const EXEC_TYPE: i32 = 150;
-    /// LeavesQty (151) — open quantity remaining.
+    /// LeavesQty (151) - open quantity remaining.
     pub const LEAVES_QTY: i32 = 151;
-    /// SecurityExchange (207) — exchange/market identifier.
+    /// SecurityExchange (207) - exchange/market identifier.
     pub const SECURITY_EXCHANGE: i32 = 207;
-    /// PegDifference (211) — offset from the peg reference price.
+    /// PegDifference (211) - offset from the peg reference price.
     pub const PEG_DIFFERENCE: i32 = 211;
-    /// RefSeqNum (45) — sequence the session Reject refers to.
+    /// RefSeqNum (45) - sequence the session Reject refers to.
     pub const REF_SEQ_NUM: i32 = 45;
-    /// RefTagID (371) — offending tag referenced by a session Reject.
+    /// RefTagID (371) - offending tag referenced by a session Reject.
     pub const REF_TAG_ID: i32 = 371;
-    /// RefMsgType (372) — message type referenced by a session Reject.
+    /// RefMsgType (372) - message type referenced by a session Reject.
     pub const REF_MSG_TYPE: i32 = 372;
-    /// SessionRejectReason (373) — session-reject reason code.
+    /// SessionRejectReason (373) - session-reject reason code.
     pub const SESSION_REJECT_REASON: i32 = 373;
     // -- Venue-dialect custom tags (`FixConst.h:137-171`) -------------
-    /// STP no-match id (6749) — self-cross prevention token.
+    /// STP no-match id (6749) - self-cross prevention token.
     pub const UMIR_NO_MATCH_ID: i32 = 6749;
     /// UMIR account type (6750).
     pub const UMIR_ACCOUNT_TYPE_ID: i32 = 6750;
@@ -339,15 +339,15 @@ pub mod tag {
     pub const ANONYMOUS: i32 = 6761;
     /// UMIR regulation id (6763).
     pub const UMIR_REGULATION_ID: i32 = 6763;
-    /// Bypass marker (6791) — skip price-protection on this order.
+    /// Bypass marker (6791) - skip price-protection on this order.
     pub const BYPASS_MARKER: i32 = 6791;
-    /// Price-protection marker (6820) — `K` = cancel-on-protect-trigger.
+    /// Price-protection marker (6820) - `K` = cancel-on-protect-trigger.
     pub const PROTECTION: i32 = 6820;
     /// Protection price-improvement option (6821).
     pub const PROTECTION_PRICE_IMPROVEMENT: i32 = 6821;
-    /// Book code (6888) — board/odd book selector (4-char code, e.g. XL8M).
+    /// Book code (6888) - board/odd book selector (4-char code, e.g. XL8M).
     pub const BOOK_CODE: i32 = 6888;
-    /// Match strategy (6889) — book matching algorithm selector.
+    /// Match strategy (6889) - book matching algorithm selector.
     pub const MATCH_STRATEGY: i32 = 6889;
     /// Post-only override (9303).
     pub const ORDER_POST_ONLY: i32 = 9303;
@@ -357,36 +357,36 @@ pub mod tag {
     pub const EBBO_FLAG: i32 = 9500;
     /// Routing strategy token (9501).
     pub const ROUTING_STRATEGY: i32 = 9501;
-    /// Liquidity flag (9730) — added/removed on ExecutionReport fills.
+    /// Liquidity flag (9730) - added/removed on ExecutionReport fills.
     pub const LIQUIDITY_FLAG: i32 = 9730;
     // -- FIX 4.4 FX quote / RFQ tags (fx design §3.6) ------------------
-    /// QuoteReqID (131) — correlates the QuoteRequest/Quote/QuoteResponse/
+    /// QuoteReqID (131) - correlates the QuoteRequest/Quote/QuoteResponse/
     /// QuoteStatusReport chain.
     pub const QUOTE_REQ_ID: i32 = 131;
-    /// QuoteID (299) — the venue's per-quote id (35=s, 35=AJ).
+    /// QuoteID (299) - the venue's per-quote id (35=s, 35=AJ).
     pub const QUOTE_ID: i32 = 299;
-    /// QuoteRespID (693) — the LP's bid/accept id (35=aj QuoteResponse).
+    /// QuoteRespID (693) - the LP's bid/accept id (35=aj QuoteResponse).
     pub const QUOTE_RESP_ID: i32 = 693;
-    /// QuoteRespType (694) — 0=accept/hit, 1=counter.
+    /// QuoteRespType (694) - 0=accept/hit, 1=counter.
     pub const QUOTE_RESP_TYPE: i32 = 694;
-    /// QuoteType (537) — 1=tradeable, 2=indicative.
+    /// QuoteType (537) - 1=tradeable, 2=indicative.
     pub const QUOTE_TYPE: i32 = 537;
-    /// QuoteStatus (297) — 0=accepted, 4=expired, 7=rejected, 9=cancelled.
+    /// QuoteStatus (297) - 0=accepted, 4=expired, 7=rejected, 9=cancelled.
     pub const QUOTE_STATUS: i32 = 297;
-    /// BidPx (132) — the LP's bid on a tradeable two-way quote.
+    /// BidPx (132) - the LP's bid on a tradeable two-way quote.
     pub const BID_PX: i32 = 132;
-    /// OfferPx (133) — the LP's ask on a tradeable two-way quote.
+    /// OfferPx (133) - the LP's ask on a tradeable two-way quote.
     pub const OFFER_PX: i32 = 133;
-    /// ValidUntilTime (62) — quote expiry (bounded by the RFQ engine's
+    /// ValidUntilTime (62) - quote expiry (bounded by the RFQ engine's
     /// `MAX_VALID_WINDOW_US`).
     pub const VALID_UNTIL_TIME: i32 = 62;
-    /// SettlDate (64) — value date (T+1/T+2 spot, forward dates).
+    /// SettlDate (64) - value date (T+1/T+2 spot, forward dates).
     pub const SETTL_DATE: i32 = 64;
-    /// Currency (15) — quote currency (NDF netting currency).
+    /// Currency (15) - quote currency (NDF netting currency).
     pub const CURRENCY: i32 = 15;
     /// OrderQty (38) reused as QuoteRequest leg quantity.
     pub const QUOTE_REQ_QTY: i32 = 38;
-    /// FutSettDate2 (193) — FX swap far-leg value date.
+    /// FutSettDate2 (193) - FX swap far-leg value date.
     pub const FUT_SETT_DATE_2: i32 = 193;
     /// LastQty (32) reused as the deal size on tradeable quotes.
     pub const LAST_QTY_QUOTE: i32 = 32;
@@ -394,7 +394,7 @@ pub mod tag {
 
 /// A parsed FIX message: an **ordered** list of `(tag, value)` fields.
 ///
-/// The list is the source of truth — the codec is deliberately
+/// The list is the source of truth - the codec is deliberately
 /// schema-less. `encode()` derives the framing (BeginString, BodyLength,
 /// MsgType-first ordering, CheckSum) from the field list; `parse()` fills
 /// the list in wire order. Tag ordering is preserved on round-trip apart
@@ -550,7 +550,7 @@ impl FixMessage {
         m
     }
 
-    /// FIX 4.4 QuoteStatusReport (35=AJ): terminal RFQ state — QuoteStatus
+    /// FIX 4.4 QuoteStatusReport (35=AJ): terminal RFQ state - QuoteStatus
     /// (297) `0`=accepted (traded), `7`=rejected (last-look miss or window
     /// expiry), `4`=expired. The optional `reason` rides tag 58 (Text).
     ///
@@ -583,7 +583,7 @@ impl FixMessage {
     /// If the tag already exists, its **first** occurrence's value is
     /// replaced in place (position preserved); otherwise the field is
     /// appended. Returns `&mut Self` so calls chain. Values convert via
-    /// [`ToString`], so integers and prices can be passed directly — the
+    /// [`ToString`], so integers and prices can be passed directly - the
     /// wire representation stays a string either way.
     ///
     /// # Examples
@@ -641,7 +641,7 @@ impl FixMessage {
     /// numeric-tag values).
     ///
     /// Returns [`None`] when the tag is absent or its value is not a valid
-    /// integer — callers decide whether absence is an error.
+    /// integer - callers decide whether absence is an error.
     ///
     /// # Examples
     /// ```
@@ -663,7 +663,7 @@ impl FixMessage {
     /// (35) hoisted to the front of the body, remaining fields in stored
     /// order, CheckSum (10) last (modulo-256 byte sum of everything before
     /// it, zero-padded to three digits). Tags 9 and 10 present in the field
-    /// list are ignored — both are always recomputed from the body, so a
+    /// list are ignored - both are always recomputed from the body, so a
     /// stale cached value can never be written. A message without tag 35
     /// encodes with no MsgType field (the caller's contract).
     ///

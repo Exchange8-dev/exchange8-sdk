@@ -1,4 +1,4 @@
-# exchange8::fixed — Business Requirements & Functionality
+# exchange8::fixed - Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::fixed library **does for the business**. For architecture
@@ -9,7 +9,7 @@
 - Guarantee that every price and quantity the exchange computes is exact:
   no floating-point drift, no silent rounding, no loss of a single tick.
 - Keep asset-class precision conventions equitable and crypto honest:
-  equities price to 4 decimals, FX to 5 (pip-level), crypto to 8 — in one
+  equities price to 4 decimals, FX to 5 (pip-level), crypto to 8 - in one
   shared definition rather than per-service folklore.
 - Protect platform solvency math: notional values (price × quantity) are
   computed with overflow checks so an impossible order can never produce
@@ -60,8 +60,8 @@
 ## 4. Business Events (Outbound)
 
 - None. The library is a pure function library: it emits no events, writes
-  no journal, and communicates nothing. The events of the marketplace —
-  executions, order updates, limit alerts — belong to the services that
+  no journal, and communicates nothing. The events of the marketplace -
+  executions, order updates, limit alerts - belong to the services that
   use these values (Exchange8:ME, Exchange8:OMS, Exchange8:Risk, and their peers).
 
 ### Inbound (consumed)
@@ -72,7 +72,7 @@
 
 1. Every price and quantity in the exchange8 vertical is a scaled integer
    carrying its decimal precision; raw integers without scale never exist.
-2. Equities: 4 decimals; FX: 5; crypto: 8 — identical across every
+2. Equities: 4 decimals; FX: 5; crypto: 8 - identical across every
    consuming service.
 3. Prices are strictly positive; non-positive decimal input is rejected.
 4. Two values of different precision never combine implicitly; conversion
@@ -109,11 +109,11 @@
 ## 8. Dependencies & Reliance on Other Services
 
 - **Owning consumers (Exchange8:ME, Exchange8:OMS, Exchange8:Risk, Exchange8:Clearing,
-  Exchange8:Settlement, Exchange8:SOR, Exchange8:MD, Exchange8:VFeeds)** — define the business
+  Exchange8:Settlement, Exchange8:SOR, Exchange8:MD, Exchange8:VFeeds)** - define the business
   rules that consume values; the library defines only the number system.
-- **`serde`** — boundary serialization of value pairs across service
+- **`serde`** - boundary serialization of value pairs across service
   contracts.
-- No reliance on Sentin8 platform planes — no identity, authorization,
+- No reliance on Sentin8 platform planes - no identity, authorization,
   persistence, or delivery work is performed here.
 
 ## 9. Acceptance Criteria

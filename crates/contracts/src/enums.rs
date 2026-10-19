@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Shared char-code enums — 1:1 with the matching-engine wire constants.
+//! Shared char-code enums - 1:1 with the matching-engine wire constants.
 //!
 //! Every enum here pairs Rust variants with the exact single-character codes
 //! of the matching-engine protocol; the unit tests iterate the full tables
@@ -21,10 +21,10 @@
 use serde::{Deserialize, Serialize};
 
 // ---------------------------------------------------------------------------
-// ME order type — the catalog `order_type` table (`MEMsgs.h:32-36`)
+// ME order type - the catalog `order_type` table (`MEMsgs.h:32-36`)
 // ---------------------------------------------------------------------------
 
-/// ME order type — how the engine may match and what happens to the
+/// ME order type - how the engine may match and what happens to the
 /// remainder.
 ///
 /// Encodes the catalog `order_type` table (`L`/`F`/`I`/`P`/`B`):
@@ -33,15 +33,15 @@ use serde::{Deserialize, Serialize};
 /// levels while matching.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum OrderType {
-    /// `'L'` — match then post remainder.
+    /// `'L'` - match then post remainder.
     Limit,
-    /// `'F'` — fill-or-kill; no partial.
+    /// `'F'` - fill-or-kill; no partial.
     Fok,
-    /// `'I'` — immediate-or-cancel; remainder killed.
+    /// `'I'` - immediate-or-cancel; remainder killed.
     Ioc,
-    /// `'P'` — never matches; kill if it would cross.
+    /// `'P'` - never matches; kill if it would cross.
     PostOnly,
-    /// `'B'` — IOC matching only **visible** levels (hidden ignored).
+    /// `'B'` - IOC matching only **visible** levels (hidden ignored).
     Bypass,
 }
 
@@ -86,10 +86,10 @@ impl OrderType {
 }
 
 // ---------------------------------------------------------------------------
-// ME book side — the catalog `side` table (`MEMsgs.h:27-28`)
+// ME book side - the catalog `side` table (`MEMsgs.h:27-28`)
 // ---------------------------------------------------------------------------
 
-/// ME book side — which side of the internal book the order joins.
+/// ME book side - which side of the internal book the order joins.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Side {
     /// `'B'`
@@ -147,15 +147,15 @@ impl Side {
 }
 
 // ---------------------------------------------------------------------------
-// Visibility — the catalog `visible` table (`MEMsgs.h:38-39`)
+// Visibility - the catalog `visible` table (`MEMsgs.h:38-39`)
 // ---------------------------------------------------------------------------
 
 /// Visible vs hidden quantity handling on the ME book.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Visibility {
-    /// `'D'` — prints on the lit feed.
+    /// `'D'` - prints on the lit feed.
     Display,
-    /// `'H'` — hidden orders are not sent to the ITCH feed; they live in
+    /// `'H'` - hidden orders are not sent to the ITCH feed; they live in
     /// separate hidden price levels (bypass only matches visible).
     Hidden,
 }
@@ -207,15 +207,15 @@ impl Visibility {
 }
 
 // ---------------------------------------------------------------------------
-// Capacity — the catalog `capacity` table (`MEMsgs.h:44-45`)
+// Capacity - the catalog `capacity` table (`MEMsgs.h:44-45`)
 // ---------------------------------------------------------------------------
 
-/// Order capacity — agency (client order) vs principal (own-house order).
+/// Order capacity - agency (client order) vs principal (own-house order).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Capacity {
-    /// `'A'` — acting as agent, on behalf of a customer.
+    /// `'A'` - acting as agent, on behalf of a customer.
     Agency,
-    /// `'P'` — acting as principal (firm's own account).
+    /// `'P'` - acting as principal (firm's own account).
     Principal,
 }
 
@@ -255,16 +255,16 @@ impl Capacity {
 }
 
 // ---------------------------------------------------------------------------
-// Price protection — the catalog `price_protection` table
+// Price protection - the catalog `price_protection` table
 // ---------------------------------------------------------------------------
 
 /// Price-protection behavior when a marketable order breaches the
 /// protection band.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PriceProtection {
-    /// `'K'` — kill when the protection band is hit.
+    /// `'K'` - kill when the protection band is hit.
     Kill,
-    /// `'P'` — sidestep one tick then post.
+    /// `'P'` - sidestep one tick then post.
     Post,
 }
 
@@ -304,17 +304,17 @@ impl PriceProtection {
 }
 
 // ---------------------------------------------------------------------------
-// Instrument status — the catalog `instrument_status` table
+// Instrument status - the catalog `instrument_status` table
 // ---------------------------------------------------------------------------
 
 /// Per-instrument trading state (catalog `instrument_status`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum InstrumentStatus {
-    /// `'O'` — open and matching.
+    /// `'O'` - open and matching.
     Open,
-    /// `'H'` — halt kills all resting orders then rejects new.
+    /// `'H'` - halt kills all resting orders then rejects new.
     Halted,
-    /// `'Q'` — plain display limit orders only, no matching.
+    /// `'Q'` - plain display limit orders only, no matching.
     QuotationOnly,
 }
 
@@ -356,22 +356,22 @@ impl InstrumentStatus {
 }
 
 // ---------------------------------------------------------------------------
-// Market status — the catalog `market_status` table (the identical code
+// Market status - the catalog `market_status` table (the identical code
 // set is shared by the ME and feed messages)
 // ---------------------------------------------------------------------------
 
 /// Per-book market state (catalog `market_status`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MarketStatus {
-    /// `'O'` — reopen the book (accept + match orders again).
+    /// `'O'` - reopen the book (accept + match orders again).
     Reopen,
-    /// `'H'` — halts the book's orders.
+    /// `'H'` - halts the book's orders.
     Halt,
-    /// `'P'` — postpone trading (defer opening until further notice).
+    /// `'P'` - postpone trading (defer opening until further notice).
     Postpone,
-    /// `'S'` — shut down the book for the session.
+    /// `'S'` - shut down the book for the session.
     Shutdown,
-    /// `'D'` — postpone then shut down the book.
+    /// `'D'` - postpone then shut down the book.
     PostponeShutdown,
 }
 
@@ -416,7 +416,7 @@ impl MarketStatus {
 }
 
 // ---------------------------------------------------------------------------
-// Kill reason — the catalog `kill_reason` table
+// Kill reason - the catalog `kill_reason` table
 // (`order_cancel::Reason`)
 // ---------------------------------------------------------------------------
 
@@ -497,7 +497,7 @@ impl KillReason {
 }
 
 // ---------------------------------------------------------------------------
-// ME transaction-reject reason — the catalog `reject_reason` table
+// ME transaction-reject reason - the catalog `reject_reason` table
 // ---------------------------------------------------------------------------
 
 /// ME transaction-reject reason (catalog `reject_reason`).
@@ -505,17 +505,17 @@ impl KillReason {
 /// Carried on `TransactionRejected` to say why the operation failed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MeRejectReason {
-    /// `'H'` — the instrument is halted; no matching.
+    /// `'H'` - the instrument is halted; no matching.
     InstrumentHalted,
-    /// `'F'` — order id not found on the book.
+    /// `'F'` - order id not found on the book.
     OrderNotFound,
-    /// `'W'` — wrong originator (session does not own the order).
+    /// `'W'` - wrong originator (session does not own the order).
     WrongOriginator,
-    /// `'U'` — unspecified failure at the engine.
+    /// `'U'` - unspecified failure at the engine.
     Unknown,
-    /// `'E'` — an external (downstream) reject.
+    /// `'E'` - an external (downstream) reject.
     ExternalReject,
-    /// `'V'` — compliance/violation-based reject.
+    /// `'V'` - compliance/violation-based reject.
     Compliance,
 }
 
@@ -541,15 +541,15 @@ impl MeRejectReason {
 }
 
 // ---------------------------------------------------------------------------
-// Liquidity / lot type — the catalog `liquidity` / `lot_type` tables
+// Liquidity / lot type - the catalog `liquidity` / `lot_type` tables
 // ---------------------------------------------------------------------------
 
-/// Liquidity role in an execution — added (passive) vs removed (aggressor).
+/// Liquidity role in an execution - added (passive) vs removed (aggressor).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Liquidity {
-    /// `'A'` — the resting order (passive).
+    /// `'A'` - the resting order (passive).
     Added,
-    /// `'R'` — the aggressor.
+    /// `'R'` - the aggressor.
     Removed,
 }
 
@@ -572,9 +572,9 @@ impl Liquidity {
 /// Lot classification of an execution.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum LotType {
-    /// `'1'` — below the board lot (odd lot).
+    /// `'1'` - below the board lot (odd lot).
     Odd,
-    /// `'2'` — a multiple of the board lot.
+    /// `'2'` - a multiple of the board lot.
     Board,
 }
 
@@ -595,26 +595,26 @@ impl LotType {
 }
 
 // ---------------------------------------------------------------------------
-// System event codes — the ITCH `S` message payload (`FeedMsgs.h`)
+// System event codes - the ITCH `S` message payload (`FeedMsgs.h`)
 // ---------------------------------------------------------------------------
 
-/// ITCH system event codes — session lifecycle markers on the feed
+/// ITCH system event codes - session lifecycle markers on the feed
 /// (catalog `feed_messages` `S` message payload).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum SystemEventCode {
-    /// `'O'` — the first message of the feed session.
+    /// `'O'` - the first message of the feed session.
     StartOfMessages,
-    /// `'C'` — the last message of the feed session.
+    /// `'C'` - the last message of the feed session.
     EndOfMessages,
-    /// `'Q'` — market-hours trading begins.
+    /// `'Q'` - market-hours trading begins.
     StartOfMarketHours,
-    /// `'M'` — market-hours trading ends.
+    /// `'M'` - market-hours trading ends.
     EndOfMarketHours,
-    /// `'S'` — system-hours trading begins.
+    /// `'S'` - system-hours trading begins.
     StartOfSystemHours,
-    /// `'E'` — system-hours trading ends.
+    /// `'E'` - system-hours trading ends.
     EndOfSystemHours,
-    /// `'P'` — the market enters the pre-open period.
+    /// `'P'` - the market enters the pre-open period.
     MarketPreopen,
 }
 
@@ -668,7 +668,7 @@ impl SystemEventCode {
 mod tests {
     use super::*;
 
-    /// Round-trip every enum against the wire chars — anchored to
+    /// Round-trip every enum against the wire chars - anchored to
     /// `behavior-catalog/messages.json` §me_enums.
     #[test]
     fn wire_chars_match_catalog() {

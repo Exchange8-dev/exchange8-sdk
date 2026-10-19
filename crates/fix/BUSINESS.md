@@ -1,4 +1,4 @@
-# exchange8::fix — Business Requirements & Functionality
+# exchange8::fix - Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::fix library **does for the business**. For architecture
@@ -9,7 +9,7 @@
 - Provide the machine-to-machine **FIX 4.2 order-entry language** of the
   exchange venue so institutional clients can submit, amend, and cancel
   orders electronically instead of over the phone or through bespoke
-  integrations — the industry-standard front-office connectivity every
+  integrations - the industry-standard front-office connectivity every
   buy-side and sell-side desk expects.
 - Guarantee that every byte exchanged with an order-entry counterparty is a
   well-formed, integrity-checked FIX frame, so order flows are never
@@ -18,7 +18,7 @@
   connectivity: quote requests, tradeable two-way quotes, client hits, and
   terminal quote states all speak FIX quote messages.
 - Give business events (fills, cancels, rejects, replaces) a standard,
-  counterparty-readable representation the moment they happen — no
+  counterparty-readable representation the moment they happen - no
   proprietary reporting format for clients to integrate against.
 
 ## 2. Business Scope (What the Service Provides)
@@ -32,7 +32,7 @@
 | Execution lifecycle vocabulary | ExecutionReport/CancelReject/BusinessReject message types and all lifecycle tags (status, quantities, prices, reject reasons) |
 | FX RFQ quote flow | QuoteRequest / two-way tradeable Quote / quote-accept / QuoteStatusReport constructors with quote identifiers, bid/offer prices, validity window, and value dates |
 | Venue-dialect fields | Custom tags for identity/attribution (UMIR cluster), order character (anonymous, program trade, post-only, bypass, protection), book/routing selection, and liquidity flags |
-| Numeric-safe value handling | Prices and quantities cross as exact strings — the venue never rounds or re-scales a client's figures |
+| Numeric-safe value handling | Prices and quantities cross as exact strings - the venue never rounds or re-scales a client's figures |
 
 ### What the library does NOT own (business boundary)
 
@@ -63,19 +63,19 @@
 | Quote request | A client requests a price for a currency pair with quantity, side, and tenor (spot, overnight, weeks, months) |
 | Tradeable quotes | The venue returns a binding two-way price (bid/offer) valid until an explicit expiry instant, with the settlement value date when applicable |
 | Quote execution | A client accepts a quote as-is; the venue confirms acceptance or terminates the RFQ with a status and reason (accepted / expired / rejected) |
-| Price fidelity | Quote prices are decimal strings exactly as produced — never re-scaled between engine and counterparty |
+| Price fidelity | Quote prices are decimal strings exactly as produced - never re-scaled between engine and counterparty |
 
 ### 3.3 Session administration
 
 | Capability | Business rule |
 |---|---|
-| Keepalive | Heartbeat negotiation at logon, bounded to a 10–120 second interval with a 30-second default, keeps sessions healthy and detects dead connections |
+| Keepalive | Heartbeat negotiation at logon, bounded to a 10-120 second interval with a 30-second default, keeps sessions healthy and detects dead connections |
 | Loss recovery | Sequence-number gaps are detected and recoverable: the venue's session engine requests resends and re-delivers stored reports marked as possible duplicates |
 | Clock discipline | Resend/sequence-reset messages carry the fields standard FIX consumers rely on to reconcile sequence state |
 
 ## 4. Business Events (Outbound)
 
-This library emits **no business events** — it is the wire dialect itself.
+This library emits **no business events** - it is the wire dialect itself.
 Every FIX message it encodes is the vehicle for a business event owned
 elsewhere:
 
@@ -96,12 +96,12 @@ the library validates framing and hands structured messages to Exchange8:Gateway
    integrity-sealed: BodyLength and CheckSum are always recomputed, never
    copied from a cached message.
 2. A business layer can never act on a frame that failed integrity
-   validation — parsing either succeeds completely or reports a
+   validation - parsing either succeeds completely or reports a
    structured failure, never a partially valid message.
 3. Any client message the venue acknowledges has round-tripped through
    encode/parse identically: figures sent are figures received, byte for
    byte.
-4. Truncated network deliveries are never treated as business errors —
+4. Truncated network deliveries are never treated as business errors -
    the venue waits for the rest of the frame rather than rejecting a
    half-delivered order.
 5. Prices, quantities, and identifiers cross the boundary as exact text
@@ -128,7 +128,7 @@ the library validates framing and hands structured messages to Exchange8:Gateway
   originate from this codec (round-trip tests own proof).
 - **Integrity**: no corrupted counterparty frame is ever processed as a
   business message (hard reject taxonomy).
-- **Latency overhead**: codec cost is negligible on the order path —
+- **Latency overhead**: codec cost is negligible on the order path -
   per-message cost is one buffer build + one linear field scan; no locks,
   no I/O, no async hops.
 - **Coverage**: every message type and tag the order-entry, reporting, and
@@ -144,7 +144,7 @@ the library validates framing and hands structured messages to Exchange8:Gateway
 | Exchange8:Gateway | Being the sole transport/session host: sockets, logon rules, sequencing, resend storage, credential checks |
 | Exchange8:ME (via Gateway) | The lifecycle events that become ExecutionReport messages |
 | Exchange8:RFQ / FX business | The quote state machine whose business outcomes the quote messages carry |
-| `exchange8::fixed` (sibling library) | Scaled price/quantity arithmetic *outside* this codec — the FIX layer deliberately stays in string space |
+| `exchange8::fixed` (sibling library) | Scaled price/quantity arithmetic *outside* this codec - the FIX layer deliberately stays in string space |
 | `thiserror` (single dependency) | Structured error taxonomy |
 
 ## 9. Acceptance Criteria
@@ -156,7 +156,7 @@ the library validates framing and hands structured messages to Exchange8:Gateway
    checksum trailer) and a correct CheckSum; re-parsing any produced frame
    succeeds identically.
 3. Every inbound frame failing length or checksum validation is reported
-   as a specific, actionable error — never silently repaired, never
+   as a specific, actionable error - never silently repaired, never
    passed downstream.
 4. Truncated frames are surfaced as "incomplete" without error so the
    order path never rejects an order because of network framing timing.

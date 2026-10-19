@@ -10,7 +10,7 @@
 //! length-prefixed message blocks), parses inbound packets back into header
 //! + block byte ranges, and formats both the count-0 heartbeat (carrying the
 //! next-expected sequence) and the 20-byte retransmission request. It is a
-//! pure library — no sockets, no database, no runtime of its own; session
+//! pure library - no sockets, no database, no runtime of its own; session
 //! sequencing, heartbeat timing, and transport belong to the consuming
 //! services (Exchange8:MD publisher, Exchange8:VFeeds receive path).
 //!
@@ -21,7 +21,7 @@
 //! | 0 | 10 | Session (ASCII, space-padded) | raw bytes |
 //! | 10 | 8 | Sequence number | `u64` big-endian |
 //! | 18 | 2 | Message count | `u16` big-endian |
-//! | 20 | — | Message blocks | per block `u16` BE length + payload |
+//! | 20 | - | Message blocks | per block `u16` BE length + payload |
 //!
 //! Packets are capped at `MAX_MOLD_MSG_LENGTH` (1400 bytes).
 //!
@@ -69,7 +69,7 @@ pub const BLOCK_OFFSET: usize = 20;
 /// message block.
 pub const BLOCK_LEN_LEN: usize = 2;
 
-/// Typed failure surface of the codec — the complete set of outcomes for
+/// Typed failure surface of the codec - the complete set of outcomes for
 /// parsing an inbound packet.
 ///
 /// # Examples
@@ -188,7 +188,7 @@ impl MoldPacket {
     ///   protocol contract).
     /// - When the block (2-byte length prefix + payload) would exceed the
     ///   packet cap, the call returns `false` and leaves the builder state
-    ///   unchanged — the caller starts the next packet.
+    ///   unchanged - the caller starts the next packet.
     ///
     /// # Returns
     /// `true` when the block was stored; `false` when refused (empty
@@ -232,7 +232,7 @@ impl MoldPacket {
     /// Layout: 10-byte space-padded session, `u64` big-endian sequence,
     /// `u16` big-endian message count, then per block a `u16` big-endian
     /// length followed by the payload. The `sequence` field is only
-    /// meaningful when the count is non-zero — heartbeat packets carry the
+    /// meaningful when the count is non-zero - heartbeat packets carry the
     /// next-expected sequence explicitly. Output length never exceeds
     /// [`MAX_MOLD_MSG_LENGTH`] for builder packets (capacity is fit-checked
     /// in [`add_message`]).
@@ -367,7 +367,7 @@ pub fn parse(packet: &[u8]) -> Result<ParsedPacket, MoldError> {
 }
 
 /// Builds a MoldUDP64 retransmission request (client → retransmit server):
-/// `[session 10][start_seq u64 BE][count u16 BE]` — 20 bytes total.
+/// `[session 10][start_seq u64 BE][count u16 BE]` - 20 bytes total.
 ///
 /// A receiver detecting a sequence gap asks the retransmission service to
 /// re-serve a range with this fixed frame; the request names the session,

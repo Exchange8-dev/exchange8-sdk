@@ -1,4 +1,4 @@
-# exchange8::stamp — Detailed Design Document
+# exchange8::stamp - Detailed Design Document
 
 ## 1. Scope & Context
 
@@ -8,15 +8,15 @@ and the lossless `bytes ⇄ struct` transform for frames shaped
 `<SOH 0x01> control-header <FS 0x1C> business <GS 0x1D> control-trailer`
 with `RS 0x1E`-separated fields. It explicitly does **not** own:
 
-- transport and session supervision — SoupBinTCP framing lives in
+- transport and session supervision - SoupBinTCP framing lives in
   `exchange8::soup`, MoldUDP64 in `exchange8::mold`, and the socket,
   heartbeat, and A/B recovery tasks in the consuming services (Exchange8:VFeeds
   per the venue-feed design; the Exchange8:SOR feed path per the SOR design);
-- value semantics — prices, volumes, and quantities stay verbatim UTF-8;
+- value semantics - prices, volumes, and quantities stay verbatim UTF-8;
   scale and arithmetic are `exchange8::fixed` and adapter concerns;
-- normalization — bytes-to-`VenueQuoteEvent` translation is the adapter
+- normalization - bytes-to-`VenueQuoteEvent` translation is the adapter
   layer's job, not the codec's;
-- FIX 4.2 — the order-entry protocol is `exchange8::fix` + Exchange8:Gateway.
+- FIX 4.2 - the order-entry protocol is `exchange8::fix` + Exchange8:Gateway.
 
 There is no HTTP surface, no database presence, no event emission, no
 runtime of its own: the crate is a pure function library compiled into the
@@ -27,7 +27,7 @@ facade `exchange8::stamp` (package `exchange8-stamp`, workspace member
 
 ```mermaid
 graph TD
-    subgraph EDGE["External venue — untrusted edge (TSX / TSXV multicast)"]
+    subgraph EDGE["External venue - untrusted edge (TSX / TSXV multicast)"]
         TSX["STAMP session bytes<br/>control/business/trailer framed"]
     end
 
@@ -125,7 +125,7 @@ model and the wire encoding it maps to.
 | `StampMessage` | `control_header: StampSection`, `business: StampSection`, `control_trailer: Option<StampSection>` | `0x01 header 0x1C business 0x1D trailer`; business delimiter emitted only when business is non-empty or a trailer exists |
 
 - All types are `Debug + Clone + PartialEq + Eq` (and `Default` for
-  `StampSection`/`StampMessage`) — comparable, storable, and
+  `StampSection`/`StampMessage`) - comparable, storable, and
   `Send`/`Sync` by construction (owned `String` values, no interior
   mutability, no lifetimes).
 - Encoding text is ASCII delimiters plus decimal identifiers and verbatim
@@ -154,7 +154,7 @@ erDiagram
 ## 4. API Surface
 
 Public API inventory (library audience: exchange8 services; no
-authorization gate applies — there are no endpoints, scopes, or tenant
+authorization gate applies - there are no endpoints, scopes, or tenant
 contexts to gate):
 
 | Item | Kind | Contract |
@@ -171,7 +171,7 @@ contexts to gate):
 | Framing constants + `STAMP_VERSION_NUMBER` | consts | `0x01` / `0x1C` / `0x1D` / `0x1E` / `.` / `=` / `"Version 4.0"` |
 
 Emissions: none. The library emits no domain events and participates in no
-outbox/trigger chain — the event flow diagram of the service template does
+outbox/trigger chain - the event flow diagram of the service template does
 not apply.
 
 ```mermaid
@@ -180,7 +180,7 @@ graph TD
         SOCK["session bytes from feed socket"]
         NORMAL["normalization to VenueQuoteEvent / StampQuote"]
     end
-    subgraph LIB["exchange8::stamp — pure, in-process"]
+    subgraph LIB["exchange8::stamp - pure, in-process"]
         P["StampMessage::parse"]
         S["StampSection accessors"]
         E["StampMessage::encode / build"]
@@ -206,23 +206,23 @@ or explicitly does not apply.
   are pinned by conformance tests (framing-char checks, tag-value checks,
   golden round-trips), making accidental wire drift a failing build rather
   than a deployed incompatibility.
-- **Endianness.** Not applicable — the grammar is delimiter text, not
+- **Endianness.** Not applicable - the grammar is delimiter text, not
   binary layout; there are no multi-byte numeric fields.
 - **Idempotency / exactly-once.** Not applicable at the library level:
   the caller's sequencing (A/B recovery, retransmission) guarantees
   dedupe; decoding the same frame twice yields the same result by
   determinism.
-- **Authentication / authorization.** Not applicable — no caller identity,
+- **Authentication / authorization.** Not applicable - no caller identity,
   no HTTP, no tenant resolution. The library is statically linked; it
   cannot be reached except in-process by authorized consumers.
-- **RLS / tenant context.** No database, no tables, no rows — nothing to
+- **RLS / tenant context.** No database, no tables, no rows - nothing to
   scope. Frames are per-instance inputs of the consuming service.
-- **Audit journaling.** Not applicable — the codec performs no auditable
+- **Audit journaling.** Not applicable - the codec performs no auditable
   domain change; consumers journal their own feed outcomes.
-- **Rate limiting / bot protection.** Not applicable — no endpoints.
-- **Graceful drain.** Not applicable — no runtime; linked code drains with
+- **Rate limiting / bot protection.** Not applicable - no endpoints.
+- **Graceful drain.** Not applicable - no runtime; linked code drains with
   its consumer binary.
-- **TLS posture.** Not applicable — the codec touches neither sockets nor
+- **TLS posture.** Not applicable - the codec touches neither sockets nor
   key material; venue TLS/mTLS is the session layer's concern
   (`sentin8-tls` at the service shell).
 
@@ -230,7 +230,7 @@ or explicitly does not apply.
 
 The library performs no I/O, so it has no crash-recovery paths. Failures
 are value-level, deterministic, and total: `parse` either returns a
-complete message or a typed error — never a partially-populated one.
+complete message or a typed error - never a partially-populated one.
 
 ```mermaid
 flowchart TD
@@ -272,7 +272,7 @@ graph LR
         TA["adapter task<br/>one per feed config"]
         CA["codec calls: StampMessage::parse / accessors"]
     end
-    subgraph LIB["exchange8::stamp — no shared state"]
+    subgraph LIB["exchange8::stamp - no shared state"]
         FN["pure fns: parse (bytes→owned msg), encode, get/get_indexed/get_all"]
     end
     TA -->|"&[u8] in, owned StampMessage out"| FN
@@ -282,7 +282,7 @@ graph LR
 - **No shared state.** Every function takes input by reference or value
   and returns owned data; there is no static, no mutex, no pool, and no
   interior mutability. Any number of feed tasks may call concurrently on
-  any host — correctness is trivially true, and the task/channel topology
+  any host - correctness is trivially true, and the task/channel topology
   is entirely the consumer's (one adapter task per feed, per the
   venue-feed design).
 - **Allocation profile.** One `Vec` per section (three per frame), one
@@ -290,14 +290,14 @@ graph LR
   bounded and predictable. A borrowed-view parse would remove the
   per-value allocation (§10) at the price of lifetimes.
 - **Hot path.** `parse` is a constant number of linear scans over the
-  buffer (three delimiter searches + field splitting) — O(frame length),
+  buffer (three delimiter searches + field splitting) - O(frame length),
   no regex, no backtracking. Lookups are linear scans over the section's
   fields; sections in practice carry tens of fields, so this is the
   cheap branch.
 - **Throughput posture.** The venue-feed sizing (~4k msg/s per feed) is
   transport-driven; the codec's per-frame cost is negligible against
   socket work and sits entirely inside the consumer's existing task
-  budget — no scheduling, no blocking, no syscalls.
+  budget - no scheduling, no blocking, no syscalls.
 
 ## 8. Invariants, Insecure-Defaults Rejected, Unsafe Rationale
 
@@ -314,26 +314,26 @@ graph LR
    `get_all` = stored order, in all cases scanning only that section.
 5. Values are verbatim (validated UTF-8 only); the codec never trims,
    normalizes, or numeric-decodes.
-6. `parse` returns complete messages or errors — no partial-success
+6. `parse` returns complete messages or errors - no partial-success
    shapes, no per-field defaults.
 7. Owned data only: no lifetimes escape, no unsafe code (the crate
    contains none, and any future version must justify it here).
 
 **Insecure defaults rejected:**
 
-- *Lossy decoding* (replacing invalid UTF-8 with a replacement char) —
+- *Lossy decoding* (replacing invalid UTF-8 with a replacement char) -
   silently corrupts order/trade numbers; rejected for typed rejection.
-- *Silent repair* (defaulting missing `=` or missing delimiter) — hides
+- *Silent repair* (defaulting missing `=` or missing delimiter) - hides
   protocol drift; decoded-then-defaulted frames poison quote state
   downstream.
 - *Canonicalizing reorders* (sorting/deduplicating repeated tags at
-  encode) — alters venue semantics the codec has no authority over.
-- *Interpreting values in the codec* — pins scale and field semantics
+  encode) - alters venue semantics the codec has no authority over.
+- *Interpreting values in the codec* - pins scale and field semantics
   inside a framing library; rejected in favor of opaque text.
-- *Panic-based rejection* (expect/unwrap on grammar) — a feed is untrusted
+- *Panic-based rejection* (expect/unwrap on grammar) - a feed is untrusted
   input; malformation is an expected input, not a bug report.
 
-**Unsafe rationale:** none — the crate contains no `unsafe` blocks and no
+**Unsafe rationale:** none - the crate contains no `unsafe` blocks and no
 FFI; delimiters are compared as raw bytes, and all parsing is safe slice
 arithmetic.
 
@@ -341,20 +341,20 @@ arithmetic.
 
 ```mermaid
 graph TD
-    subgraph P1["Layer 1 — unit (in-crate #[cfg(test)] mod tests)"]
-        U1["conformance suite — 12 tests<br/>framing constants pinned<br/>golden round-trips<br/>sections + indexed fields<br/>business-class shapes<br/>error taxonomy"]
+    subgraph P1["Layer 1 - unit (in-crate #[cfg(test)] mod tests)"]
+        U1["conformance suite - 12 tests<br/>framing constants pinned<br/>golden round-trips<br/>sections + indexed fields<br/>business-class shapes<br/>error taxonomy"]
     end
-    subgraph P2["Layer 2 — integration (consumer binaries)"]
+    subgraph P2["Layer 2 - integration (consumer binaries)"]
         U2["adapter normalization tests<br/>(VFeeds adapters, SOR stamp adapter)"]
     end
-    subgraph P3["Layer 3 — E2E / platform"]
+    subgraph P3["Layer 3 - E2E / platform"]
         U3["replay corpora + feed E2E<br/>(covered by the platform testing strategy, not here)"]
     end
     U1 -->|"codec contract pinned here"| U2 -->|"events/feed E2E"| U3
 ```
 
 - **Owned here (unit):** the full grammar contract, in the crate's test
-  module — control/builder framing constants (`control_chars_match_spec`),
+  module - control/builder framing constants (`control_chars_match_spec`),
   pinned tag numbers (`spec_tag_values`), golden full-frame round-trip
   (`round_trip_full_message`), section separator placement
   (`section_field_separator_is_rs`), indexed-field identity and ordering
@@ -364,14 +364,14 @@ graph TD
   business-class shapes (`trade_confirm_message_shape`,
   `order_request_message_shape`), and the error taxonomy
   (`missing_control_header_rejected`, `field_without_equals_rejected`).
-  All tests are pure byte assertions — no fixtures outside the crate, no
+  All tests are pure byte assertions - no fixtures outside the crate, no
   mocks.
 - **Deliberately NOT tested here:** socket/session behavior (SoupBinTCP,
-  A/B recovery — `exchange8::soup`, `exchange8::mold`, service session
+  A/B recovery - `exchange8::soup`, `exchange8::mold`, service session
   tasks), quote normalization and value semantics (adapter layers),
   end-to-end feed flows (platform-level replay corpora), and FIX 4.2
   (`exchange8::fix`).
-- **Run:** part of the vertical workspace gate — `make test` (debug) /
+- **Run:** part of the vertical workspace gate - `make test` (debug) /
   `make test-fast` (release) / coverage inside `cargo test -p
   exchange8-stamp`.
 

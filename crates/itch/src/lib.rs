@@ -4,12 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 //! Byte-exact encoders for the venue's proprietary **ITCH VER2** market-data
-//! wire format — both the binary packet forms and the fixed-width text forms.
+//! wire format - both the binary packet forms and the fixed-width text forms.
 //!
 //! **This is NOT the standard NASDAQ ITCH 4.1 spec.** It is the proprietary
 //! VER2 layout; every length, field order, and pad byte in this crate is
 //! pinned to `design/behavior-catalog/wire-formats.json`, and the golden
-//! tests anchor there — not to the public spec.
+//! tests anchor there - not to the public spec.
 //!
 //! Quick start (encode a message and hand it to a framing crate):
 //! ```
@@ -49,77 +49,77 @@ pub mod book_id {
     pub const LIT: u8 = b'L';
     /// `'Q'` QLX
     pub const QLX: u8 = b'Q';
-    /// `'O'` MEMP — the venue default book
+    /// `'O'` MEMP - the venue default book
     pub const MEMP: u8 = b'O';
 }
 
 /// Message type letters: byte 0 of every encoded VER2 message.
 pub mod msg_type {
-    /// `A` — Add Order (20 B binary).
+    /// `A` - Add Order (20 B binary).
     pub const ADD_ORDER: u8 = b'A';
-    /// `E` — Order Executed (16 B binary).
+    /// `E` - Order Executed (16 B binary).
     pub const ORDER_EXECUTED: u8 = b'E';
-    /// `U` — Order Replaced (20 B binary).
+    /// `U` - Order Replaced (20 B binary).
     pub const ORDER_REPLACED: u8 = b'U';
-    /// `D` — Order Delete (8 B binary).
+    /// `D` - Order Delete (8 B binary).
     pub const ORDER_DELETE: u8 = b'D';
-    /// `X` — Order Cancel (12 B binary).
+    /// `X` - Order Cancel (12 B binary).
     pub const ORDER_CANCEL: u8 = b'X';
-    /// `T` — Seconds timestamp marker (8 B binary).
+    /// `T` - Seconds timestamp marker (8 B binary).
     pub const SECONDS: u8 = b'T';
-    /// `M` — Milliseconds timestamp marker (8 B binary).
+    /// `M` - Milliseconds timestamp marker (8 B binary).
     pub const MILLISECONDS: u8 = b'M';
-    /// `S` — System Event (4 B binary).
+    /// `S` - System Event (4 B binary).
     pub const SYSTEM_EVENT: u8 = b'S';
-    /// `R` — Stock Directory (32 B binary).
+    /// `R` - Stock Directory (32 B binary).
     pub const STOCK_DIRECTORY: u8 = b'R';
-    /// `r` — Extended Stock Directory (61 B binary).
+    /// `r` - Extended Stock Directory (61 B binary).
     pub const EXTENDED_STOCK_DIRECTORY: u8 = b'r';
-    /// `H` — Stock Trading Action (4 B binary).
+    /// `H` - Stock Trading Action (4 B binary).
     pub const STOCK_TRADING_ACTION: u8 = b'H';
-    /// `P` — Trade (24 B binary).
+    /// `P` - Trade (24 B binary).
     pub const TRADE: u8 = b'P';
-    /// `Q` — Cross Trade (24 B binary).
+    /// `Q` - Cross Trade (24 B binary).
     pub const CROSS_TRADE: u8 = b'Q';
-    /// `B` — Broken Trade (8 B binary).
+    /// `B` - Broken Trade (8 B binary).
     pub const BROKEN_TRADE: u8 = b'B';
 }
 
-/// Binary message sizes in bytes (type char included) — the wire catalog's
+/// Binary message sizes in bytes (type char included) - the wire catalog's
 /// `size` per `binary_messages` entry.
 pub mod msg_len {
-    /// Add Order (`A`) — 20 bytes.
+    /// Add Order (`A`) - 20 bytes.
     pub const ADD_ORDER: usize = 20;
-    /// Order Executed (`E`) — 16 bytes.
+    /// Order Executed (`E`) - 16 bytes.
     pub const ORDER_EXECUTED: usize = 16;
-    /// Order Replaced (`U`) — 20 bytes.
+    /// Order Replaced (`U`) - 20 bytes.
     pub const ORDER_REPLACED: usize = 20;
-    /// Order Delete (`D`) — 8 bytes.
+    /// Order Delete (`D`) - 8 bytes.
     pub const ORDER_DELETE: usize = 8;
-    /// Order Cancel (`X`) — 12 bytes.
+    /// Order Cancel (`X`) - 12 bytes.
     pub const ORDER_CANCEL: usize = 12;
-    /// Seconds (`T`) — 8 bytes.
+    /// Seconds (`T`) - 8 bytes.
     pub const SECONDS: usize = 8;
-    /// Milliseconds (`M`) — 8 bytes.
+    /// Milliseconds (`M`) - 8 bytes.
     pub const MILLISECONDS: usize = 8;
-    /// System Event (`S`) — 4 bytes.
+    /// System Event (`S`) - 4 bytes.
     pub const SYSTEM_EVENT: usize = 4;
-    /// Stock Directory (`R`) — 32 bytes.
+    /// Stock Directory (`R`) - 32 bytes.
     pub const STOCK_DIRECTORY: usize = 32;
-    /// Extended Stock Directory (`r`) — 61 bytes.
+    /// Extended Stock Directory (`r`) - 61 bytes.
     pub const EXTENDED_STOCK_DIRECTORY: usize = 61;
-    /// Stock Trading Action (`H`) — 4 bytes.
+    /// Stock Trading Action (`H`) - 4 bytes.
     pub const STOCK_TRADING_ACTION: usize = 4;
-    /// Trade (`P`) — 24 bytes.
+    /// Trade (`P`) - 24 bytes.
     pub const TRADE: usize = 24;
-    /// Cross Trade (`Q`) — 24 bytes.
+    /// Cross Trade (`Q`) - 24 bytes.
     pub const CROSS_TRADE: usize = 24;
-    /// Broken Trade (`B`) — 8 bytes.
+    /// Broken Trade (`B`) - 8 bytes.
     pub const BROKEN_TRADE: usize = 8;
 }
 
 /// VER2 **text-mode** message sizes (the wire spec, the non-binary wire the
-/// old TCP text feed used) — extracted from `Itch.cpp` `BuildItchMsg`
+/// old TCP text feed used) - extracted from `Itch.cpp` `BuildItchMsg`
 /// `snprintf` formats, NOT from the NASDAQ spec.
 pub mod text_len {
     /// `ITCH_ADD_ORDER_MSG_LENGTH = 41` (`%1c%9u%1c%6u%-10s%10lu%3u%1c`).
@@ -189,7 +189,7 @@ pub enum ItchError {
 /// reserved char.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct AddOrder {
-    /// `'B'`/`'A'` — the venue's `FEED_SIDE` letters.
+    /// `'B'`/`'A'` - the venue's `FEED_SIDE` letters.
     pub side: u8,
     /// Published instrument identifier (u16, big-endian).
     pub instrument_id: u16,
@@ -557,7 +557,7 @@ impl Timestamp {
 // ---------------------------------------------------------------------------
 
 /// Right-pad a numeric field to `width` characters (right-aligned digits,
-/// space-filled — `snprintf`'s `%Nu` pads with spaces, not zeros).
+/// space-filled - `snprintf`'s `%Nu` pads with spaces, not zeros).
 fn pad_num(v: u64, width: usize) -> String {
     let s = v.to_string();
     if s.len() >= width {
@@ -699,7 +699,7 @@ impl OrderCancel {
 
 impl OrderDelete {
     /// Encode as the fixed-width text-mode Order Delete form (10 B,
-    /// `%1c%9u` — no wide variant; the id field is fixed 9-wide).
+    /// `%1c%9u` - no wide variant; the id field is fixed 9-wide).
     pub fn encode_text(&self) -> Vec<u8> {
         let mut o = String::with_capacity(text_len::ORDER_DELETE);
         o.push(msg_type::ORDER_DELETE as char);
@@ -710,7 +710,7 @@ impl OrderDelete {
 }
 
 // ---------------------------------------------------------------------------
-// Decode helpers (bytes → fields) — used by golden tests + consumers
+// Decode helpers (bytes → fields) - used by golden tests + consumers
 // ---------------------------------------------------------------------------
 
 /// Read a big-endian `u16` at byte offset `off`.
@@ -780,7 +780,7 @@ pub fn message_len(type_char: u8) -> Option<usize> {
 mod tests {
     use super::*;
 
-    /// Golden: Add Order byte layout — anchored to `wire-formats.json`
+    /// Golden: Add Order byte layout - anchored to `wire-formats.json`
     /// `binary_messages[0]`: type,side,instrumentId u16,orderId u32,shares u32,
     /// price u32,broker u16,bookId,reserved = 20 B.
     #[test]
@@ -901,7 +901,7 @@ mod tests {
     }
 
     // ------------------------------------------------------------------
-    // VER2 text-mode builders — golden against `Itch.h` lengths + the
+    // VER2 text-mode builders - golden against `Itch.h` lengths + the
     // `Itch.cpp` snprintf format strings.
     // ------------------------------------------------------------------
 
@@ -937,7 +937,7 @@ mod tests {
             instrument_id: 3,
             order_id: 1,
             shares: 1_500_000,    // > 999_999 → 10-wide, 45 B
-            price: 4_294_967_295, // u32::MAX — max 10-wide price
+            price: 4_294_967_295, // u32::MAX - max 10-wide price
             broker: 12,
             book_id: 2,
         };

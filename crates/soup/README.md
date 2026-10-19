@@ -4,11 +4,11 @@
 
 `exchange8::soup` is the SoupBinTCP session-framing codec of the
 exchange8 vertical: it encodes and decodes the login conversation
-(Login Request / Accept / Reject — including the fixed-width credential
+(Login Request / Accept / Reject - including the fixed-width credential
 fields' exact layout), builds the control frames (server/client
 heartbeats, logout), wraps ITCH payloads into sequenced-data frames,
 and supplies the incremental length-prefix logic a stream reader needs
-(`next_frame_len` / `split_frame`). It is a pure library — no sockets,
+(`next_frame_len` / `split_frame`). It is a pure library - no sockets,
 no database, no endpoints, no process of its own. Connection lifecycle,
 heartbeat timing, and byte-stream plumbing belong to the consuming
 services (Exchange8:MD publisher, Exchange8:VFeeds sessions).
@@ -25,8 +25,8 @@ so that both ends of that conversation have one exact definition:
   (user 6, password 10, session 10, sequence 20 as blank-padded digits)
   and 33-byte login-accept are produced and consumed field-exactly,
   anchored to `design/behavior-catalog/wire-formats.json`.
-- **One universal frame grammar.** Every other message — heartbeat,
-  logout, sequenced ITCH data — is the same `[len u16 BE][type][payload]`
+- **One universal frame grammar.** Every other message - heartbeat,
+  logout, sequenced ITCH data - is the same `[len u16 BE][type][payload]`
   shape, so the reader is two functions.
 - **The sequence handshake is a number.** The 20-character right-aligned
   sequence fields encode the subscriber's replay-from position; the codec
@@ -54,7 +54,7 @@ graph TD
         SDK["sdk/rust/exchange8<br/>pub use exchange8_soup as soup"]
     end
 
-    subgraph CRATE["exchange8::soup — this crate (pure framing)"]
+    subgraph CRATE["exchange8::soup - this crate (pure framing)"]
         LOGIN["LoginRequest · LoginAccept<br/>encode / parse (exact widths)"]
         CTRL["login_rejected · server_heartbeat<br/>client_heartbeat · logout"]
         SD["sequenced_data(payload)"]
@@ -87,38 +87,38 @@ graph TD
   Login/Accept conversations are typed; heartbeats/logout are single
   frame constructors.
 - **Sequence recovery rides the handshake.** The login request's
-  sequence field is the replay-from position — the codec's role is to
+  sequence field is the replay-from position - the codec's role is to
   move the number across the wire losslessly.
 
 ## 4. Key Traits and Data Structures
 
-There are no traits, no dyn dispatch — payload structs and frame
+There are no traits, no dyn dispatch - payload structs and frame
 constructors.
 
-- **`LoginRequest`** — the subscriber's credentials: `username`,
+- **`LoginRequest`** - the subscriber's credentials: `username`,
   `password`, `session`, `seqnumber: u32`. `parse(payload)` insists on
   exactly the 47-byte payload (payload-relative offsets user@1..7,
-  pwd@7..17, session@17..27, seq@27..47 — catalog frame anchors
+  pwd@7..17, session@17..27, seq@27..47 - catalog frame anchors
   user@3, pwd@9, session@19, seq@29), decoding digits tolerantly (`0`
   fallback); `encode()` produces the full `[len u16 BE][L][fields][seq-20-digits]`
   frame with blank-padded right-aligned sequence digits.
-- **`LoginAccept`** — the publisher's grant: `session` + `seqnumber`.
+- **`LoginAccept`** - the publisher's grant: `session` + `seqnumber`.
   31-byte payload ↔ 33-byte frame discipline; `parse`/`encode` inverse
   pair.
-- **Control frame constructors** — `login_rejected(reason)`
+- **Control frame constructors** - `login_rejected(reason)`
   (reason `A` not authorized / `S` session not available from
   `reject_reason`), `server_heartbeat()`, `client_heartbeat()`,
-  `logout()` — each producing the exact 3–4-byte frame.
-- **`sequenced_data(itch_payload)`** — wraps an ITCH payload as the `S`
+  `logout()` - each producing the exact 3-4-byte frame.
+- **`sequenced_data(itch_payload)`** - wraps an ITCH payload as the `S`
   server→client message; `next_frame_len(buf)` reads the 2-byte
   prefix to compute the total expected frame length (`None` until two
   bytes are available); `split_frame(frame)` yields
   `(type byte, payload slice)`.
-- **Type tables** — `msg_type` (`L A J S H R U O` letters),
+- **Type tables** - `msg_type` (`L A J S H R U O` letters),
   `reject_reason`, and frame constants (`LOGIN_REQUEST_LEN` 47,
   `LOGIN_ACCEPT_LEN` 31, `LOGIN_REJECT_LEN` 2, `SERVER_HEARTBEAT_FRAME`
   3, `LINE_FEED` 0x0A).
-- **`SoupError`** — the codec's whole failure surface:
+- **`SoupError`** - the codec's whole failure surface:
   `TooShort { need, have }`, `BadLoginLen(len)`, `UnknownType(byte)`.
 
 ## 5. Rationale, Trade-offs, and Alternatives
@@ -136,29 +136,29 @@ constructors.
   cosmetic deviations.
 - **`BadLoginLen` over silent truncation.** The login payload has an
   exact catalog length (47/31); anything else means the peer is not a
-  Soup endpoint or the frame is corrupt — typed rejection immediately.
-- **`next_frame_len` / `split_frame` as separate calls** — the reader
+  Soup endpoint or the frame is corrupt - typed rejection immediately.
+- **`next_frame_len` / `split_frame` as separate calls** - the reader
   accumulates bytes, asks "is a whole frame here?", then splits it. A
   streaming incremental parser could hide this, but the two-function
   contract is stateless and maps directly to any async read loop the
   consumer already runs.
 - **Sequenced data payloads stay opaque.** The crate does not peer into
-  `S` payloads — ITCH bytes are `exchange8::itch`'s; framing layers must
+  `S` payloads - ITCH bytes are `exchange8::itch`'s; framing layers must
   not interpret each other's content.
 - **No serde, no async, no I/O.** `thiserror` alone; the codec compiles
   into any consumer including test harnesses.
 
 ## 6. Internal Implementation & Invariants (Private Design)
 
-- **Field helpers** — `field_str(bytes)` trims trailing bytes from the
+- **Field helpers** - `field_str(bytes)` trims trailing bytes from the
   lossy-UTF-8 view; `push_field(out, value, width)` copies up-to-width
-  bytes then pads with spaces — the two together round-trip fixed-width
+  bytes then pads with spaces - the two together round-trip fixed-width
   ASCII fields exactly.
 - **Frame-relative offsets.** The catalog speaks frame offsets (user@3
   = after the 2-byte prefix + 1 type byte); payload-relative parsing
-  shifts by 2 (`user@1..7`, pwd@7..17, session@17..27, seq@27..47) —
+  shifts by 2 (`user@1..7`, pwd@7..17, session@17..27, seq@27..47) -
   both coordinate systems are documented at the parse sites.
-- **Sequence encoding** — `format!("{:>20}", seq)` right-aligns into the
+- **Sequence encoding** - `format!("{:>20}", seq)` right-aligns into the
   20-field; parse trims and parses (fallback 0). Encode is total for
   any `u32`.
 - **Invariants held across encode/parse:**
@@ -168,7 +168,7 @@ constructors.
      payloads.
   3. `encode` output lengths are exact: 2+47, 2+31, 4, 3, 3, 3, and
      `2 + 1 + payload` respectively.
-  4. Fixed-width fields are trimmed on parse, blank-padded on encode —
+  4. Fixed-width fields are trimmed on parse, blank-padded on encode -
      identity holds for inputs up to the exact width (longer inputs
      truncate to width by protocol contract).
   5. Control frames have no payload; `split_frame` on them yields an
@@ -187,7 +187,7 @@ constructors.
   on non-digit text is documented; an explicit `Result`-based parse
   variant could make the fallback a caller policy instead.
 - **Heartbeat timeout supervision.** Timing (interval, missed-beat
-  policy) is session-task business; the codec supplies only the frames —
+  policy) is session-task business; the codec supplies only the frames -
   supervision helpers stay out unless a second consumer demands a
   shared implementation.
 

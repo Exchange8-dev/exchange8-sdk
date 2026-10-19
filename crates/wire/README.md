@@ -3,16 +3,16 @@
 ## 1. Summary
 
 `exchange8::wire` (package `exchange8-wire`, sources in `crates/wire/src/lib.rs`) is
-the service-agnostic transport-primitives library of the exchange8 vertical — the
+the service-agnostic transport-primitives library of the exchange8 vertical - the
 capital-markets platform of Sentin8. It ships three small, orthogonal library layers
 consumed by the exchange8 service binaries and sibling crates:
 
-- a **framed codec** — 4-byte little-endian length prefix + serde-JSON payload
+- a **framed codec** - 4-byte little-endian length prefix + serde-JSON payload
   (`encode` / `decode` / `next_frame_len`, bounded by `MAX_FRAME`),
 - **bounded in-process MPSC channels** (`channel` → `BoundedSender` / `Stream`)
   whose hot-path contract is non-blocking `try_send` with the value handed back on
   backpressure (`SendError`),
-- **id lease blocks** (`SequenceLease`) — an in-process window of ids handed out
+- **id lease blocks** (`SequenceLease`) - an in-process window of ids handed out
   strictly increasing until exhausted, refilled in `BATCH = 10 000` batches from the
   platform sequence-lease facility.
 
@@ -25,7 +25,7 @@ facade level (`exchange8::wire`) per architecture principles §2.1.
 - **One framing for the internal direct-stream tier.** Order flow between
   Exchange8:Gateway, Exchange8:ME, Exchange8:OMS and Exchange8:SOR rides point-to-point framed streams
   (master design §5.2, §7.2), not HTTP and not bus-relayed payloads. Without a
-  shared codec, every service re-implements — and subtly diverges on — length
+  shared codec, every service re-implements - and subtly diverges on - length
   prefixes, truncation handling and error semantics.
 - **Hot-path contracts that cannot surprise.** Matching-tier code cannot afford
   blocking sends, silent drops or panics on the send/decode route. The bounded
@@ -47,27 +47,27 @@ facade level (`exchange8::wire`) per architecture principles §2.1.
 
 The crate is a single library module organized as three independent layers; no
 layer knows which service is calling. Consumers import through the workspace
-facade (`sdk/rust/exchange8`: `pub use exchange8_wire as wire;`) — services use
+facade (`sdk/rust/exchange8`: `pub use exchange8_wire as wire;`) - services use
 `exchange8::wire`, and the typed ME client (`exchange8::me::client`) wraps the
 framing tier for its envelope encode/decode.
 
 ```mermaid
 graph TD
-    subgraph Consumers["Consumers — exchange8 services and sibling crates"]
-        MEC["exchange8::me::client — typed ME stream envelopes"]
-        SVCS["exchange8 services (shell tasks) — framed dispatch and id hand-out"]
+    subgraph Consumers["Consumers - exchange8 services and sibling crates"]
+        MEC["exchange8::me::client - typed ME stream envelopes"]
+        SVCS["exchange8 services (shell tasks) - framed dispatch and id hand-out"]
     end
 
-    subgraph CRATE["exchange8::wire — one facade level, three layers"]
-        FRAMING["Framing layer — encode / next_frame_len / decode"]
+    subgraph CRATE["exchange8::wire - one facade level, three layers"]
+        FRAMING["Framing layer - encode / next_frame_len / decode"]
         GUARD["MAX_FRAME guard (4 MiB) + DecodeError containment"]
-        QUEUE["Queue layer — channel / BoundedSender / Stream (bounded, try_send)"]
-        LEASE["Leasing layer — SequenceLease (BATCH = 10 000 per block)"]
+        QUEUE["Queue layer - channel / BoundedSender / Stream (bounded, try_send)"]
+        LEASE["Leasing layer - SequenceLease (BATCH = 10 000 per block)"]
     end
 
-    subgraph OUTSIDE["Outside the crate — platform surfaces and ecosystem"]
-        SHELL["sentin8::shell service hosts — stream wiring, lease refill"]
-        PLAT["Sentin8 platform sequence-lease facility — disjoint id blocks"]
+    subgraph OUTSIDE["Outside the crate - platform surfaces and ecosystem"]
+        SHELL["sentin8::shell service hosts - stream wiring, lease refill"]
+        PLAT["Sentin8 platform sequence-lease facility - disjoint id blocks"]
         ECO["serde / serde_json / tokio"]
     end
 
@@ -84,37 +84,37 @@ The three layers are independent: the framing tier needs only `serde`
 (+ `serde_json`), the queue tier needs only `tokio`, the lease tier needs neither
 runtime nor serialization. Nothing here is tied to one service identity; SoupBinTCP
 and the external wire formats have their own crates (`crates/soup`, `crates/itch`,
-`crates/mold`, `crates/stamp`, `crates/fix`) — distinct formats, kept separate.
+`crates/mold`, `crates/stamp`, `crates/fix`) - distinct formats, kept separate.
 
 ## 4. Key Traits and Data Structures
 
-Concepts the crate exposes (plain synchronous types and functions — no traits):
+Concepts the crate exposes (plain synchronous types and functions - no traits):
 
-- **Frame** — the wire unit: a 4-byte little-endian `u32` payload length followed
+- **Frame** - the wire unit: a 4-byte little-endian `u32` payload length followed
   by that many JSON bytes. `encode` serializes a domain value into one frame;
   `decode` reads prefix + payload back as `T: DeserializeOwned` (or a contained
   `DecodeError`); `next_frame_len` computes the expected total length from a
   partial prefix for streamed readers. `MAX_FRAME` (4 MiB) bounds every payload.
-- **Bounded queue pair** — `channel(queue_depth)` yields `BoundedSender<T>`
+- **Bounded queue pair** - `channel(queue_depth)` yields `BoundedSender<T>`
   (clonable across tasks; `try_send` never blocks and returns the value on a full
   or closed channel; async `send` for non-hot paths; `capacity` reports queue
   depth) and `Stream<T>` (single consumer; `recv` awaits, `try_recv` drains).
   Depth is floored at one so `try_send` always has a well-defined success case.
-- **SendError** — the backpressure contract: both a full channel and a closed
+- **SendError** - the backpressure contract: both a full channel and a closed
   receiver hand the value back; `into_inner` recovers it. No panic path exists in
-  the send tier — the caller decides to retry, drain or treat closure as shutdown.
-- **Lease block** — `SequenceLease` couples an identity triple
-  (`env_id`, `service`, `seq_type` — e.g. `('env-1', 'me', 'trade')`) with a
+  the send tier - the caller decides to retry, drain or treat closure as shutdown.
+- **Lease block** - `SequenceLease` couples an identity triple
+  (`env_id`, `service`, `seq_type` - e.g. `('env-1', 'me', 'trade')`) with a
   half-open window `[next, end)`: `take()` hands out the next id until exhaustion
   (`None`), `remaining()` reports ids left, and `BATCH = 10 000` is the default
   block size the service shell refills with.
-- **Batch refill (concept, not code)** — the crate never touches a database. When
+- **Batch refill (concept, not code)** - the crate never touches a database. When
   a block is exhausted, the *service shell* leases the next disjoint block from
   the platform sequence-lease facility and re-arms hand-out.
-- **Monotonicity guarantees** — within a block, ids are strictly increasing and
+- **Monotonicity guarantees** - within a block, ids are strictly increasing and
   never reused; across blocks, the platform facility guarantees disjoint
   contiguous blocks, so the sequence keeps rising; across restarts, ids never
-  reset within an environment — gaps between ids are tolerated, duplicates are
+  reset within an environment - gaps between ids are tolerated, duplicates are
   impossible by construction.
 
 ## 5. Rationale, Trade-offs, and Alternatives
@@ -123,7 +123,7 @@ Concepts the crate exposes (plain synchronous types and functions — no traits)
   *Framing = length prefix + JSON*, not a bespoke binary protocol: the domain DTOs
   are serde types owned by the contracts crate, frames stay human-inspectable, and
   schema evolution follows serde. The high-volume external wire formats (FIX,
-  ITCH, MoldUDP64, SoupBinTCP, STAMP) live in dedicated codec crates — `wire`
+  ITCH, MoldUDP64, SoupBinTCP, STAMP) live in dedicated codec crates - `wire`
   deliberately does not compete with them.
   *Id leasing = amenable batch blocks*, mirroring how FIX engines and matching
   engines amortize sequence allocation: one platform interaction per 10 000 hand
@@ -133,21 +133,21 @@ Concepts the crate exposes (plain synchronous types and functions — no traits)
   becomes a decision the shell owns.
 - **Dispatching.** All public functions are generic over `Serialize` /
   `DeserializeOwned` (static, monomorphized dispatch). There is no pluggable-codec
-  abstraction, precisely because none is needed — dynamic dispatch (`Box<dyn>`)
+  abstraction, precisely because none is needed - dynamic dispatch (`Box<dyn>`)
   would add a vtable call per frame on the hot path for no requirement today.
 - **Concurrency.** The queue tier wraps `tokio::sync::mpsc`: sender clone-across-
   tasks, single receiver, bounded. The lease tier has zero interior
-  synchronization — ownership-based single-writer use (`&mut`), no atomics, no
+  synchronization - ownership-based single-writer use (`&mut`), no atomics, no
   locks; two `u64` counters are cache-local. Cross-task queueing is intentionally
   the only synchronization point, because it is the intended backpressure point.
 - **Rejected alternatives.**
-  *Per-id platform round trips* — simpler, but puts a database round trip inside
+  *Per-id platform round trips* - simpler, but puts a database round trip inside
   the matching hot path; rejected.
-  *Unbounded queues* — unbounded memory under a slow consumer; rejected in favor
+  *Unbounded queues* - unbounded memory under a slow consumer; rejected in favor
   of explicit bounded depth.
-  *Bincode/protobuf payloads* — a schema-codegen dependency chain and non-self-
+  *Bincode/protobuf payloads* - a schema-codegen dependency chain and non-self-
   describing bytes for little volume benefit in the internal tier; rejected.
-  *An in-crate lease-refill SQL client* — the id-counter substrate is platform
+  *An in-crate lease-refill SQL client* - the id-counter substrate is platform
   owned and refill belongs to the service shell; embedding DSN/SQL in this
   service-agnostic crate would put platform coupling in the wrong layer;
   rejected (data-model design §2a).
@@ -156,17 +156,17 @@ Concepts the crate exposes (plain synchronous types and functions — no traits)
 
 - `encode` serializes first, then prefixes; the output buffer is allocated once
   (`4 + body.len()`), so the hot path performs exactly one allocation per frame.
-  Serialization of in-memory serde domain types cannot fail — the code documents
+  Serialization of in-memory serde domain types cannot fail - the code documents
   that invariant where it occurs.
 - `decode` validates in order: total length ≥ 4 (`TooShort`), payload length ≤
   `MAX_FRAME` (`TooLarge`, checked *before* any payload copy), payload complete
   (`TooShort`), payload parses (`Json` with the serde message). A corrupt length
   prefix can therefore never drive an oversize allocation or a truncation.
 - `next_frame_len` returns `Some(payload_len + 4)` and deliberately does *
-  not* apply `MAX_FRAME` — streamed readers enforce the bound themselves (see
+  not* apply `MAX_FRAME` - streamed readers enforce the bound themselves (see
   Open Questions).
 - `channel` floors `queue_depth` at 1: a zero-capacity channel would make every
-  `try_send` fail by construction — that failure mode is designed away.
+  `try_send` fail by construction - that failure mode is designed away.
 - The lease window is half-open: `next` inclusive, `end` exclusive; `take` is a
   single `next < end` branch plus increment. At exhaustion the block is inert
   (`remaining() == 0`); re-arming means a fresh block from the platform facility.
@@ -181,8 +181,8 @@ Concepts the crate exposes (plain synchronous types and functions — no traits)
 
 ## 7. Unresolved Questions / Future Designs
 
-- **Service-side lease counters.** The shell-owned counters — me `TradeIdLease`,
-  gateway `OrderIdAssigner`, oms `ChildIdLease` — re-implement the same
+- **Service-side lease counters.** The shell-owned counters - me `TradeIdLease`,
+  gateway `OrderIdAssigner`, oms `ChildIdLease` - re-implement the same
   hand-out/refill pattern in their services instead of composing over
   `SequenceLease`. Unifying them would centralize rollover semantics (daily
   rollover vs continue-from-DB) and re-arm behavior; deferred because it touches

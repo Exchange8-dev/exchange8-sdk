@@ -1,4 +1,4 @@
-# exchange8::contracts — Detailed Design Document
+# exchange8::contracts - Detailed Design Document
 
 > Audience: maintainers and reviewers modifying the crate. This is a
 > **library**: it has no HTTP surface, no database, no deployment, and no
@@ -10,11 +10,11 @@
 
 **Owns** (the vocabulary itself):
 
-- Normalized order/instrument DTOs — `order.rs`.
-- ME char-code enums — `enums.rs`.
-- Reject-code catalog + FIX 103 text — `reject.rs`.
-- Sentin8:Bus envelopes + ME/OMS event payloads + quote events — `events.rs`.
-- Gateway → Risk authorize wire DTOs — `risk.rs`.
+- Normalized order/instrument DTOs - `order.rs`.
+- ME char-code enums - `enums.rs`.
+- Reject-code catalog + FIX 103 text - `reject.rs`.
+- Sentin8:Bus envelopes + ME/OMS event payloads + quote events - `events.rs`.
+- Gateway → Risk authorize wire DTOs - `risk.rs`.
 
 **Does NOT own** (delegated everywhere else in the vertical):
 
@@ -28,25 +28,25 @@
 | Persistence of orders/trades | Clearing / OMS services |
 | Scaled decimal arithmetic primitives | `exchange8::fixed` |
 
-System context — every trust boundary crossing a service consumes one module
+System context - every trust boundary crossing a service consumes one module
 of this crate:
 
 ```mermaid
 graph TD
     CLIENT["FIX / OUCH / app clients"]
     subgraph SGW["Gateway (trust boundary: client edge)"]
-        GWSUB["submission.rs — builds ExchangeOrder"]
-        GWEX["exec_report.rs — maps RejectCode → FIX 103"]
+        GWSUB["submission.rs - builds ExchangeOrder"]
+        GWEX["exec_report.rs - maps RejectCode → FIX 103"]
     end
     subgraph SRK["Risk (trust boundary: pre-trade)"]
-        RK["core.rs authorize — consumes risk::AuthorizeRequest"]
+        RK["core.rs authorize - consumes risk::AuthorizeRequest"]
     end
     subgraph SME["ME (trust boundary: matching core)"]
-        ENG["engine.rs — consumes AddOrder.. emits OrderExecuted"]
+        ENG["engine.rs - consumes AddOrder.. emits OrderExecuted"]
     end
-    CL["Clearing projector — consumes OrderBooked/OrderExecuted/OrderKilled"]
-    MDU["MD book/calendar — consumes InstrumentStatus/LotType"]
-    BUS["Sentin8:Bus — Envelope&lt;T&gt; produce payloads"]
+    CL["Clearing projector - consumes OrderBooked/OrderExecuted/OrderKilled"]
+    MDU["MD book/calendar - consumes InstrumentStatus/LotType"]
+    BUS["Sentin8:Bus - Envelope&lt;T&gt; produce payloads"]
     CAT["design/behavior-catalog<br/>messages.json + reject-codes.json"]
 
     CLIENT -->|FIX 4.2 / OUCH binary| GWSUB
@@ -65,7 +65,7 @@ graph TD
 
 ## 2. Runtime Architecture
 
-**Service concept:** not applicable — the crate is a passive type library with
+**Service concept:** not applicable - the crate is a passive type library with
 no routers, handlers, workers, caches, or tasks. The "runtime map" is the
 module map compiled into every consumer:
 
@@ -111,12 +111,12 @@ vehicle for the states above; `TransactionRejected` carries `RejectedOp`
 
 ## 3. Data Model
 
-**Service concept:** not applicable — no tables, no RLS. The data model is the
+**Service concept:** not applicable - no tables, no RLS. The data model is the
 struct/enum inventory and its serialization form.
 
 Inventory by module (variant/field counts from the sources):
 
-- `enums.rs` — 12 enumerations, each with exact `char` wire codes:
+- `enums.rs` - 12 enumerations, each with exact `char` wire codes:
   `OrderType` ('L','F','I','P','B'), `Side` ('B','A'),
   `Visibility` ('D','H'), `Capacity` ('A' agency / 'P' principal),
   `PriceProtection` ('K','P'), `InstrumentStatus` ('O','H','Q'),
@@ -124,23 +124,23 @@ Inventory by module (variant/field counts from the sources):
   'H','C','A','I','F','S','R','P','M','E'), `MeRejectReason`
   ('H','F','W','U','E','V'), `Liquidity` ('A','R'), `LotType` ('1','2'),
   `SystemEventCode` ('O','C','Q','M','S','E','P').
-- `events.rs` — `Envelope<T>` + 9 inbound DTOs (`AddOrder`, `CancelOrder`,
+- `events.rs` - `Envelope<T>` + 9 inbound DTOs (`AddOrder`, `CancelOrder`,
   `CancelAllForConnection`, `ModifyOrder`, `InstrumentStatusMsg`,
   `MarketStatusMsg`, `OrderStateMsg`) + 9 outbound DTOs (`OrderBooked`,
   `OrderKilled`, `OrderModified`, `OrderFilled`, `OrderAccepted`,
   `TransactionRejected`, `OrderExecuted`, `OrderRepriced`) + `RejectedOp` +
   `Quote`, `BboUpdated`.
-- `order.rs` — `ExchangeOrder` (~40 fields in identity/instrument/attribute/
+- `order.rs` - `ExchangeOrder` (~40 fields in identity/instrument/attribute/
   state groups), `InstrumentRef`, `InstrumentKind` (7 kinds), `OrderSide`
   (6 FIX 54 codes), `Tif` (7 FIX 59 codes), `OrdType` (FIX 40 subset),
   `PegType` (4 FIX 18 peg chars), `StpAction` (4), `StpKeyType` (4),
   `BookToken('M'|'L'|'O'|'Q'|'D'…)` , `CrossData`, `OrdStatus` (12 FIX 39
   states).
-- `reject.rs` — `RejectCode`: order_reject codes 1–8 / 100–124 / 130–144,
-  base_reject 125–129 + 200, cancel_reject 0/2/3/105, plus platform rejects
+- `reject.rs` - `RejectCode`: order_reject codes 1-8 / 100-124 / 130-144,
+  base_reject 125-129 + 200, cancel_reject 0/2/3/105, plus platform rejects
   with no numeric code (`RiskUnavailable`, `RateLimited`, `GreeksLimit`,
   `MarginInsufficient`, `Malformed`, `Internal`).
-- `risk.rs` — `AuthorizeResponse`, `Decision`.
+- `risk.rs` - `AuthorizeResponse`, `Decision`.
 
 ```mermaid
 classDiagram
@@ -210,7 +210,7 @@ classDiagram
   accessed through `as_char`/`from_char` associated functions, never implied
   by the serde form.
 - `Price`/`Qty` from `exchange8-fixed` serialize as `{ raw, scale }` scaled
-  integers — precision-preserving across instruments with different digit
+  integers - precision-preserving across instruments with different digit
   scales.
 - `Option<T>` fields encode as absent/`null`; `Vec` fields as arrays.
 - The framed direct-stream codec (`exchange8::wire`) wraps whole `Envelope<T>`
@@ -219,7 +219,7 @@ classDiagram
 
 ## 4. API Surface
 
-**Service concept:** not applicable — no endpoints, no authorization gates.
+**Service concept:** not applicable - no endpoints, no authorization gates.
 The public API is the Rust item inventory (all re-exported explicitly from the
 crate root, and reachable through the vertical facade
 `sdk/rust/exchange8::contracts`). Grouped for navigation:
@@ -233,7 +233,7 @@ crate root, and reachable through the vertical facade
 - **ME wire enums** (`enums`): `OrderType`, `Side` (+`opposite`),
   `Visibility` (+`is_visible`), `Capacity`, `PriceProtection`,
   `InstrumentStatus`, `MarketStatus`, `KillReason`, `MeRejectReason`,
-  `Liquidity`, `LotType`, `SystemEventCode` — each with exact
+  `Liquidity`, `LotType`, `SystemEventCode` - each with exact
   `as_char`/`from_char` round-trips.
 - **Rejects** (`reject`): `RejectCode` with `wire_code() -> Option<u16>` and
   `as_str() -> &'static str`; `#[non_exhaustive]` so new platform reasons can
@@ -265,12 +265,12 @@ Event-type vocabulary the crate encodes (names consumers put into
 - **Wire-format stability.** The crate is the serialization boundary: any
   field removal/rename can silently break bus consumers, framed-stream peers,
   and cleared-record readers. Rules: additive changes only; new enum variants
-  must be either exhaustive-compiled (ME enums — compiler forces the catalog
+  must be either exhaustive-compiled (ME enums - compiler forces the catalog
   match) or `#[non_exhaustive]` (rejects); the unit tests that iterate every
   wire char and every reject code against the extracted catalog are the
   change-detector. No serde attributes may change existing names.
 - **Numeric precision conventions.** Prices and quantities are
-  `exchange8-fixed` scaled integers carrying their decimal `scale` per value —
+  `exchange8-fixed` scaled integers carrying their decimal `scale` per value -
   4 digits for the equity VER2 board, 8 digits for crypto; `InstrumentRef`
   repeats the scales (`price_scale`, `qty_scale`) so validation can compare
   the order's price scale against the instrument's. Time in force, peg
@@ -289,13 +289,13 @@ Event-type vocabulary the crate encodes (names consumers put into
   idempotency projections.
 - **Authorization pipeline position.** The crate contributes types to steps
   (token extraction → verification → tenant resolve → Shield decision → RLS
-  context) of the platform pipeline but performs none of it — service crates
+  context) of the platform pipeline but performs none of it - service crates
   do. Requests that cannot resolve tenant context are rejected by the services,
   never defaulted; the crate's `env_id` field is the routing key they set.
 
 ## 6. Failure Modes & Recovery
 
-**Service concept:** not applicable — a library cannot crash or retry. What
+**Service concept:** not applicable - a library cannot crash or retry. What
 the crate provides is the **failure vocabulary** the vertical's services use
 to recover:
 
@@ -305,7 +305,7 @@ to recover:
   (e.g. `WrongPrice` = 120, `MismatchPriceTicksize` = 132), risk-engine
   unavailability is explicit (`RiskUnavailable`, fail-closed), rate-guard
   pressure is `RateLimited`, margin shortfall `MarginInsufficient`, and
-  unmatched internal faults collapse to `Internal` — each renders a stable
+  unmatched internal faults collapse to `Internal` - each renders a stable
   FIX 103 text for the client-visible path.
 - **Unknown-data handling.** Parsing functions return `Option` (`from_char`,
   `from_fix`), never panic on unknown codes; callers decide between reject
@@ -317,7 +317,7 @@ to recover:
   `ExchangeOrder::unresolved_instrument_code()` gives the gateway a
   deterministic reject (`InvalidSymbol` when the symbol is empty, otherwise
   `InvalidSecurityId`) when Risk's instrument snapshot disagrees with the
-  session's view — the stale-cache failure mode.
+  session's view - the stale-cache failure mode.
 - **Deserialization failures** bubble as serde errors to the transport layer
   (frame decode error, produce validation), which owns the retry/drop policy;
   the crate guarantees the failure is type-level (no partially-deserialized
@@ -325,12 +325,12 @@ to recover:
 
 ## 7. Concurrency & Performance Model
 
-**Service concept:** not applicable — the crate spawns no tasks and holds no
+**Service concept:** not applicable - the crate spawns no tasks and holds no
 locks. What it contributes to the vertical's concurrency posture:
 
 - **Clone/Copy semantics.** All ME message DTOs and every enum are `Copy` +
-  `Clone` (single-digit-byte-size types: `u8`–`u128`, `char`s, small fixed
-  arrays) — matching-engine side channels pass them by value. The composite
+  `Clone` (single-digit-byte-size types: `u8`-`u128`, `char`s, small fixed
+  arrays) - matching-engine side channels pass them by value. The composite
   carriers (`ExchangeOrder`, `InstrumentRef`, `AddOrder`, `Envelope<T>`) are
   `Clone`-only because they own `String`/`Vec` identity fields; cloning is
   expected at hand-off boundaries (order state vs. event emission), not in
@@ -346,7 +346,7 @@ locks. What it contributes to the vertical's concurrency posture:
   `order_id`) are inline integers. Consumers that need zero-allocation reads
   borrow these fields instead of cloning.
 - **Send/Sync everywhere.** No interior mutability, no lifetime-bound borrows
-  in public types — every DTO can cross tokio task boundaries and channels
+  in public types - every DTO can cross tokio task boundaries and channels
   freely, which the ME shard dispatch and gateway fan-out rely on.
 - **No atomics/locks by design.** Lifecycle state changes live in producer
   services; the crate's types are immutable snapshots, so there is nothing to
@@ -363,10 +363,10 @@ locks. What it contributes to the vertical's concurrency posture:
 2. `RejectCode::wire_code` covers every catalog-mapped code exactly and
    returns `None` exactly for platform-added rejects.
 3. `Envelope::event_type` always carries
-   `exchange8:{service}:{resource}:{operation}` names — colon-separated, with
+   `exchange8:{service}:{resource}:{operation}` names - colon-separated, with
    `env_id`, `seq`, `idempotency_key` set by any producer.
 4. `OrdStatus` terminal set is exactly {`Fill`, `Canceled`, `Rejected`,
-   `Expired`} — `is_terminal` is the single source of that truth.
+   `Expired`} - `is_terminal` is the single source of that truth.
 5. All public types are `Serialize + Deserialize + Debug + Clone`; no `unsafe`,
    no interior mutability.
 6. FIX code conversions never accept strings/chars outside the documented
@@ -377,7 +377,7 @@ to a "default" order type/side; no reject code maps to a generic bucket
 before `UnknownReason`; no `Price`/`Qty` mixing across different `scale`
 values is possible because the scale rides inside the value.
 
-**Unsafe rationale:** none — the crate contains no `unsafe` blocks; its
+**Unsafe rationale:** none - the crate contains no `unsafe` blocks; its
 soundness needs no invariants beyond the standard library's guarantees.
 
 ## 9. Testing Strategy
@@ -386,15 +386,15 @@ The crate's tests are its compatibility contract. Unit tests (in-module
 `#[cfg(test)]`) anchor every vocabulary surface to the extracted behavior
 catalog:
 
-- `enums.rs` — `wire_chars_match_catalog`, `kill_reasons_match_catalog`,
+- `enums.rs` - `wire_chars_match_catalog`, `kill_reasons_match_catalog`,
   `system_events_match_catalog` iterate every char/variant pair;
   `side_opposite` checks derivation.
-- `reject.rs` — `wire_codes_match_catalog` samples the order/base/cancel
+- `reject.rs` - `wire_codes_match_catalog` samples the order/base/cancel
   families, asserts `None` for platform-added rejects; `fix103_text_present`
   walks a spread of codes and asserts non-empty `as_str()`.
-- `order.rs` — FIX 54 side codes, FIX 59 TIF parsing (empty = Day),
+- `order.rs` - FIX 54 side codes, FIX 59 TIF parsing (empty = Day),
   `OrdStatus::is_terminal`, peg char round-trips.
-- `events.rs` — `Envelope` JSON round-trip with a real
+- `events.rs` - `Envelope` JSON round-trip with a real
   `exchange8:me:trade:executed` event name.
 
 ```mermaid
@@ -427,8 +427,8 @@ entry, execution reports, drop copy) is owned by the platform's E2E suite
   specifies self-contained payload snapshots per event; several
   `Envelope` payloads in this crate are narrower than their catalog rows
   (e.g. `OrderBooked` vs. the `order_id, instrument_id, book_id, price,
-  visible vol, side, conn/gw ids` row). A compatibility pass — widening
-  payload structs or documenting the narrower contract — is owed.
+  visible vol, side, conn/gw ids` row). A compatibility pass - widening
+  payload structs or documenting the narrower contract - is owed.
 - **Binary encoding of the envelope for the direct streams.** Today the
   framed codec serializes the same JSON as bus produce; if the framed path
   needs a denser encoding, the crate must add a wire-form enum without

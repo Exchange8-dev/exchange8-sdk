@@ -1,4 +1,4 @@
-# exchange8::mold — Detailed Design Document
+# exchange8::mold - Detailed Design Document
 
 ## 1. Scope & Context
 
@@ -8,14 +8,14 @@ exchange8 vertical: the header layout (session 10 · sequence `u64` big
 framing, the 1400-byte packet cap, the count-0 heartbeat form, and the
 20-byte retransmission request. It explicitly does **not** own:
 
-- block payloads — ITCH VER2 message bytes are `exchange8::itch`'s
+- block payloads - ITCH VER2 message bytes are `exchange8::itch`'s
   (the crate is payload-agnostic by design);
-- transport — sockets, multicast A/B legs, heartbeat intervals, and the
+- transport - sockets, multicast A/B legs, heartbeat intervals, and the
   retransmit server are the consuming services' (Exchange8:MD publisher,
   Exchange8:VFeeds) per the market-data design §4.3;
-- sequencing policy — increments, snapshot-from-seq semantics, and the
+- sequencing policy - increments, snapshot-from-seq semantics, and the
   per-stream ring buffers live with the publisher session model;
-- SoupBinTCP session framing — `exchange8::soup`.
+- SoupBinTCP session framing - `exchange8::soup`.
 
 There is no HTTP surface, no database presence, no event emission, no
 runtime of its own: the crate is a pure framing library compiled into the
@@ -26,12 +26,12 @@ facade `exchange8::mold` (package `exchange8-mold`, workspace member
 
 ```mermaid
 graph TD
-    subgraph MD["Exchange8:MD — publisher (L2 session per book)"]
+    subgraph MD["Exchange8:MD - publisher (L2 session per book)"]
         PUBT["publisher task<br/>sequences events · packets tick batches"]
         RTR["retransmit service<br/>(ring buffer server side)"]
     end
 
-    subgraph VF["Exchange8:VFeeds — consumer"]
+    subgraph VF["Exchange8:VFeeds - consumer"]
         RXT["receive task<br/>parses · detects gaps · re-requests"]
     end
 
@@ -77,7 +77,7 @@ Its "architecture" is the module map of one file and the two call shapes
 | `MAX_MOLD_MSG_LENGTH` (1400) | `pub const` | Wire packet cap (fits a UDP datagram without fragmentation) |
 | `SESSION_LEN` / `SEQ_OFFSET` / `SEQ_LEN` / `COUNT_OFFSET` / `COUNT_LEN` / `BLOCK_OFFSET` / `BLOCK_LEN_LEN` | `pub const` | The wire's fixed geometry |
 | `ITCH_SPACE` (`0x20`) | `pub const` (private to tests/consumers via facade) | Session padding byte |
-| `MoldError` | `pub enum` | `TooShort(usize)`, `BlockOverrun(usize)`, `TooLarge` — typed failure surface |
+| `MoldError` | `pub enum` | `TooShort(usize)`, `BlockOverrun(usize)`, `TooLarge` - typed failure surface |
 | `MoldPacket` | `pub struct` | Outbound builder: session buffer, first-block sequence, `blocks: Vec<Vec<u8>>` |
 | `ParsedPacket` | `pub struct` | Inbound view: session `String`, `sequence`, `count`, `block_ranges: Vec<(usize, usize)>` |
 | `parse(&[u8])` | `pub fn` | Header decode + block-index walk |
@@ -140,7 +140,7 @@ the builder/parse views over it.
 |---|---|---|
 | `MoldPacket` | `session: [u8; 10]`, `sequence: u64`, `blocks: Vec<Vec<u8>>` (private) | `session[0..10]` + `sequence u64 BE @10` + `count u16 BE @18` + per block `len u16 BE` + payload |
 | `ParsedPacket` | `session: String`, `sequence: u64`, `count: u16`, `block_ranges: Vec<(usize, usize)>` | Ranges index the *caller's* buffer; no payload copies |
-| heartbeat | — | 20 bytes: session + next-expected seq + count 0 |
+| heartbeat | - | 20 bytes: session + next-expected seq + count 0 |
 | retransmission_request | `session`, `start_seq: u64`, `count: u16` | 20 bytes: session + seq `u64 BE` + count `u16 BE` |
 
 - Types derive `Debug + Clone + PartialEq + Eq`; all multi-byte integers
@@ -183,7 +183,7 @@ erDiagram
 ## 4. API Surface
 
 Public API inventory (library audience: exchange8 services; no
-authorization gate applies — there are no endpoints, scopes, or tenant
+authorization gate applies - there are no endpoints, scopes, or tenant
 contexts to gate):
 
 | Item | Kind | Contract |
@@ -201,7 +201,7 @@ contexts to gate):
 | `MoldError { TooShort, BlockOverrun, TooLarge }` | enum | Whole failure surface; `Display` messages part of the contract |
 
 Emissions: none. The library emits no domain events and participates in
-no outbox/trigger chain — the event-flow diagram of the service template
+no outbox/trigger chain - the event-flow diagram of the service template
 does not apply.
 
 ```mermaid
@@ -235,12 +235,12 @@ or explicitly does not apply.
 - **Precision / endianness.** Binary-numeric, uniformly **big-endian**
   (`u64` sequence, `u16` count and block lengths); sessions are plain
   bytes echoed lossily-tolerated.
-- **Idempotency / exactly-once.** Not applicable at the library level —
+- **Idempotency / exactly-once.** Not applicable at the library level -
   sequence semantics (a packet's first block sequence, receivers'
   next-expected tracking) are the caller's; re-encoding an identical
   builder state yields identical bytes.
 - **Authentication / authorization / RLS / tenant context / audit /
-  rate limiting / drain / TLS.** Not applicable — no endpoints, no
+  rate limiting / drain / TLS.** Not applicable - no endpoints, no
   database, no sockets, no caller identity; statically linked in-process
   code. Multicast transport protection is the session/venue layer's
   concern, not this codec's.
@@ -248,7 +248,7 @@ or explicitly does not apply.
 ## 6. Failure Modes & Recovery
 
 The library performs no I/O; failure is value-level, deterministic, and
-total — `parse` either yields the complete packet view or one typed
+total - `parse` either yields the complete packet view or one typed
 error.
 
 ```mermaid
@@ -274,7 +274,7 @@ flowchart TD
   sources and mis-typed pipes; the response policy (drop + retransmit)
   belongs to the consumer.
 - **Capacity pressure.** `add_message` returns `false` without mutating
-  state when the block would exceed the cap — the publisher rolls to the
+  state when the block would exceed the cap - the publisher rolls to the
   next packet; no packet is ever partially filled then truncated.
 - **Caller-side recovery.** Gap detection (expected sequence vs packet
   sequence) is the consumer's; the codec supplies the exact 20-byte
@@ -288,7 +288,7 @@ graph LR
         PT["publisher task<br/>(Exchange8:MD, one per session)"]
         RT["receive task(s)"]
     end
-    subgraph LIB["exchange8::mold — no shared state"]
+    subgraph LIB["exchange8::mold - no shared state"]
         BLD["MoldPacket (owned builder)"]
         FNP["parse (borrow &[u8] → ranges)"]
     end
@@ -298,7 +298,7 @@ graph LR
 
 - **No shared state.** Builders are task-local owned values; `parse`
   borrows the input and allocates only the range `Vec`. Any number of
-  tasks may call concurrently — no mutexes, no pools.
+  tasks may call concurrently - no mutexes, no pools.
 - **Allocation profile.** Build side: one `Vec` per block (payload
   ownership) plus the encoded output buffer. Receive side: one range
   `Vec`; payloads stay in the caller's buffer (zero copies).
@@ -328,18 +328,18 @@ graph LR
 
 **Insecure defaults rejected:**
 
-- *Silent truncation of oversized packets* — an over-MTU datagram would
+- *Silent truncation of oversized packets* - an over-MTU datagram would
   fragment (loss amplification) or vanish at the NIC; refused instead.
-- *Lossy parse defaults* (zero-filling short fields) — corrupts sequence
+- *Lossy parse defaults* (zero-filling short fields) - corrupts sequence
   accounting and gap detection; typed rejection instead.
-- *Auto-incrementing sequence in the builder* — the wire must say what
+- *Auto-incrementing sequence in the builder* - the wire must say what
   the caller intends; an invented sequence poisons receiver gap logic.
-- *Encoding empty blocks* — unparseable at receivers; refused at build.
-- *Strict-UTF-8 session parse with rejection* — session fields are
+- *Encoding empty blocks* - unparseable at receivers; refused at build.
+- *Strict-UTF-8 session parse with rejection* - session fields are
   echoed protocol metadata; lossy tolerance avoids rejecting packets
   over cosmetic bytes while never treating the field as security input.
 
-**Unsafe rationale:** none — the crate contains no `unsafe` blocks and
+**Unsafe rationale:** none - the crate contains no `unsafe` blocks and
 no FFI; all access is safe slice arithmetic with `try_into` conversions
 (`expect` guards there are unreachable because preceding length checks
 guarantee the slice sizes).
@@ -348,13 +348,13 @@ guarantee the slice sizes).
 
 ```mermaid
 graph TD
-    subgraph P1["Layer 1 — unit (in-crate #[cfg(test)] mod tests)"]
+    subgraph P1["Layer 1 - unit (in-crate #[cfg(test)] mod tests)"]
         U1["golden header layout (field-by-field)<br/>first-seq capture · capacity/refusal<br/>heartbeat format · round-trips<br/>truncation taxonomy · retransmit layout"]
     end
-    subgraph P2["Layer 2 — integration (consumer binaries)"]
+    subgraph P2["Layer 2 - integration (consumer binaries)"]
         U2["publisher + receive-path tests<br/>(Exchange8:MD book→packet flow, gap walk)"]
     end
-    subgraph P3["Layer 3 — E2E / platform"]
+    subgraph P3["Layer 3 - E2E / platform"]
         U3["feed E2E + replay corpora<br/>(covered by the platform testing strategy, not here)"]
     end
     U1 -->|"framing contract pinned here"| U2 -->|"live flows"| U3
@@ -371,7 +371,7 @@ graph TD
   `exchange8::itch` owns it), socket/multicast behavior and A/B loss
   handling (service session tasks), and end-to-end feed flows
   (platform-level).
-- **Run:** part of the vertical workspace gate — inside
+- **Run:** part of the vertical workspace gate - inside
   `cargo test -p exchange8-mold` in the workspace test pipeline.
 
 ## 10. Open Questions

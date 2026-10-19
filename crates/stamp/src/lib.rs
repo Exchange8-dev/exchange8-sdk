@@ -3,11 +3,11 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! # exchange8::stamp — STAMP 4.0 wire codec
+//! # exchange8::stamp - STAMP 4.0 wire codec
 //!
 //! The STAMP 4.0 wire-format codec of the exchange8 vertical: decoding and
-//! encoding of TSX venue-feed/order frames — control header, business
-//! section, and control trailer — with lossless field order and indexed
+//! encoding of TSX venue-feed/order frames - control header, business
+//! section, and control trailer - with lossless field order and indexed
 //! (`tag.index`) field preservation. The source of truth for every wire
 //! decision (framing bytes, tags, business classes) is this crate; the
 //! detailed design lives in `crates/stamp/DESIGN.md` (§2 module map, §4 API
@@ -85,7 +85,7 @@ pub const EQUAL_CHAR: u8 = b'=';
 /// ```
 pub const STAMP_VERSION_NUMBER: &str = "Version 4.0";
 
-/// STAMP wire tags — the subset the exchange consumes.
+/// STAMP wire tags - the subset the exchange consumes.
 ///
 /// Numbers are the venue's wire numbering; adapters and tests address
 /// fields through these constants rather than local magic integers. An
@@ -255,7 +255,7 @@ pub mod business_class {
     pub const ORDER_ACK: &str = "010";
 }
 
-/// Parse/encode failures — the crate's entire error surface.
+/// Parse/encode failures - the crate's entire error surface.
 ///
 /// Every grammar violation the codec can detect is one of these three
 /// typed errors; the codec never repairs malformed input silently.
@@ -282,7 +282,7 @@ pub enum StampError {
     InvalidUtf8,
 }
 
-/// One parsed field: `(tag, index, value)` — indexed fields keep their index.
+/// One parsed field: `(tag, index, value)` - indexed fields keep their index.
 ///
 /// The wire identity of a field is `tag` when `index` is `0` and
 /// `tag.index` otherwise; the dot suffix is written on encode only for
@@ -764,14 +764,14 @@ mod tests {
 
     #[test]
     fn field_without_equals_rejected() {
-        // Header "50 1" — no '=' → throws StampException.
+        // Header "50 1" - no '=' → throws StampException.
         let wire: Vec<u8> = vec![CONTROL_HEADER_CHAR, b'5', b'0', FIELD_CHAR, b'1'];
         assert_eq!(StampMessage::parse(&wire), Err(StampError::MissingEquals));
     }
 
     #[test]
     fn empty_business_section_ok() {
-        // Header, business delimiter, trailer — all empty sections.
+        // Header, business delimiter, trailer - all empty sections.
         let wire: Vec<u8> = vec![
             CONTROL_HEADER_CHAR,
             BUSINESS_CONTENT_CHAR,

@@ -1,4 +1,4 @@
-# exchange8::itch — Business Requirements & Functionality
+# exchange8::itch - Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::itch library **does for the business**. For architecture
@@ -8,14 +8,14 @@
 
 - Publish the exchange's market state to the outside world in the venue's
   own market-data language: the VER2 ITCH binary (and text-mode) packet
-  formats, so every downstream consumer — from professional terminals to
-  retail gateways — reads exactly what the engine did.
+  formats, so every downstream consumer - from professional terminals to
+  retail gateways - reads exactly what the engine did.
 - Preserve market semantics through the wire: order identity, broker
   attribution, book identifiers (lit / dark / QLX / MEMP), match numbers,
   and cross types survive to the last byte.
-- Give downstream participants a complete order-event narrative — adds,
+- Give downstream participants a complete order-event narrative - adds,
   executions, replacements, cancels, deletes, trades, crosses, busts,
-  trading states, directory entries, timestamp markers — in one codec.
+  trading states, directory entries, timestamp markers - in one codec.
 - Keep the published tape byte-stable: message shapes, lengths, and pads
   are pinned by the wire catalog, so platform upgrades never surprise a
   subscriber.
@@ -25,7 +25,7 @@
 | Capability | What it delivers (business terms) |
 |---|---|
 | Binary ITCH encoding | Order events, trades, crosses, busts, directory, trading states, system events, and timestamps as exact-length wire messages |
-| ITCH text-mode encoding | The classic fixed-width text forms of add/execute/trade/cancel/delete — including the 10-wide "large" variants when numbers overflow narrow fields |
+| ITCH text-mode encoding | The classic fixed-width text forms of add/execute/trade/cancel/delete - including the 10-wide "large" variants when numbers overflow narrow fields |
 | Message-length contract | Field-by-field length and type tables the publisher's framing (MoldUDP64 blocks / Soup frames) relies on |
 | Field decode helpers | Safe `u16`/`u32` big-endian reads and a type→length table for stream walk-throughs |
 | Wire vocabulary | Message-type letters, book-id letters, padding bytes, and width-threshold constants as named identifiers |
@@ -47,7 +47,7 @@
 
 | Area | Capability | Business rule |
 |---|---|---|
-| Order visibility | Add Order (`A`) | Adds a visible order: side (Buy/Sell), instrument, order id, size, price, broker, book — dark/hidden orders never reach the feed (policy upstream) |
+| Order visibility | Add Order (`A`) | Adds a visible order: side (Buy/Sell), instrument, order id, size, price, broker, book - dark/hidden orders never reach the feed (policy upstream) |
 | Order progress | Order Executed (`E`) | Reports a fill against an order id, with contra broker and the platform's match number |
 | Order change | Order Replaced (`U`) | Carries original and new order ids with new size/price |
 | Order removal | Order Cancel (`X`) / Delete (`D`) | Cancel trims a stated quantity; delete removes the remainder instantly |
@@ -56,14 +56,14 @@
 | Instrument state | Trading Action (`H`) / Directory (`R`, `r`) | Publishes trading states (halted/paused/quoting) and reference data at start of day |
 | Time markers | Seconds (`T`) / Milliseconds (`M`) | Timestamp markers the session emits between event bursts |
 | System clock | System Event (`S`) | Market-phase signals (start/startup/open/quoting/end/post) preserved by code |
-| Text-mode reach | Text-mode encoders | The space-padded text forms (41/45, 29/33, 52/56, 16/20, 10 byte-lengths) that text-mode receivers parse — width-expanding automatically when sizes exceed six digits |
+| Text-mode reach | Text-mode encoders | The space-padded text forms (41/45, 29/33, 52/56, 16/20, 10 byte-lengths) that text-mode receivers parse - width-expanding automatically when sizes exceed six digits |
 | Robustness | Golden conformance | Every binary and text layout is pinned byte-level against the wire catalog inside the crate |
 
 ## 4. Business Events (Outbound)
 
 - None. The library emits no events and holds no state. **Observable
   effects it enables:** the public market tape and snapshot replay that
-  downstream subscribers consume — those arrive as Exchange8:MD / Exchange8:VFeeds
+  downstream subscribers consume - those arrive as Exchange8:MD / Exchange8:VFeeds
   behaviors riding this codec's bytes.
 
 ### Inbound (consumed)
@@ -79,12 +79,12 @@
    space bytes (0x20).
 3. The message type letter is always byte 0 of any binary or text form.
 4. Text-mode numeric fields are right-aligned, blank-padded: 9-wide
-   order ids and references, 6-wide share counts — expanding to 10-wide
+   order ids and references, 6-wide share counts - expanding to 10-wide
    when a size exceeds 999 999 (message length widens with it).
 5. Text symbol fields are left-aligned and clamped to 10 characters.
 6. Broker codes, book identifiers, and cross/bypass codes travel as
    single letters; the platform's anonymization runs before encoding.
-7. An unknown message type has no length and is a typed error — length
+7. An unknown message type has no length and is a typed error - length
    tables never guess.
 
 ## 6. Target-User Roles & Use Cases
@@ -108,15 +108,15 @@
 
 ## 8. Dependencies & Reliance on Other Services
 
-- **Exchange8:MD** — the only code consumer today: the book projector maps
+- **Exchange8:MD** - the only code consumer today: the book projector maps
   internal events onto this crate's structs and bytes (order adds,
   executions, cancels, deletes, replaces).
-- **Framing crates** — `exchange8::mold` (multicast packets) and
+- **Framing crates** - `exchange8::mold` (multicast packets) and
   `exchange8::soup` (session frames) wrap ITCH bytes for transport.
-- **Design truth anchor** — the wire-formats behavior catalog pins byte
+- **Design truth anchor** - the wire-formats behavior catalog pins byte
   layouts, type letters, and text widths; the crate mirrors it under
   test.
-- No reliance on Sentin8 platform planes — no identity, authorization,
+- No reliance on Sentin8 platform planes - no identity, authorization,
   persistence, or delivery work is performed here.
 
 ## 9. Acceptance Criteria
@@ -124,7 +124,7 @@
 1. Each message's encoder output matches the catalog length and
    field order exactly, byte-by-byte in golden tests.
 2. Text-mode encoders emit blank-padded right-aligned numerics, 10-wide
-   symbols, and the specified total lengths — narrow and wide variants.
+   symbols, and the specified total lengths - narrow and wide variants.
 3. The length table returns the documented size for every type letter
    and `None` for unknown ones.
 4. Reserved padding bytes are spaces; the type byte is first.
@@ -133,16 +133,16 @@
 
 ## 10. Open Business Questions
 
-- **Full binary decode structs** — today encoders exist for the fourteen
+- **Full binary decode structs** - today encoders exist for the fourteen
   binary types plus safe word readers; whether per-field decode structs
   for directory/extended types should be added in-crate is pending the
   receive-path consumer's needs.
-- **Text-mode receiver support matrix** — which consumers still require
+- **Text-mode receiver support matrix** - which consumers still require
   text forms (and their width quirks) is an integration census; encoders
   remain wired for them until policy retires them.
-- **Timestamp cadence** — seconds/millis marker emission is a publisher
+- **Timestamp cadence** - seconds/millis marker emission is a publisher
   policy choice (Exchange8:MD), not an encoding one.
-- **Additional directories** — book-id/venue-specific directory
+- **Additional directories** - book-id/venue-specific directory
   extensions beyond the catalog may need a vocabulary pass-through
   decision.
 

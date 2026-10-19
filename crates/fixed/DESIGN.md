@@ -1,4 +1,4 @@
-# exchange8::fixed — Detailed Design Document
+# exchange8::fixed - Detailed Design Document
 
 ## 1. Scope & Context
 
@@ -7,14 +7,14 @@
 rescaling, checked notional arithmetic, board/odd-lot decomposition, and the
 tick-grid validation rules. It explicitly does **not** own:
 
-- book state and matching — Exchange8:ME (`crates/book` models), not a value crate;
-- order lifecycle and pegging rules — Exchange8:OMS (which *calls* the doubled-tick
+- book state and matching - Exchange8:ME (`crates/book` models), not a value crate;
+- order lifecycle and pegging rules - Exchange8:OMS (which *calls* the doubled-tick
   check);
-- limit policy — Exchange8:Risk consumes the checked values;
-- protocol string forms — FIX formatting is `exchange8::fix` (gateway
+- limit policy - Exchange8:Risk consumes the checked values;
+- protocol string forms - FIX formatting is `exchange8::fix` (gateway
   boundary), venue text decoding is `exchange8::itch` (both convert at their
   edge);
-- display — consumers render decimals.
+- display - consumers render decimals.
 
 There is no HTTP surface, no database presence, no event emission, no
 runtime of its own: the crate is a pure value library compiled into the
@@ -26,13 +26,13 @@ facade `exchange8::fixed` (package `exchange8-fixed`, workspace member
 ```mermaid
 graph TD
     subgraph CONSUMERS["exchange8 services (in-process value calls)"]
-        ME["Exchange8:ME — matching, FX conversions"]
-        OMS["Exchange8:OMS — pegs · doubled-tick"]
-        RISK["Exchange8:Risk — limit checks"]
+        ME["Exchange8:ME - matching, FX conversions"]
+        OMS["Exchange8:OMS - pegs · doubled-tick"]
+        RISK["Exchange8:Risk - limit checks"]
         CLR["Exchange8:Clearing / Exchange8:Settlement<br/>notional · lot splits"]
         MDB["Exchange8:MD book · price bands"]
         VF["Exchange8:VFeeds BBO engine"]
-        SOR["Exchange8:SOR — routing qty"]
+        SOR["Exchange8:SOR - routing qty"]
     end
 
     subgraph FACADE["exchange8 namespace facade"]
@@ -131,7 +131,7 @@ their serialized boundary form.
 - Scale constants: equity 4 (10⁴), FX 5 (10⁵), crypto 8 (10⁸); quantity
   scales: integer (0) and fractional (8). `FX_PIP_TICKS` = 10 (= 0.0001
   at scale 5).
-- No endianness, no alignment — the types are in-memory only; the wire
+- No endianness, no alignment - the types are in-memory only; the wire
   forms live in protocol crates (`itch` carries `u32` ticks at a fixed
   venue scale; `fix` caries strings).
 
@@ -153,7 +153,7 @@ erDiagram
 ## 4. API Surface
 
 Public API inventory (library audience: exchange8 services; no
-authorization gate applies — there are no endpoints, scopes, or tenant
+authorization gate applies - there are no endpoints, scopes, or tenant
 contexts to gate):
 
 | Item | Kind | Contract |
@@ -177,7 +177,7 @@ contexts to gate):
 | `on_fx_pip_tick(price)` / `on_fx_half_pip_tick(price)` | fns | Whole-pip / half-pip grids at scale 5 |
 
 Emissions: none. The library emits no domain events and participates in no
-outbox/trigger chain — the event-flow diagram of the service template does
+outbox/trigger chain - the event-flow diagram of the service template does
 not apply.
 
 ## 5. Cross-Cutting Concerns
@@ -190,23 +190,23 @@ or explicitly does not apply.
   validation).
 - **Precision.** The crate IS the precision layer: scale carried in-band,
   lossless rescale only, multiply-before-divide notional, never floats.
-  Rounding is never performed inside the crate — truncating conversions
+  Rounding is never performed inside the crate - truncating conversions
   are refused.
-- **Wire fidelity.** Not applicable at the value level — protocol string
+- **Wire fidelity.** Not applicable at the value level - protocol string
   and binary forms belong to `fix`/`itch`/`stamp`; they convert to
   `Price`/`Qty` at their boundary via `parse_decimal`/`from_scaled`.
 - **Idempotency / exactly-once.** Not applicable at the library level;
   replaying an event with identical values yields identical notionals
   (a property E2E settlement reconciliation relies on).
 - **Authentication / authorization / RLS / tenant context / audit /
-  rate limiting / drain / TLS.** Not applicable — no endpoints, no
+  rate limiting / drain / TLS.** Not applicable - no endpoints, no
   database, no sockets, no caller identity; statically linked in-process
   code.
 
 ## 6. Failure Modes & Recovery
 
 The library performs no I/O; failure is value-level, deterministic, and
-total — every arithmetic surface completes (`Some`/value) or refuses the
+total - every arithmetic surface completes (`Some`/value) or refuses the
 whole operation (`None`/unchanged), never partially.
 
 ```mermaid
@@ -240,19 +240,19 @@ graph LR
         T["matching/shard task<br/>single-threaded per instrument"]
         C["value calls: parse · rescale · checked_*"]
     end
-    subgraph LIB["exchange8::fixed — no shared state"]
+    subgraph LIB["exchange8::fixed - no shared state"]
         F["pure fns over Copy value types"]
     end
     T -->|"value in → Option/value out"| F
 ```
 
 - **`Copy` value types, no shared state.** `Price`/`Qty` are `Copy`,
-  trivially `Send`/`Sync`, and all functions are pure — any number of
+  trivially `Send`/`Sync`, and all functions are pure - any number of
   threads or shards may call concurrently with zero synchronization.
 - **Hot path.** Arithmetic is integer multiply/add/compare (`i128`
   native-width ops); `pow10` is a const-loop of ≤ 8 multiplies; parses
   are short ASCII scans. Notional is one `checked_mul` plus an optional
-  `checked_div` — the matching engine's per-fill cost is negligible
+  `checked_div` - the matching engine's per-fill cost is negligible
   against book mechanics.
 - **No allocation.** No `String` output, no `Vec` on the hot path;
   parse allocates nothing (string-slice walking only).
@@ -269,7 +269,7 @@ graph LR
    scale mismatch rather than merging.
 3. All overflow-capable operations return `Option`; nothing wraps,
    nothing panics on input (debug asserts cover call-site misuse only).
-4. Rescaling is lossless or refused — downward requires exact division.
+4. Rescaling is lossless or refused - downward requires exact division.
 5. Notional multiplies before dividing and is expressed in the price's
    tick units.
 6. `split_board_odd(lots, odd)` satisfies `lots×lot_size + odd == qty`
@@ -277,38 +277,38 @@ graph LR
 
 **Insecure defaults rejected:**
 
-- *Floating-point prices* — binary fractions misrepresent decimal ticks;
+- *Floating-point prices* - binary fractions misrepresent decimal ticks;
   reconciliation across services would drift. Rejected outright.
-- *Auto-promoting scale merge* (e.g. always to 10⁸) — makes cross-class
+- *Auto-promoting scale merge* (e.g. always to 10⁸) - makes cross-class
   mixing silent, inflates magnitude, hides instrumentation bugs.
-- *Wrapping / panicking arithmetic* — a wrapped notional is a solvency
+- *Wrapping / panicking arithmetic* - a wrapped notional is a solvency
   bug; a panic in the hot loop takes down a shard. Checked `Option`
   paths keep the failure typed and local.
-- *Silent truncation on rescale* — a truncated price is a different
+- *Silent truncation on rescale* - a truncated price is a different
   price; refused instead.
-- *Permissive decimal parse* (accept any digit count, clamp) — silently
+- *Permissive decimal parse* (accept any digit count, clamp) - silently
   degrades user intent; rejected for strict rejection.
 
-**Unsafe rationale:** none — the crate contains no `unsafe` blocks and
+**Unsafe rationale:** none - the crate contains no `unsafe` blocks and
 no FFI; everything is safe integer arithmetic over `i128`/`u64`.
 
 ## 9. Testing Strategy
 
 ```mermaid
 graph TD
-    subgraph P1["Layer 1 — unit (in-crate #[cfg(test)] mod tests)"]
+    subgraph P1["Layer 1 - unit (in-crate #[cfg(test)] mod tests)"]
         U1["parse rules: FX/crypto/qty/over-precision<br/>tick bands + doubled grid<br/>FX pip / half-pip grids<br/>rescale losslessness<br/>notional + overflow<br/>board/odd splits"]
     end
-    subgraph P2["Layer 2 — integration (consumer binaries)"]
+    subgraph P2["Layer 2 - integration (consumer binaries)"]
         U2["engine/OMS/risk tests<br/>values in real flows<br/>(gateway · me · clearing paths)"]
     end
-    subgraph P3["Layer 3 — E2E / platform"]
+    subgraph P3["Layer 3 - E2E / platform"]
         U3["order E2E + settlement reconciliation<br/>(covered by the platform testing strategy, not here)"]
     end
     U1 -->|"numeric contract pinned here"| U2 -->|"flows + reconciliation"| U3
 ```
 
-- **Owned here (unit):** the numeric contract, in the crate's test module —
+- **Owned here (unit):** the numeric contract, in the crate's test module -
   FX parse + pip grids (`parse_fx_decimal`, `fx_pip_tick_rules`), crypto
   parse precision (`parse_crypto_decimal`), rescale losslessness
   (`rescale_up_lossless`), equity tick bands and doubled grid
@@ -318,18 +318,18 @@ graph TD
 - **Deliberately NOT tested here:** matching/book/OMS/risk behavior
   (consumer crates), protocol string forms (`fix`/`itch`), and end-to-end
   money flows (platform testing strategy).
-- **Run:** part of the vertical workspace gate — in `cargo test -p
+- **Run:** part of the vertical workspace gate - in `cargo test -p
   exchange8-fixed` inside `make build-rust`/test pipelines.
 
 ## 10. Open Questions
 
-- **Per-instrument quantity scale** — whether refdata metadata should own
+- **Per-instrument quantity scale** - whether refdata metadata should own
   quantity precision rather than the global 0/8 convention.
-- **Decimal-string rendering** — a shared `Display`/`to_decimal_string`
+- **Decimal-string rendering** - a shared `Display`/`to_decimal_string`
   helper for consumers, keeping presentation formats uniform.
-- **`saturating_add` mismatch policy** — returning `self` on scale
+- **`saturating_add` mismatch policy** - returning `self` on scale
   mismatch is subtle; a `Result` return may be worth the churn.
-- **Benchmarks** — matching-engine sizing quotes are transport-driven;
+- **Benchmarks** - matching-engine sizing quotes are transport-driven;
   no dedicated value-op benchmark harness exists in this crate yet.
 
 ---

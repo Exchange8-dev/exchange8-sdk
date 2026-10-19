@@ -1,4 +1,4 @@
-# exchange8::itch — Detailed Design Document
+# exchange8::itch - Detailed Design Document
 
 ## 1. Scope & Context
 
@@ -9,13 +9,13 @@ events, trading actions, directories, timestamp markers), the
 text-mode families and their width-expansion rules, the safe big-endian
 word readers, and the type→length table. It explicitly does **not** own:
 
-- event→message policy — which internal event becomes which message is
+- event→message policy - which internal event becomes which message is
   Exchange8:MD's projector (per the market-data design §4.2);
-- transport — MoldUDP64 packets (`exchange8::mold`) and SoupBinTCP
+- transport - MoldUDP64 packets (`exchange8::mold`) and SoupBinTCP
   frames (`exchange8::soup`) carry ITCH bytes;
-- numeric semantics — wire `u32` ticks ↔ `exchange8::fixed` conversions
+- numeric semantics - wire `u32` ticks ↔ `exchange8::fixed` conversions
   happen at the consumer boundary;
-- the protocol dialect — this is the **proprietary VER2 layout**, not
+- the protocol dialect - this is the **proprietary VER2 layout**, not
   the standard NASDAQ ITCH 4.1 spec; `design/behavior-catalog/
   wire-formats.json` is the truth anchor.
 
@@ -28,7 +28,7 @@ runtime of its own: the crate is a pure codec compiled into the facade
 
 ```mermaid
 graph TD
-    subgraph PRODUCER["Exchange8:MD — projector / book layer"]
+    subgraph PRODUCER["Exchange8:MD - projector / book layer"]
         BOOK["book.rs event mapping<br/>add/execute/cancel/delete/replace"]
     end
 
@@ -140,7 +140,7 @@ their byte-exact wire encodings.
 | OrderExecuted | 29 (`%1c%9u%6u%9u%3u%1c`) | 33 |
 | Trade | 52 (`%1c%9u%1c%6u%-10s%10lu%9u%3u%3u`) | 56 |
 | OrderCancel | 16 (`%1c%9u%6u`) | 20 |
-| OrderDelete | 10 (`%1c%9u`) | (no expansion — id field is fixed 9) |
+| OrderDelete | 10 (`%1c%9u`) | (no expansion - id field is fixed 9) |
 
 ```mermaid
 erDiagram
@@ -160,7 +160,7 @@ erDiagram
 ## 4. API Surface
 
 Public API inventory (library audience: exchange8 services; no
-authorization gate applies — there are no endpoints, scopes, or tenant
+authorization gate applies - there are no endpoints, scopes, or tenant
 contexts to gate):
 
 | Item | Kind | Contract |
@@ -180,7 +180,7 @@ contexts to gate):
 | `ItchError { TooShort, UnknownType }` | enum | Whole failure surface; `Display` part of contract |
 
 Emissions: none. The library emits no domain events and participates in
-no outbox/trigger chain — the event-flow diagram of the service template
+no outbox/trigger chain - the event-flow diagram of the service template
 does not apply.
 
 ```mermaid
@@ -214,11 +214,11 @@ or explicitly does not apply.
 - **Precision.** The crate re-derives nothing: prices are venue-scale
   `u32` ticks exactly as published; conversion to/from
   `exchange8::fixed` semantics happens in consumers (`from_scaled`).
-- **Idempotency / exactly-once.** Not applicable at the codec level —
+- **Idempotency / exactly-once.** Not applicable at the codec level -
   match numbers and order ids carry the platform's identities; dedupe
   and replay sequencing are the publisher's session semantics.
 - **Authentication / authorization / RLS / tenant context / audit /
-  rate limiting / drain / TLS.** Not applicable — no endpoints, no
+  rate limiting / drain / TLS.** Not applicable - no endpoints, no
   database, no sockets, no caller identity; statically linked
   in-process code.
 
@@ -237,14 +237,14 @@ flowchart TD
     BOUND -- no --> E2["None → caller: TooShort handling"]
     BOUND -- yes --> V["Some(word)"]
     T["encode_text numeric width"] --> WIDE{"shares > 999 999 ?"}
-    WIDE -- yes --> TW["10-wide field, longer total — still exact"]
+    WIDE -- yes --> TW["10-wide field, longer total - still exact"]
     WIDE -- no --> TN["6-wide field, narrow total"]
 ```
 
 - **No partial messages.** Encoders build the exact-length buffer in one
   pass with a `debug_assert` guard; a malformed struct cannot produce a
   wrong-length message in debug builds and never truncates in release.
-- **Unknown types.** `message_len` returns `None` rather than guessing —
+- **Unknown types.** `message_len` returns `None` rather than guessing -
   a stream walker must stop or skip by policy, never by invented length.
 - **Caller-side recovery.** Receive-side handling (unknown letters in a
   live stream, short buffers at a stream tail) belongs to the consumer;
@@ -258,17 +258,17 @@ graph LR
         T["single-threaded publish task per session"]
         C["encode calls per event"]
     end
-    subgraph LIB["exchange8::itch — no shared state"]
+    subgraph LIB["exchange8::itch - no shared state"]
         P["Copy structs · pure encode fns"]
     end
     T -->|"struct in, Vec out"| P
 ```
 
 - **`Copy` structs, no shared state.** Every message struct is
-  `Copy + Send + Sync`; encode functions are pure — any number of tasks
+  `Copy + Send + Sync`; encode functions are pure - any number of tasks
   may encode concurrently with zero synchronization.
 - **Allocation profile.** One small `Vec` per encoded message,
-  `with_capacity(msg_len)` pre-sized — no reallocation on the hot path.
+  `with_capacity(msg_len)` pre-sized - no reallocation on the hot path.
   Text encoders build one `String` at the exact final width.
 - **Hot path.** Encode is sequential byte pushes + BE byte-array appends;
   a debug length assert is compiled out in release. Text encoders add a
@@ -286,7 +286,7 @@ graph LR
    form its `text_len` (narrow or wide by the shares threshold).
 3. All multi-byte numerics are big-endian; all reserved/pad bytes are
    `ITCH_SPACE`.
-4. Struct field order equals wire order — encoders emit fields in
+4. Struct field order equals wire order - encoders emit fields in
    declaration order, so the struct is the layout's single source.
 5. Width expansion is a pure function of the numeric threshold
    (999 999), consistent across all five text families.
@@ -296,44 +296,44 @@ graph LR
 **Insecure defaults rejected:**
 
 - *Standard-spec compliance drift* (encoding NASDAQ ITCH 4.1 shapes
-  instead of the VER2 layout) — would break every external consumer
+  instead of the VER2 layout) - would break every external consumer
   pinned to the venue dialect; the catalog is the truth, the public spec
   is not.
 - *Runtime length recomputation* (formatting with `format!` into a
-  dynamic buffer) — risks drift; fixed `with_capacity` + debug assert
+  dynamic buffer) - risks drift; fixed `with_capacity` + debug assert
   pins total sizes.
-- *Guessing lengths for unknown types* — poisons stream walk-throughs;
+- *Guessing lengths for unknown types* - poisons stream walk-throughs;
   `None` + typed error path instead.
-- *Zero padding* — the venue dialect pads reserved fields with spaces
+- *Zero padding* - the venue dialect pads reserved fields with spaces
   (0x20); zero bytes would break consumer golden checks.
-- *Interpreting prices inside the codec* — the wire `u32` is echoed
+- *Interpreting prices inside the codec* - the wire `u32` is echoed
   verbatim; scale semantics belong to `exchange8::fixed` at the
   boundary.
 
-**Unsafe rationale:** none — the crate contains no `unsafe` blocks and
+**Unsafe rationale:** none - the crate contains no `unsafe` blocks and
 no FFI; all byte assembly is safe `Vec`/slice operations.
 
 ## 9. Testing Strategy
 
 ```mermaid
 graph TD
-    subgraph P1["Layer 1 — unit (in-crate #[cfg(test)] mod tests)"]
+    subgraph P1["Layer 1 - unit (in-crate #[cfg(test)] mod tests)"]
         U1["golden binary layout per message<br/>all_sizes_match_catalog<br/>message_len table<br/>text layouts narrow + wide<br/>threshold constants"]
     end
-    subgraph P2["Layer 2 — integration (consumer binaries)"]
+    subgraph P2["Layer 2 - integration (consumer binaries)"]
         U2["Exchange8:MD book.rs flow tests<br/>event→message→length assertions"]
     end
-    subgraph P3["Layer 3 — E2E / platform"]
+    subgraph P3["Layer 3 - E2E / platform"]
         U3["feed E2E + downstream capture checks<br/>(covered by the platform testing strategy, not here)"]
     end
     U1 -->|"wire contract pinned here"| U2 -->|"published tape"| U3
 ```
 
-- **Owned here (unit):** per-message golden byte assertions —
+- **Owned here (unit):** per-message golden byte assertions -
   `add_order_golden_bytes`, `order_executed_golden_bytes`,
   `trade_and_cross_golden_bytes`, `all_sizes_match_catalog`,
   `message_len_table`, `spot-check` big-endian ordering; text-mode
-  layouts — `text_add_order_layout`, `text_add_order_wide_shares_variant`,
+  layouts - `text_add_order_layout`, `text_add_order_wide_shares_variant`,
   `text_order_executed_layout`, `text_order_executed_wide_variant`,
   `text_trade_layout`, `text_order_cancel_layout` (+ wide),
   `text_order_delete_layout`, and `text_length_constants_match_spec`
@@ -341,7 +341,7 @@ graph TD
 - **Deliberately NOT tested here:** transport framing (`mold`/`soup`),
   event→message policy (Exchange8:MD), and end-to-end feed flows
   (platform-level).
-- **Run:** part of the vertical workspace gate — inside
+- **Run:** part of the vertical workspace gate - inside
   `cargo test -p exchange8-itch` in the workspace test pipeline.
 
 ## 10. Open Questions

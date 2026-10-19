@@ -1,4 +1,4 @@
-# exchange8::mold — Business Requirements & Functionality
+# exchange8::mold - Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::mold library **does for the business**. For architecture
@@ -14,7 +14,7 @@
   the sequence so silence is distinguishable from loss.
 - Make recovery cheap and standardized: receivers ask for missing ranges
   with a fixed, tiny retransmission request rather than reconnecting.
-- Protect the feed from malformed or oversized packets — framing errors
+- Protect the feed from malformed or oversized packets - framing errors
   are reported, never laundered into wrong market data.
 
 ## 2. Business Scope (What the Library Provides)
@@ -26,7 +26,7 @@
 | Inbound packet parsing | Reads a packet into session, first sequence, count, and the byte ranges of every message block |
 | Retransmission requests | Emits the 20-byte request (session, start sequence, count) used to refill missed ranges |
 | Capacity management | Reports remaining packet capacity and refuses blocks that would not fit |
-| Error contract | Typed failures for truncated headers and overrunning block lengths — the whole failure surface in three variants |
+| Error contract | Typed failures for truncated headers and overrunning block lengths - the whole failure surface in three variants |
 | Conformance tests | In-crate byte-level tests pinning header layout, sequencing, heartbeats, round-trips, and truncation behavior |
 
 ### What the service does NOT own (business boundary)
@@ -56,7 +56,7 @@
 - None. The library emits no events of its own. **Observable effects it
   enables:** the downstream receivers' view of
   depth (`L2` session packets), liveness (heartbeats), and repair
-  (retransmission) — those arrive as events/actions owned by Exchange8:MD and
+  (retransmission) - those arrive as events/actions owned by Exchange8:MD and
   Exchange8:VFeeds on top of this framing.
 
 ### Inbound (consumed)
@@ -73,7 +73,7 @@
    payload bytes; the declared length always fits the packet.
 4. A data packet's sequence is the first message's sequence; a
    heartbeat's sequence is the next expected sequence and its count is 0.
-5. An empty message payload is not encoded — the protocol's null message
+5. An empty message payload is not encoded - the protocol's null message
    is consumed, not shipped.
 6. Parsing either yields a complete, self-consistent packet view or a
    typed error; no partial repair, no default-filled fields.
@@ -99,14 +99,14 @@
 
 ## 8. Dependencies & Reliance on Other Services
 
-- **`exchange8::itch`** — produces/consumes the bytes `mold` packets
+- **`exchange8::itch`** - produces/consumes the bytes `mold` packets
   carry; the crates are payload-agnostically decoupled (blocks are
   opaque).
-- **Consuming services (Exchange8:MD publisher, Exchange8:VFeeds)** — own sockets,
+- **Consuming services (Exchange8:MD publisher, Exchange8:VFeeds)** - own sockets,
   session sequencing, heartbeat timing, A/B leg strategy, and the
   retransmission server; the library cannot send or receive anything.
-- **`thiserror`** — the typed failure surface.
-- No reliance on Sentin8 platform planes — no identity, authorization,
+- **`thiserror`** - the typed failure surface.
+- No reliance on Sentin8 platform planes - no identity, authorization,
   persistence, or delivery work is performed here.
 
 ## 9. Acceptance Criteria
@@ -127,13 +127,13 @@
 
 ## 10. Open Business Questions
 
-- **Retransmission server surface** — the request side is codec-fixed;
+- **Retransmission server surface** - the request side is codec-fixed;
   the server's ring-buffer sizing and reply pacing are publisher-service
   business decisions pending that service's rollout.
-- **Parse-side size policy** — whether inbound parse should itself
+- **Parse-side size policy** - whether inbound parse should itself
   enforce the 1400-byte cap or leave the policy to the receiving
   service.
-- **Zero-copy receive ergonomics** — when the VFeeds receive path lands,
+- **Zero-copy receive ergonomics** - when the VFeeds receive path lands,
   a borrowed block-view API may replace offset tuples for consumer
   convenience.
 

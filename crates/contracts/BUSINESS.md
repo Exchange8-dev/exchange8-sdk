@@ -1,4 +1,4 @@
-# exchange8::contracts — Business Requirements & Functionality
+# exchange8::contracts - Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::contracts library **does for the business**. For architecture
@@ -10,7 +10,7 @@ The exchange8::contracts library is the shared **domain language** of the
 capital-markets platform: every order that enters the exchange, every rejection
 a client or broker sees, every execution event that flows to clearing, market
 data, and surveillance is described by the business concepts this library
-encodes. Its business value is delivered indirectly but completely — by making
+encodes. Its business value is delivered indirectly but completely - by making
 the order/reject/event vocabulary **uniform** across order ingestion, risk
 authorization, matching, clearing, and drop-copy reporting, the library removes
 the misinterpretation class of operational incidents (a rejection reason that
@@ -50,13 +50,13 @@ numeric values and texts they already understand.
 
 | Capability | Business rule behind it |
 |---|---|
-| Order identity | Every order carries a gateway-assigned identifier, the client's order reference, the submitting session, and the tenant environment — enabling client inquiries, audit, and tenant separation |
+| Order identity | Every order carries a gateway-assigned identifier, the client's order reference, the submitting session, and the tenant environment - enabling client inquiries, audit, and tenant separation |
 | Order sides | Six sides (buy, sell, short sell, short sell exempt, cross, cross short) covering regulated short-sale and crossing flows |
 | Time in force | Day, good-till-cancel, at-open, immediate-or-cancel, fill-or-kill, crossing, good-till-date; an omitted time-in-force defaults to Day |
 | Order pricing | Limit and pegged order types only; pegging styles (midpoint, market, primary, darkpool midpoint) with an explicit price difference |
 | Execution visibility | Displayed or hidden quantity, with optional floor size for iceberg display |
 | Capacity and anonymity | Agency vs. principal capacity and anonymous execution flags, preserving regulatory reporting categories |
-| Self-trade prevention | Each order may carry a prevention key (customer, location, connection, account) and an action (kill incoming, kill resting, kill both, decrement) — explicit and auditable per order |
+| Self-trade prevention | Each order may carry a prevention key (customer, location, connection, account) and an action (kill incoming, kill resting, kill both, decrement) - explicit and auditable per order |
 | Price protection | Orders may request kill-on-violation or post-after-sidestep protection against crossing a marketable price band |
 | Order books | Orders declare their lit/hidden book token and optional strategy-book list |
 
@@ -65,8 +65,8 @@ numeric values and texts they already understand.
 | Capability | Business rule behind it |
 |---|---|
 | Client-visible rejection text | Every rejection reason maps to its FIX 103 English text; text is stable per code so client systems can parse it |
-| Numeric compatibility | Rejections inherited from the matching-engine protocol keep their exact numeric codes (1–8, 100–144 families) on client-visible rejection reports |
-| Platform-only rejections | Risk-unavailability (fail-closed), rate limiting, Greeks limits, insufficient margin, malformed messages, and internal errors are rejection reasons without numeric code — they are never presented as inherited numeric codes |
+| Numeric compatibility | Rejections inherited from the matching-engine protocol keep their exact numeric codes (1-8, 100-144 families) on client-visible rejection reports |
+| Platform-only rejections | Risk-unavailability (fail-closed), rate limiting, Greeks limits, insufficient margin, malformed messages, and internal errors are rejection reasons without numeric code - they are never presented as inherited numeric codes |
 | Catch-all | Any unrecognized legacy reason collapses to "Unknown reason" rather than a misleading specific code |
 
 ### Event vocabulary
@@ -76,7 +76,7 @@ numeric values and texts they already understand.
 | Lifecycle events | Booking, killing (with reason), modification, repricing, acceptance, and fill events mirror the matching engine's protocol messages one-for-one |
 | Execution events | Each execution is one event per side with a shared trade identifier, liquidity role (added/removed), and execution flags for principal, wash, and midpoint-charge classification |
 | Quote events | Best bid/offer snapshots carry venue attribution so consolidated views can be attributed per market |
-| Event identity | Every event carries tenant environment, emitter sequence, and an idempotency key — downstream businesses never double-count a delivered event |
+| Event identity | Every event carries tenant environment, emitter sequence, and an idempotency key - downstream businesses never double-count a delivered event |
 
 ### Risk authorization
 
@@ -92,19 +92,19 @@ and direct streams; the producing services own when they fire. The encoded
 outbound vocabulary (naming
 `exchange8:{service}:{resource}:{operation}`):
 
-- **Order ingestion** — order submitted (Gateway).
-- **Order lifecycle** — booked, killed (with reason), modified, repriced,
+- **Order ingestion** - order submitted (Gateway).
+- **Order lifecycle** - booked, killed (with reason), modified, repriced,
   rejected (with operation kind and reason), accepted (ME).
-- **Executions** — trade executed per side with shared trade id
+- **Executions** - trade executed per side with shared trade id
   (`exchange8:me:trade:executed`).
-- **Market state** — instrument halted/opened, book-level market state
+- **Market state** - instrument halted/opened, book-level market state
   (ME/MD), best-bid/offer updated (`exchange8:md:bbo:updated`), depth
   updated, trade printed/busted/amended, venue quotes and feed status
   (MD/VFeeds).
-- **Routing and clearing** — sor leg submitted/filled/cancelled/rejected;
+- **Routing and clearing** - sor leg submitted/filled/cancelled/rejected;
   clearing order recorded and drop-copy sent.
 
-**Inbound (consumed):** the same envelope shapes reach consumers — ME consumes
+**Inbound (consumed):** the same envelope shapes reach consumers - ME consumes
 order-entry operations; Clearing/MD consume lifecycle and execution events;
 Surveillance consumes execution events through the standard trigger
 subscription. The library itself consumes nothing (it is passive vocabulary).
@@ -118,18 +118,18 @@ subscription. The library itself consumes nothing (it is passive vocabulary).
 3. Every order accepted into the exchange has passed the risk authorization
    request/response contract; there is no alternate untyped path.
 4. Every business event in the platform carries tenant (`env_id`), a
-   monotonic per-emitter sequence, and an idempotency key — enabling
+   monotonic per-emitter sequence, and an idempotency key - enabling
    exactly-once downstream processing.
 5. Prices and quantities are scaled integers carrying their own precision;
-   equity instruments use 4 decimal digits and crypto 8 — the platform never
+   equity instruments use 4 decimal digits and crypto 8 - the platform never
    mixes precisions silently within one instrument.
 6. Order status terminates only at filled, canceled, rejected, or expired;
    any other status promises further updates.
 7. Unknown wire characters or FIX codes are never silently mapped onto valid
-   variants — they surface as malformed-message or unknown-reason rejections.
+   variants - they surface as malformed-message or unknown-reason rejections.
 8. Character-coded constants (order type, side, visibility, capacity, kill
    reason, liquidity, lot type, statuses) always round-trip exactly to the
-   matching-engine protocol values — a code that enters the exchange leaves
+   matching-engine protocol values - a code that enters the exchange leaves
    the exchange unchanged.
 
 ## 6. Target-User Roles & Use Cases
@@ -146,20 +146,20 @@ subscription. The library itself consumes nothing (it is passive vocabulary).
 
 ## 7. KPIs / Success Criteria
 
-- **Vocabulary consistency** — zero divergence incidents between gateway,
+- **Vocabulary consistency** - zero divergence incidents between gateway,
   risk, matching engine, and clearing on rejection codes or order statuses
   (the vocabulary is shared by construction).
-- **Client compatibility** — every client-visible rejection renders the
+- **Client compatibility** - every client-visible rejection renders the
   expected numeric code and FIX 103 text; compatibility regressions in the
   vocabulary tables are caught by the in-crate catalog-anchored tests.
-- **Event integrity** — near-zero duplicate or lost downstream events
+- **Event integrity** - near-zero duplicate or lost downstream events
   attributable to the envelope contract (sequence + idempotency key present on
   every emission).
-- **Precision correctness** — no price/quantity precision misinterpretation
+- **Precision correctness** - no price/quantity precision misinterpretation
   across instruments of different scales.
-- **Adoption** — order-path services (gateway, risk, matching, clearing,
+- **Adoption** - order-path services (gateway, risk, matching, clearing,
   market data) share this vocabulary rather than local duplicates.
-- **Latency impact** — the vocabulary adds no runtime work on the matching hot
+- **Latency impact** - the vocabulary adds no runtime work on the matching hot
   path (it is compile-time data; conversion accessors are constant-time).
 
 ## 8. Dependencies & Reliance on Other Services
@@ -182,7 +182,7 @@ subscription. The library itself consumes nothing (it is passive vocabulary).
 ## 9. Acceptance Criteria
 
 1. Every order flowing gateway → risk → matching engine uses the shared
-   normalized order type — no unit re-declares order fields for those flows.
+   normalized order type - no unit re-declares order fields for those flows.
 2. Every order rejection surfaced to a FIX client carries the inherited
    numeric code (when defined) plus the exact FIX 103 text.
 3. Fail-closed risk unavailability and rate limiting are expressible and

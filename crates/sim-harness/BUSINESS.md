@@ -1,4 +1,4 @@
-# exchange8::sim-harness — Business Requirements & Functionality
+# exchange8::sim-harness - Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::sim-harness library **does for the business**. For architecture
@@ -6,26 +6,26 @@
 
 ## 1. Business Purpose
 
-- Let the exchange business **describe market scenarios in writing** — one
-  line per action — so trading behavior (order entry, matching, cancels,
+- Let the exchange business **describe market scenarios in writing** - one
+  line per action - so trading behavior (order entry, matching, cancels,
   quoting) can be specified, reviewed and replayed deterministically before
   real money touches the platform.
 - Give engineering the **one command language** for simulations, conformance
   checks and performance benchmarks, keeping test vocabulary identical
   across the vertical.
-- Protect the exchange's core business guarantees — fair matching, correct
-  priority handling and recoverable books — by making deterministic
+- Protect the exchange's core business guarantees - fair matching, correct
+  priority handling and recoverable books - by making deterministic
   scenario replay the standard verification method.
 
 ## 2. Business Scope (What the Library Provides)
 
 | Capability | What it means for the business |
 |---|---|
-| Scenario script language (DSL) | Market situations — deposits, aggressive orders, cancels, replaces, sweeps, quoting, tape prints — are written as reviewable text scripts. |
+| Scenario script language (DSL) | Market situations - deposits, aggressive orders, cancels, replaces, sweeps, quoting, tape prints - are written as reviewable text scripts. |
 | Complete trading vocabulary | Ten verbs cover the full order-lifecycle surface: new/resting orders, crossing entries, cancellations (single + all), replacements, manual prints, book sweeps, two-sided quoting, quote sets, book flush. |
-| Deterministic replay | The same script always builds the same market state — reproducible matching outcomes, reliable regression and dispute analysis. |
+| Deterministic replay | The same script always builds the same market state - reproducible matching outcomes, reliable regression and dispute analysis. |
 | Cross-service scenario driving | A single script exercises the real order path (gateway acceptance → matching → clearing projection) exactly as a market day would, minus infrastructure. |
-| Readable failures | A script mistake names the line and the problem — scenario maintenance costs stay low. |
+| Readable failures | A script mistake names the line and the problem - scenario maintenance costs stay low. |
 
 ### What the service does NOT provide (business boundary)
 
@@ -44,7 +44,7 @@
 ### Scenario authoring
 | Capability | Business rule |
 |---|---|
-| Deposit / Enter (`D` / `F`) | Resting liquidity and crossing orders are expressible distinctly — a maker/taker behavior must be readable in the script itself. |
+| Deposit / Enter (`D` / `F`) | Resting liquidity and crossing orders are expressible distinctly - a maker/taker behavior must be readable in the script itself. |
 | Cancellation (`X`) | Cancelling a single order or a trader's entire book presence (optionally per symbol) is one line. |
 | Replacement (`R`) | A resting order can be repriced/resized without rewriting the scenario. |
 | Sweeps (`S`) | Liquidity removal up to a target price is expressible, enabling stress-style book-emptying scenarios. |
@@ -55,8 +55,8 @@
 ### Deterministic verification
 | Capability | Business rule |
 |---|---|
-| Script-order guarantee | Actions execute in written order — scenario outcomes are reproducible line-for-line. |
-| All-or-nothing parsing | A script with a typo never partially executes — no half-built markets. |
+| Script-order guarantee | Actions execute in written order - scenario outcomes are reproducible line-for-line. |
+| All-or-nothing parsing | A script with a typo never partially executes - no half-built markets. |
 | Human-readable failures | Every script error identifies the line, the verb or the field. |
 
 ### Cross-service assurance
@@ -64,11 +64,11 @@
 |---|---|
 | End-to-end order path | One scenario can prove the accept → match → settle-record chain across the gateway, matching and clearing components. |
 | Reject-path coverage | Invalid submissions (missing identity, zero quantity, limit without price) and halted-instrument crossings produce the standard rejection records. |
-| Trade completeness invariant | Every match produces the complete per-side trade records — no half-recorded trades. |
+| Trade completeness invariant | Every match produces the complete per-side trade records - no half-recorded trades. |
 
 ## 4. Business Events (Outbound)
 
-The library emits **no business events** — it is developer tooling. The
+The library emits **no business events** - it is developer tooling. The
 scenarios it feeds drive the real services' event streams (order lifecycle,
 trade records, rejects), which those services emit and persist in the
 normal way. From the business perspective the harness is a *reader and
@@ -79,14 +79,14 @@ driver* of behavior, never a source of record.
 1. **A scenario is exactly reproducible.** Identical script text plus
    identical engine versions always reproduce identical market outcomes.
 2. **Nothing happens without a script line.** The language cannot inject
-   random or time-based behavior — every market move in a simulation is
+   random or time-based behavior - every market move in a simulation is
    traceable to a written action.
 3. **Unknown commands are errors.** A misspelled scenario step can never be
    silently ignored; the author learns immediately.
 4. **Future-proof scripts.** Adding extra parameters to existing lines is
    tolerated so scenarios remain valid as the language grows.
 5. **No infrastructure dependence.** Scenarios run without databases,
-   networks or credentials — verification cannot be blocked by operations.
+   networks or credentials - verification cannot be blocked by operations.
 6. **One language, many consumers.** The same script syntax serves unit
    tests, cross-service flow tests, conformance checks and future
    benchmark suites.
@@ -104,10 +104,10 @@ driver* of behavior, never a source of record.
 ## 7. KPIs / Success Criteria
 
 - **Fidelity of vocabulary:** all ten documented order-handling behaviors are
-  expressible in the DSL — no capability gap between spec and scenario
+  expressible in the DSL - no capability gap between spec and scenario
   language.
 - **Determinism:** replaying recorded scenarios reproduces identical books,
-  matches and records — measured by the flow tests staying green.
+  matches and records - measured by the flow tests staying green.
 - **Failure clarity:** 100% of script errors carry line context; no silent
   scenario degradation.
 - **Coverage of the order path:** a single scripted scenario proves the
@@ -121,7 +121,7 @@ driver* of behavior, never a source of record.
 | Reliance on | For |
 |---|---|
 | `exchange8-contracts` / `exchange8-fixed` (libraries) | Order-type vocabulary and exact price arithmetic. |
-| Exchange8:Gateway / Exchange8:ME / Exchange8:Clearing service cores (in tests) | The real behavior being verified — the harness replaces nothing. |
+| Exchange8:Gateway / Exchange8:ME / Exchange8:Clearing service cores (in tests) | The real behavior being verified - the harness replaces nothing. |
 | Per-service test suites (`sql_matrix` etc.) | Tenancy/persistence guarantees the DB-free harness deliberately avoids. |
 | Sentin8 platform (indirect) | Production authorization and event persistence, upstream of everything the harness verifies. |
 

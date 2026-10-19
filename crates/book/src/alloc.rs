@@ -10,7 +10,7 @@
 //! policy is a per-contract property (`exchange8_contract.allocation_method`),
 //! selected by the engine per instrument:
 //!
-//! - `fifo` (default): strict price-time — consume a FIFO prefix of the
+//! - `fifo` (default): strict price-time - consume a FIFO prefix of the
 //!   level (orders 1..k fully, k+1 partially, later untouched).
 //! - `pro_rata_round_lot`: round-lot shares ∝ each resting order's volume
 //!   first; the indivisible remainder by largest-remainder, ties by arrival
@@ -63,7 +63,7 @@ pub enum AllocationMethod {
 impl AllocationMethod {
     /// Parse a contract-master column value into a method.
     ///
-    /// Returns `None` for any string outside the schema's CHECK set — a
+    /// Returns `None` for any string outside the schema's CHECK set - a
     /// malformed row surfaces as a provisioning error, never as a silent
     /// default policy.
     ///
@@ -118,7 +118,7 @@ pub struct RestingQty {
     pub order_id: u64,
     /// Quantity available to fill at this level (visible portion).
     pub qty: u64,
-    /// Arrival sequence — FIFO position and remainder tie-break.
+    /// Arrival sequence - FIFO position and remainder tie-break.
     pub seq: u64,
 }
 
@@ -132,7 +132,7 @@ pub struct RestingQty {
 pub struct Fill {
     /// Resting-order id granted the quantity.
     pub order_id: u64,
-    /// Granted (exact integer) quantity — never above the resting cap.
+    /// Granted (exact integer) quantity - never above the resting cap.
     pub qty: u64,
 }
 
@@ -198,7 +198,7 @@ fn allocate_fifo(level: &[RestingQty], incoming: u64) -> Vec<Fill> {
 /// distribution to plain FIFO.
 ///
 /// An incoming qty ≥ total level volume sweeps everything (each order
-/// fills its full qty — pro-rata degenerates to full consumption).
+/// fills its full qty - pro-rata degenerates to full consumption).
 fn allocate_pro_rata(level: &[RestingQty], incoming: u64, fifo_remainder: bool) -> Vec<Fill> {
     if level.is_empty() || incoming == 0 {
         return Vec::new();
@@ -222,7 +222,7 @@ fn allocate_pro_rata(level: &[RestingQty], incoming: u64, fifo_remainder: bool) 
     // Round-lot shares (∝ qty). i128 math: qty,incoming ≤ u64 range and
     // the product of two u64s fits i128 without overflow.
     let mut fills: BTreeMap<u64, u64> = BTreeMap::new(); // order_id → granted
-                                                         // (order_id, fractional remainder numerator, seq) — remainder is
+                                                         // (order_id, fractional remainder numerator, seq) - remainder is
                                                          // (qty × incoming) mod total, the part of the exact share above its floor.
     let mut fractional: Vec<(u64, i128, u64)> = Vec::new();
     let mut granted: u64 = 0;
@@ -237,7 +237,7 @@ fn allocate_pro_rata(level: &[RestingQty], incoming: u64, fifo_remainder: bool) 
         fractional.push((r.order_id, prod % total as i128, r.seq));
     }
 
-    // distribute `leftover` units — one per order per round,
+    // distribute `leftover` units - one per order per round,
     // cycling the ranking until exhausted (standard largest-remainder
     // semantics: each round grants at most 1 unit to an order, capped by
     // its unfilled qty).
@@ -437,24 +437,24 @@ mod tests {
     #[test]
     fn pro_rata_fifo_remainder_uses_arrival() {
         // Same tie case as above, but the 2 leftover units go FIFO:
-        // oldest (10) then (11) — same result here; use a case where
+        // oldest (10) then (11) - same result here; use a case where
         // largest-remainder differs from FIFO.
         // total 100, incoming 30: exact 30/20/… floors 30/20; 0 leftover is
-        // trivial — construct a real one:
+        // trivial - construct a real one:
         // orders 3/3/3/1 (total 10), incoming 4:
         // exact 1.2/1.2/1.2/0.4 → floors 1/1/1/0 = 3; 1 left.
         // largest-remainder: first of the .2s by seq (order 1).
-        // FIFO remainder: also order 1 (oldest) — need a case where fracs
+        // FIFO remainder: also order 1 (oldest) - need a case where fracs
         // disagree with seq: qty 1 (seq 1) vs qty 9 (seq 2), incoming 5:
         // exact .5/4.5 → floors 0/4; 1 left; fracs .5/.5 tie → seq: order 1.
-        // FIFO: order 1. Same again — invert: qty 9 (seq 1), qty 1 (seq 2):
+        // FIFO: order 1. Same again - invert: qty 9 (seq 1), qty 1 (seq 2):
         // exact 4.5/.5 → floors 4/0, 1 left; tie .5/.5 → largest-rem picks
         // seq 1 (order 1) → 5/0; FIFO picks order 1 too → 5/0. The
         // distinguishing case: three orders 2/2/1 (seq 1,2,3), incoming 3:
         // exact .857/.857/.429 → floors 0/0/0, 3 left. Largest-rem: the two
         // .857s (orders 1,2) → 2/1/0... wait, 3 units: orders 1,2 get 1
         // each (fracs .857), then order 3 (.429) gets the last → 1/1/1.
-        // FIFO: orders 1,2,3 in seq order → 1/1/1. Both equal — the tie
+        // FIFO: orders 1,2,3 in seq order → 1/1/1. Both equal - the tie
         // break genuinely coincides here; assert conservation instead.
         let l = level(&[(1, 2, 1), (2, 2, 2), (3, 1, 3)]);
         let fills = allocate(AllocationMethod::ProRataFifoRemainder, &l, 3);

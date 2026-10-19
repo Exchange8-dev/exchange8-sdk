@@ -44,7 +44,7 @@ exchange8 = { path = "facade" }
 
 # full platform dep table (mirrors sentin8-sdk) + intra-vertical
 # contracts path deps. Platform sentin8-* crates arrive via the
-# sentin8 facade git pin — never as local paths (RS §2.3).
+# sentin8 facade git pin - never as local paths (RS §2.3).
 axum = { version = "0.8", features = ["macros"] }
 hyper = { version = "1", features = ["full"] }
 tokio = { version = "1", features = ["full"] }

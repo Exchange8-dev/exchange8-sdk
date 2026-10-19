@@ -1,4 +1,4 @@
-# exchange8::me::client — Business Requirements & Functionality
+# exchange8::me::client - Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::me::client library **does for the business**. For architecture
@@ -9,8 +9,8 @@
 - Give every exchange8 order-flow participant (Gateway, OMS, ME replicas) a
   **single, identical way to speak to the matching engine** over direct
   streams, so order-entry traffic is consistent, auditable and fast.
-- Protect the trading hot path's business guarantees — **latency,
-  deterministic ordering and exactly-once processing** — by making the typed
+- Protect the trading hot path's business guarantees - **latency,
+  deterministic ordering and exactly-once processing** - by making the typed
   message envelope (tenant, sequence, idempotency key) inseparable from every
   message sent to or received from the ME.
 - Prevent divergence bugs with direct commercial impact (mis-routed fills,
@@ -22,10 +22,10 @@
 | Capability | What it means for the business |
 |---|---|
 | Typed ME-stream encoding | Every order-entry, lifecycle and recovery message reaching the matching engine is serialized the same way, by every participant, every time. |
-| Typed ME-stream decoding | Services reading ME responses (execution confirmations, rejects, state recovery) get fully typed, tenant-stamped messages — never raw JSON. |
+| Typed ME-stream decoding | Services reading ME responses (execution confirmations, rejects, state recovery) get fully typed, tenant-stamped messages - never raw JSON. |
 | Complete envelope fidelity | Tenant environment (`env_id`), per-emitter sequence (`seq`) and idempotency key travel with every message, enabling auditable sequencing and duplicate-proof processing. |
 | Contained error behavior | Corrupt or oversize stream input surfaces as a clean typed error, so a bad frame never silently drops money-affecting information. |
-| Determinism of the stream format | Recorded sessions replay byte-identically — the basis for crash recovery and dispute reconstruction. |
+| Determinism of the stream format | Recorded sessions replay byte-identically - the basis for crash recovery and dispute reconstruction. |
 
 ### What the library does NOT provide (business boundary)
 
@@ -43,7 +43,7 @@
 ### Order-entry stream encoding
 | Capability | Business rule |
 |---|---|
-| Envelope-first encoding | A message is never sent to the ME without its tenant, sequence and idempotency identity — no anonymous or untraceable trade traffic. |
+| Envelope-first encoding | A message is never sent to the ME without its tenant, sequence and idempotency identity - no anonymous or untraceable trade traffic. |
 | One frame format | All participants (GW, OMS, ME, replicas) produce compatible frames; an operationally added service speaks the same stream on day one. |
 
 ### Downstream stream consumption
@@ -56,11 +56,11 @@
 | Capability | Business rule |
 |---|---|
 | Format determinism | Identical business input always yields identical on-the-wire bytes, keeping crash recovery, replay and audit reconstruction trustworthy. |
-| Transport portability | The same message body serves the direct trading stream and the durable bus mirror — no business meaning is lost between tiers. |
+| Transport portability | The same message body serves the direct trading stream and the durable bus mirror - no business meaning is lost between tiers. |
 
 ## 4. Business Events (Outbound)
 
-The library emits **no business events** — it is in-process plumbing. The
+The library emits **no business events** - it is in-process plumbing. The
 envelopes it encodes/decodes are the messages of the trading hot path:
 order entry and lifecycle (`exchange8:me:order:*`, `exchange8:me:trade:*`
 families) exchanged point-to-point between Gateway/OMS and ME. A mirrored
@@ -78,9 +78,9 @@ event-driven bookkeeping happens.
 3. **Failure is loud, never silent.** Corrupt input returns an explicit
    error; no value is truncated, defaulted or dropped quietly.
 4. **No credentials in the library.** The library never holds tokens,
-   certificates or secrets — access control stays with the platform shell.
+   certificates or secrets - access control stays with the platform shell.
 5. **Round-trip fidelity.** What a service sends is exactly what the peer
-   decodes — byte-for-byte identical semantics on both sides.
+   decodes - byte-for-byte identical semantics on both sides.
 6. **Deterministic replay.** The stream format supports byte-identical
    replay for recovery and dispute reconstruction.
 
@@ -122,7 +122,7 @@ event-driven bookkeeping happens.
    stream and read a typed response back with exactly two function calls.
 2. Every stream message carries environment, sequence and idempotency
    identity without any caller-side assembly of those fields.
-3. Corrupt, truncated or oversized input produces a typed error — never a
+3. Corrupt, truncated or oversized input produces a typed error - never a
    panic, truncation or undefined behavior.
 4. Round-trip (`encode` → `decode`) is lossless for all trading payloads.
 5. The library contains no network, database, token or secret surface.

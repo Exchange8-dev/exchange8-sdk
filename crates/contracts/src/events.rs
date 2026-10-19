@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Exchange8 domain events — Sentin8:Bus envelopes plus the matching
+//! Exchange8 domain events - Sentin8:Bus envelopes plus the matching
 //! engine's inbound/outbound message payloads.
 //!
 //! Event names follow `exchange8:<service>:<resource>:<operation>`
@@ -63,10 +63,10 @@ pub struct Envelope<T> {
 }
 
 // ---------------------------------------------------------------------------
-// ME order-entry messages (in) — the wire spec inbound
+// ME order-entry messages (in) - the wire spec inbound
 // ---------------------------------------------------------------------------
 
-/// `ME_MSG_ADD_ORDER` ('a') — `MEAddOrderMsg`.
+/// `ME_MSG_ADD_ORDER` ('a') - `MEAddOrderMsg`.
 ///
 /// The order-entry operation; every matching-engine order begins here.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -111,7 +111,7 @@ pub struct AddOrder {
     pub strategy: Vec<u8>,
 }
 
-/// `ME_MSG_CANCEL_ORDER` ('c') — `MECancelOrderMsg`.
+/// `ME_MSG_CANCEL_ORDER` ('c') - `MECancelOrderMsg`.
 ///
 /// Cancels the identified resting order.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -134,7 +134,7 @@ pub struct CancelAllForConnection {
     pub connection_id: u16,
 }
 
-/// `ME_MSG_MODIFY_ORDER` ('u') — `MEModifyOrderMsg`.
+/// `ME_MSG_MODIFY_ORDER` ('u') - `MEModifyOrderMsg`.
 ///
 /// Replace of a resting order: a new order id is allocated and the
 /// quantity delta may be positive (add) or negative (reduce).
@@ -156,7 +156,7 @@ pub struct ModifyOrder {
     pub new_max_floor: Qty,
 }
 
-/// `ME_MSG_INSTRUMENT_STATUS` ('S') — `MEInstrumentStatusMsg`.
+/// `ME_MSG_INSTRUMENT_STATUS` ('S') - `MEInstrumentStatusMsg`.
 ///
 /// Per-instrument trading-state change (open/halted/quotation-only).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -167,7 +167,7 @@ pub struct InstrumentStatusMsg {
     pub status: InstrumentStatus,
 }
 
-/// `ME_MSG_MARKET_STATUS` ('M') — `MEMarketStatusMsg`.
+/// `ME_MSG_MARKET_STATUS` ('M') - `MEMarketStatusMsg`.
 ///
 /// Per-book market-state change (reopen/halt/postpone/shutdown).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -179,7 +179,7 @@ pub struct MarketStatusMsg {
 }
 
 /// `ME_MSG_ONE_ORDER_STATE_REQUEST` ('V') / `ME_MSG_ORDER_STATE` ('U') /
-/// `ME_MSG_ERASE_ORDER` ('X') — `MEOrderStateMsg`.
+/// `ME_MSG_ERASE_ORDER` ('X') - `MEOrderStateMsg`.
 ///
 /// One message shape serving three tags: the state inquiry ('V'), the
 /// state response ('U') and the book erase ('X').
@@ -198,10 +198,10 @@ pub struct OrderStateMsg {
 }
 
 // ---------------------------------------------------------------------------
-// ME lifecycle messages (out) — the wire spec outbound
+// ME lifecycle messages (out) - the wire spec outbound
 // ---------------------------------------------------------------------------
 
-/// `ME_MSG_ORDER_BOOKED` ('B') — `MEOrderBookedMsg`.
+/// `ME_MSG_ORDER_BOOKED` ('B') - `MEOrderBookedMsg`.
 ///
 /// The order now rests on the book (status `New` / `Replaced`).
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -220,7 +220,7 @@ pub struct OrderBooked {
     pub connection_id: u16,
 }
 
-/// `ME_MSG_ORDER_KILLED` ('K') — `MEOrderKilledMsg`.
+/// `ME_MSG_ORDER_KILLED` ('K') - `MEOrderKilledMsg`.
 ///
 /// The order left the book; `reason` says why (catalog `kill_reason`).
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -237,7 +237,7 @@ pub struct OrderKilled {
     pub reason: KillReason,
 }
 
-/// `ME_MSG_ORDER_MODIFIED` ('C') — `MEOrderModifiedMsg`.
+/// `ME_MSG_ORDER_MODIFIED` ('C') - `MEOrderModifiedMsg`.
 ///
 /// The replace completed; the new order id carries the replaced order's
 /// time priority forward.
@@ -263,7 +263,7 @@ pub struct OrderModified {
     pub new_max_floor: Qty,
 }
 
-/// `ME_MSG_ORDER_FILLED` ('F') — `MEOrderFilledMsg`.
+/// `ME_MSG_ORDER_FILLED` ('F') - `MEOrderFilledMsg`.
 ///
 /// The order is completely filled (terminal status `Fill`).
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -276,7 +276,7 @@ pub struct OrderFilled {
     pub connection_id: u16,
 }
 
-/// `ME_MSG_ORDER_ACCEPTED` ('A') — `MEOrderAcceptedMsg`.
+/// `ME_MSG_ORDER_ACCEPTED` ('A') - `MEOrderAcceptedMsg`.
 ///
 /// Acknowledgment that the order passed validation (status `New` pending
 /// the booking broadcast).
@@ -290,7 +290,7 @@ pub struct OrderAccepted {
     pub connection_id: u16,
 }
 
-/// `ME_MSG_ORDER_TRANSACTION_REJECTED` ('R') —
+/// `ME_MSG_ORDER_TRANSACTION_REJECTED` ('R') -
 /// `MEOrderTransactionRejectedMsg`.
 ///
 /// The named operation (`Add`/`Cancel`/`Modify`) failed; `reason` says why.
@@ -308,7 +308,7 @@ pub struct TransactionRejected {
     pub rejected_op: RejectedOp,
 }
 
-/// `rejectedMsgType` values — the operation a `TransactionRejected` refers
+/// `rejectedMsgType` values - the operation a `TransactionRejected` refers
 /// to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RejectedOp {
@@ -320,7 +320,7 @@ pub enum RejectedOp {
     Modify,
 }
 
-/// `ME_MSG_ORDER_EXECUTED` ('E') — `MEOrderExecutedMsg`.
+/// `ME_MSG_ORDER_EXECUTED` ('E') - `MEOrderExecutedMsg`.
 ///
 /// **One per side per execution** with a common `trade_id`; the active side
 /// is `Liquidity::Removed`, the passive `Liquidity::Added` (the book
@@ -369,9 +369,9 @@ pub struct OrderExecuted {
     pub midpoint_charge: bool,
 }
 
-/// `ME_MSG_ORDER_REPRICED` ('P') — `MEOrderRepricedMsg`.
+/// `ME_MSG_ORDER_REPRICED` ('P') - `MEOrderRepricedMsg`.
 ///
-/// A resting order's price changed without a client request — currently the
+/// A resting order's price changed without a client request - currently the
 /// price-protection sidestep.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct OrderRepriced {
@@ -406,7 +406,7 @@ pub struct Quote {
     pub ts_us: u64,
 }
 
-/// Consolidated best-bid/offer update — the
+/// Consolidated best-bid/offer update - the
 /// `exchange8:md:bbo:updated` / `exchange8:vfeeds:index:updated` payloads.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct BboUpdated {

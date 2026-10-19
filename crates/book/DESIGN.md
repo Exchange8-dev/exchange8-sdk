@@ -1,4 +1,4 @@
-# exchange8::book — Detailed Design Document
+# exchange8::book - Detailed Design Document
 
 ## 1. Scope & Context
 
@@ -81,9 +81,9 @@ Two consumer-side driving patterns matter for interpreting the diagrams:
 the FIFO walk locates the crossing level by an `iter_levels` sweep (best-first
 order, skipped per bypass visibility) and then consumes its deque front; the
 pro-rata pass snapshots the level once per pass. Both apply fills through the
-same primitives below — the library never distinguishes the disciplines.
+same primitives below - the library never distinguishes the disciplines.
 
-**FIFO match walk (default discipline) — the primary call sequence:**
+**FIFO match walk (default discipline) - the primary call sequence:**
 
 ```mermaid
 sequenceDiagram
@@ -106,7 +106,7 @@ sequenceDiagram
             else iceberg and visible == 0 and remaining &gt, 0
                 E->>SB: remove(order_id)
                 E->>E: reload visible = min(max_floor, remaining),<br/>sub-order count += 1
-                E->>SB: insert(order) (tail — time priority resets)
+                E->>SB: insert(order) (tail - time priority resets)
             end
         else no crossing level remains
             E-->>E: walk ends (price limit reached)
@@ -142,7 +142,7 @@ sequenceDiagram
 
 **Iceberg-tail reload path** (within either discipline above): a resting
 iceberg is reduced in place; when its displayed quantity reaches zero but a
-reserve remains, the engine removes the order and re-inserts it — the
+reserve remains, the engine removes the order and re-inserts it - the
 re-insertion assigns a fresh, higher `seq`, placing the reloaded slice at
 the tail of its level. That re-entry is the documented time-priority reset;
 the bumped `iceberg_sub_order_count` is the feed identity of the new slice.
@@ -154,7 +154,7 @@ path can reconstruct a book from a serialized frame. Quantities are
 `exchange8::fixed::Qty` (`u64` raw units, integer board lots by default,
 fractional decimal scaling for crypto per-instrument); prices are
 `exchange8::fixed::Price` (`i128` scaled integer ticks plus a per-value
-scale) — the book never rescales values, it compares and stores raw units.
+scale) - the book never rescales values, it compares and stores raw units.
 
 ```mermaid
 classDiagram
@@ -242,7 +242,7 @@ classDiagram
 **Structural relationships:** a `SideBook` owns its levels; a level owns its
 orders by value; the id index is a redundancy that must agree with the map
 at all times (an invariant, not a second source of truth). The allocator's
-`RestingQty`/`Fill` are deliberate value copies, not references — the
+`RestingQty`/`Fill` are deliberate value copies, not references - the
 snapshot/apply split is the boundary that keeps allocation pure.
 
 **Order and level lifecycle (as driven by the engine):**
@@ -288,62 +288,62 @@ applies at the owning service boundary, never here.
 Grouped by consumer role:
 
 **Market-data and parity views (read-only):**
-- `Book::is_crossed` — crossed-market detection used by parity checks and
+- `Book::is_crossed` - crossed-market detection used by parity checks and
   halt/quotation logic.
-- `SideBook::best` / `SideBook::best_visible` — the best level overall, and
+- `SideBook::best` / `SideBook::best_visible` - the best level overall, and
   the best displayable (visible) level, which is what displayed depth means.
-- `SideBook::levels` / `SideBook::iter_levels` — best-first depth access,
+- `SideBook::levels` / `SideBook::iter_levels` - best-first depth access,
   by-value snapshot or borrowing walk.
-- `SideBook::volume_at_or_better` — cumulative resting volume (visible +
+- `SideBook::volume_at_or_better` - cumulative resting volume (visible +
   hidden) at prices at-or-better than the given limit; the FOK availability
   primitive.
-- `SideBook::front_at` — direct access to a level's oldest order (the
+- `SideBook::front_at` - direct access to a level's oldest order (the
   pickup point for the matching walk).
-- `PriceLevel::visible_volume` / `PriceLevel::total_remaining` — aggregated
+- `PriceLevel::visible_volume` / `PriceLevel::total_remaining` - aggregated
   level depth.
-- `RestingOrder::is_iceberg` / `RestingOrder::has_hidden_part` — display
+- `RestingOrder::is_iceberg` / `RestingOrder::has_hidden_part` - display
   predicates mirrored into derived market data.
-- `SideBook::side` / `Book::side` — side identification for generic code
+- `SideBook::side` / `Book::side` - side identification for generic code
   paths.
 
 **Matching operations (mutating, engine-only by convention):**
-- `SideBook::insert` — place a resting order; mint the arrival sequence;
+- `SideBook::insert` - place a resting order; mint the arrival sequence;
   tail of its (price, visibility) level.
-- `SideBook::reduce` — in-place fill decrement of one order (saturating at
+- `SideBook::reduce` - in-place fill decrement of one order (saturating at
   zero); returns whether the id was known.
-- `SideBook::remove` — take a resting order out (cancel, full consumption,
+- `SideBook::remove` - take a resting order out (cancel, full consumption,
   iceberg re-entry, modify re-key); self-prunes an emptied level.
-- `SideBook::prune` — explicit empty-level sweep (defensive parity with
+- `SideBook::prune` - explicit empty-level sweep (defensive parity with
   self-pruning removal).
-- `Book::new`, `Book::side`, `Book::side_mut`, `SideBook::new` —
+- `Book::new`, `Book::side`, `Book::side_mut`, `SideBook::new` -
   construction and side-scoped mutation access.
 
 **Allocation policy (pure functions):**
-- `alloc::allocate` — allocate an incoming quantity across a level snapshot
+- `alloc::allocate` - allocate an incoming quantity across a level snapshot
   under the contract's method; deterministic, conserving, capped.
-- `alloc::AllocationMethod` + `from_db` / `as_str` — the per-contract
+- `alloc::AllocationMethod` + `from_db` / `as_str` - the per-contract
   policy selector and its contract-master column round-trip.
-- `alloc::RestingQty`, `alloc::Fill` — the snapshot and fill transfer types.
+- `alloc::RestingQty`, `alloc::Fill` - the snapshot and fill transfer types.
 
 **Memory/snapshot operations:**
 - Every container derives `Serialize`/`Deserialize` (`Book`, `SideBook`,
-  `PriceLevel`, `RestingOrder` included) — the reconstruction contract for
+  `PriceLevel`, `RestingOrder` included) - the reconstruction contract for
   mirror/replay consumers. `Book`, `SideBook`, and `PriceLevel` also derive
   `Clone` for cheap engine-side snapshots.
 - Complexity contract (hot path): insert O(log L); best O(1) map-front
   lookup after ordered insert; cancel/reduce locate O(1) via the id index;
-  front consumption O(1); `volume_at_or_better` O(L) — L = distinct
+  front consumption O(1); `volume_at_or_better` O(L) - L = distinct
   (price × visibility) levels on the side.
 
 **Rustdoc coverage companion:** each of the public items above carries a `///`
 doc comment in source (short summary, explanation, examples for non-trivial
-functions, and errors/panics notes where they apply) — the API contract
+functions, and errors/panics notes where they apply) - the API contract
 lives with the code; this document intentionally describes rather than
 duplicates signatures.
 
 ## 5. Cross-Cutting Concerns
 
-A library has no HTTP, RLS, rate limiting, or audit surface — the platform
+A library has no HTTP, RLS, rate limiting, or audit surface - the platform
 cross-cutting concerns apply to the consuming services. What applies *to the
 library itself*:
 
@@ -388,7 +388,7 @@ reconstruction:
 
 - **Out-of-memory / allocator exhaustion.** Levels grow with resting
   liquidity; the crate performs no admission control and cannot shed load.
-  Exhaustion surfaces as an allocation abort in the hosting process — the
+  Exhaustion surfaces as an allocation abort in the hosting process - the
   exchange's policy is fail-stop for the engine process (book state must
   never be silently approximated), and bounded queues upstream keep resting
   depth bounded. The recovery contract: after a restart the engine
@@ -402,7 +402,7 @@ reconstruction:
   cannot enforce cross-field invariants, so the engine's recovery path
   re-verifies crossing and depth aggregates after replay rather than
   trusting a frame. A recovered book with a torn id index (only possible
-  from a foreign writer) is treated as unreplayable — the engine rebuilds
+  from a foreign writer) is treated as unreplayable - the engine rebuilds
   from the journal instead of patching the index.
 - **Unknown-order operations.** `reduce`/`remove` return `false`/`None` for
   unknown ids rather than panicking; the engine surfaces these as
@@ -422,7 +422,7 @@ reconstruction:
 Ownership model: **single-writer consumption**. The engine's shard map
 assigns every instrument to exactly one task; all mutation of that
 instrument's `Book` happens on that task with no locks or atomics. `&mut
-self` is the crate's entire synchronization contract — if a second writer
+self` is the crate's entire synchronization contract - if a second writer
 existed, it would be a consumer-architecture violation, not a library
 shortfall. Read-only sharing (depth mirrors) reaches consumers through
 derived updates, never through concurrent references into a live book.
@@ -453,7 +453,7 @@ graph LR
 ```
 
 **Cache behavior.** Level deques are contiguous blocks accessed front-first
-and tail-inserted — the two hottest patterns for a FIFO level. The level
+and tail-inserted - the two hottest patterns for a FIFO level. The level
 map walks in execution order with pointer-chasing only across level keys,
 not per order. The pro-rata snapshot is the one per-match allocation, sized
 to the level's resting count. Order lookup by id is a single hash probe.
@@ -474,7 +474,7 @@ to the level's resting count. Order lookup by id is a single hash probe.
    by price, asks ascending, visible levels before hidden at equal price.
 2. Within a level, deque order is strictly arrival order (`seq`
    monotone per side book; callers cannot set `seq`).
-3. The id index and the level deque agree for every resting order — no
+3. The id index and the level deque agree for every resting order - no
    dangling or duplicated identity.
 4. Visibility partition is derivable: `visible == 0` ⇔ hidden level
    membership; `remaining ≥ visible ≥ 0` always; `reduce` saturates at
@@ -491,17 +491,17 @@ to the level's resting count. Order lookup by id is a single hash probe.
 
 **Insecure defaults rejected:** no hidden liquidity leaks into displayed
 depth (visible/hidden partition is structural, not filtered); no floating
-point anywhere in the hot path (integer shares only — a float-based pro-rata
+point anywhere in the hot path (integer shares only - a float-based pro-rata
 would be non-reproducible across hosts); no caller-supplied time priority
 (a book that trusted caller `seq` would let spoofed sequence numbers
-reorder fills); no interior mutability — a shared-mutable book would let
+reorder fills); no interior mutability - a shared-mutable book would let
 readers observe torn levels; no implicit level merging where hidden orders
 surface as display depth.
 
 **Unsafe rationale:** the crate contains no `unsafe` blocks. Ordering is
 achieved with type-derived key ordering (a totally ordered `PriceKey`
 struct), memory reuse is left to the standard allocator, and all quantity
-math is saturating/checked — safety comes from the types, not from unchecked
+math is saturating/checked - safety comes from the types, not from unchecked
 code.
 
 ## 9. Testing Strategy
@@ -510,7 +510,7 @@ code.
 graph TD
     U["Unit tests (in-crate, pure)<br/>lib.rs: ordering, levels, index,<br/>FOK volume, crossing, scale guard<br/>alloc.rs: policies, conservation,<br/>oversell, tie-breaks, db round-trip"]
     I["Consumer integration (services/me)<br/>match walk + allocation wiring,<br/>iceberg reload, board/odd routing,<br/>STP passes, journal replay"]
-    P["Policy wiring tests (services)<br/>scope/role gating — no DB"]
+    P["Policy wiring tests (services)<br/>scope/role gating - no DB"]
     E["E2E / golden-wire parity (workspace suites)<br/>gateway→me→clearing event contracts"]
     U --> I
     I --> E
@@ -529,7 +529,7 @@ graph TD
   policies × level shapes × incoming quantities; plus the 10k-level
   complexity guard. Doctests compile-and-run every public example:
   the crate documentation is executable.
-- **What is deliberately NOT tested here:** cross-service behavior — the
+- **What is deliberately NOT tested here:** cross-service behavior - the
   engine's matching walk, STP/price-protection/post-only decision logic,
   board/odd routing, journaling and replay, market-data projection, and
   wire/event parity are owned by the consuming services and workspace
@@ -540,7 +540,7 @@ graph TD
 
 - **Pooled storage for hot-path orders.** Whether a future
   `book::pool` (or a pooled variant of the book) should replace owned deque
-  storage to cut steady-state allocations on the engine's fill path — to be
+  storage to cut steady-state allocations on the engine's fill path - to be
   designed together with the engine's event-envelope pooling, one storage
   decision rather than two.
 - **Result-carrying reduce.** Whether `reduce` should return the post-fill

@@ -1,11 +1,11 @@
-# exchange8::me::client — Detailed Design Document
+# exchange8::me::client - Detailed Design Document
 
 > Deep, implementation-complete design for the `exchange8-me-client` library
 > crate (facade `exchange8::me::client`, sources `crates/me/client/src/lib.rs`).
 > Companion documents: `README.md` (overview) and `BUSINESS.md` (business
 > requirements). Vertical context:
 > `design/sentin8-exchange8-technical-design.md` §4.1 (namespace conformance),
-> §5.2/§7.2 (transport tiers — direct ME streams),
+> §5.2/§7.2 (transport tiers - direct ME streams),
 > `design/sentin8-exchange8-matching-engine-technical-design.md` (ME stream
 > families).
 
@@ -13,27 +13,27 @@
 
 `exchange8::me::client` is an **in-process library** on the trading hot path.
 It owns exactly one concern: turning typed `exchange8::contracts::Envelope<T>`
-values into `exchange8::wire` frames and back — the typed codec surface for
+values into `exchange8::wire` frames and back - the typed codec surface for
 the ME direct streams (order entry + lifecycle + recovery).
 
 It explicitly does **not** own:
 
-- the framing byte layout — `exchange8::wire`'s codec does
+- the framing byte layout - `exchange8::wire`'s codec does
   (`encode` / `decode` / `next_frame_len` / `MAX_FRAME` / `DecodeError`);
-- transport session concerns — TLS dialing, M2M token sourcing, bounded
+- transport session concerns - TLS dialing, M2M token sourcing, bounded
   queues, reconnect policy are `sentin8::shell` wiring at the consumer;
-- any domain DTO — all ME in/out payloads (order entry, executions,
+- any domain DTO - all ME in/out payloads (order entry, executions,
   rejects, lifecycle) live in `exchange8::contracts::events`;
-- cross-service API surface shared by two services — the Gateway↔Risk
+- cross-service API surface shared by two services - the Gateway↔Risk
   authorize DTOs (`AuthorizeRequest` / `AuthorizeResponse` / `Decision`) live
   in `exchange8::contracts::risk` per the §2.1 nesting rule, **not** here.
 
 ```mermaid
 graph TD
     subgraph PLATFORM["Sentin8 platform surfaces"]
-        AUTH["Sentin8:Auth — M2M tokens (cert-bound)"]
-        TLS["Sentin8:TLS — direct-stream transport"]
-        BUS["Sentin8:Bus — inbox-first mirror of ME events"]
+        AUTH["Sentin8:Auth - M2M tokens (cert-bound)"]
+        TLS["Sentin8:TLS - direct-stream transport"]
+        BUS["Sentin8:Bus - inbox-first mirror of ME events"]
     end
 
     subgraph CONSUMERS["exchange8 services"]
@@ -42,16 +42,16 @@ graph TD
     end
 
     subgraph CRATE["exchange8::me::client (this crate)"]
-        TYPED["typed envelope layer — encode_envelope / decode_envelope"]
+        TYPED["typed envelope layer - encode_envelope / decode_envelope"]
     end
 
     subgraph SIBLINGS["Sibling exchange8 crates"]
-        WIRE["exchange8::wire — framed codec, bounded queues, MAX_FRAME, DecodeError"]
-        CONTRACTS["exchange8::contracts — Envelope&lt;T&gt;, ME in/out DTOs, risk authorize DTOs"]
-        FACADE["sdk/rust/exchange8 — pub mod me { pub use exchange8_me_client as client }"]
+        WIRE["exchange8::wire - framed codec, bounded queues, MAX_FRAME, DecodeError"]
+        CONTRACTS["exchange8::contracts - Envelope&lt;T&gt;, ME in/out DTOs, risk authorize DTOs"]
+        FACADE["sdk/rust/exchange8 - pub mod me { pub use exchange8_me_client as client }"]
     end
 
-    ME["exchange8-me (Exchange8:ME service — stream peer)"]
+    ME["exchange8-me (Exchange8:ME service - stream peer)"]
 
     GW -- "typed frames" --> TYPED
     OMS -- "typed frames" --> TYPED
@@ -68,7 +68,7 @@ graph TD
 **Trust boundaries.** The crate is post-authorization plumbing: frames are
 produced and consumed inside service shells that already ran the standard
 authorization pipeline. Stream authentication is M2M (cert-bound) on the TLS
-transport, owned by the consuming shell — the crate handles no credentials,
+transport, owned by the consuming shell - the crate handles no credentials,
 holds no token and opens no socket. The `env_id` inside every envelope is the
 tenant marker the consumer already verified before encoding.
 
@@ -80,14 +80,14 @@ module map is a single module with an in-crate concept split:
 
 ```mermaid
 graph TD
-    subgraph LIB["exchange8-me-client — single lib module"]
+    subgraph LIB["exchange8-me-client - single lib module"]
         subgraph TYPEDL["Typed envelope layer"]
             ENC["encode_envelope&lt;T: Serialize&gt;(&amp;Envelope&lt;T&gt;) → Vec u8"]
             DEC["decode_envelope&lt;T: DeserializeOwned&gt;(&amp;[u8]) → Result&lt;Envelope&lt;T&gt;, DecodeError&gt;"]
         end
         subgraph DEPS["Dependency face"]
-            WIRE2["exchange8_wire — encode / decode / DecodeError"]
-            CONTR["exchange8_contracts — Envelope&lt;T&gt; (serde)"]
+            WIRE2["exchange8_wire - encode / decode / DecodeError"]
+            CONTR["exchange8_contracts - Envelope&lt;T&gt; (serde)"]
         end
     end
     ENC --> WIRE2
@@ -96,7 +96,7 @@ graph TD
     DEC --> CONTR
 ```
 
-**Core path — a direct-stream message round trip.** The lifecycle worth
+**Core path - a direct-stream message round trip.** The lifecycle worth
 diagramming is one order-entry exchange between Gateway and ME across the
 framed stream (error branch shown: frame corruption on the reader side):
 
@@ -109,7 +109,7 @@ sequenceDiagram
     participant ME as exchange8-me (stream peer)
 
     GW->>MC: encode_envelope(&Envelope<AddOrder> { env_id, seq, idempotency_key, payload })
-    MC->>W: encode(envelope) — 4-byte LE length + JSON, ≤ MAX_FRAME
+    MC->>W: encode(envelope) - 4-byte LE length + JSON, ≤ MAX_FRAME
     W-->>MC: Vec<u8> frame
     MC-->>GW: frame bytes → write to TLS stream (shell wiring)
     GW->>ME: framed envelope (M2M cert-bound TLS)
@@ -118,10 +118,10 @@ sequenceDiagram
     MC->>W: decode(frame)
     alt frame valid
         W-->>MC: Ok(Envelope<T>)
-        MC-->>GW: typed envelope — consumer routes on event_type / payload
+        MC-->>GW: typed envelope - consumer routes on event_type / payload
     else corrupt / oversize frame
         W-->>MC: Err(DecodeError::TooShort | TooLarge | Json)
-        MC-->>GW: error surfaced unchanged — shell decides (resync / drop / alert)
+        MC-->>GW: error surfaced unchanged - shell decides (resync / drop / alert)
     end
 ```
 
@@ -131,9 +131,9 @@ the crate.
 ## 3. Data Model
 
 **No database tables are owned.** The crate declares none, reads none and
-writes none — no DSN, no pool, no RLS. Its "data model" is the single value
+writes none - no DSN, no pool, no RLS. Its "data model" is the single value
 it carries across the wire, shown as a class diagram (value layout, not an
-entity relationship — the service-template ER diagram does not apply to a
+entity relationship - the service-template ER diagram does not apply to a
 library that owns no entities):
 
 ```mermaid
@@ -161,7 +161,7 @@ classDiagram
     me_client ..> DecodeError : surfaces unchanged
 ```
 
-- `Envelope<T>` is owned by `exchange8::contracts` — the crate only *reads*
+- `Envelope<T>` is owned by `exchange8::contracts` - the crate only *reads*
   and *emits* it. Fields carry tenant (`env_id`), ordering (`seq`), dedup
   (`idempotency_key`) and routing (`event_type`) exactly as the Sentin8:Bus
   produce path expects, so a message is transport-portable between the two
@@ -173,31 +173,31 @@ classDiagram
 This is a library: there are **no HTTP endpoints** (the
 `Authorization/API` surface of the service template does not apply in its
 HTTP form). The public API is two functions plus borrowed types; consumers
-are exchange8 services and crates only — never an end client.
+are exchange8 services and crates only - never an end client.
 
 | Item | Signature | Role | Consumer gate |
 |---|---|---|---|
-| `encode_envelope` | `pub fn encode_envelope<T: Serialize>(value: &Envelope<T>) -> Vec<u8>` | serialize a full typed envelope into one wire frame | services tier — after the caller's authorization pipeline |
+| `encode_envelope` | `pub fn encode_envelope<T: Serialize>(value: &Envelope<T>) -> Vec<u8>` | serialize a full typed envelope into one wire frame | services tier - after the caller's authorization pipeline |
 | `decode_envelope` | `pub fn decode_envelope<T: DeserializeOwned>(frame: &[u8]) -> Result<Envelope<T>, exchange8_wire::DecodeError>` | decode a complete frame into a typed envelope | services tier |
 
-Borrowed types (not re-exported — imported from their owning crates):
+Borrowed types (not re-exported - imported from their owning crates):
 `exchange8::contracts::Envelope<T>`, `exchange8::wire::DecodeError`
 (`TooShort` / `TooLarge` / `Json`).
 
-**Events — none emitted, none consumed.** The crate is not wired to
+**Events - none emitted, none consumed.** The crate is not wired to
 Sentin8:Bus; the envelopes it encodes are the *same message bodies* that ride
-the bus as mirrored copies (master design §7.2 — ME fans a mirrored copy of
+the bus as mirrored copies (master design §7.2 - ME fans a mirrored copy of
 its stream to the bus for Clearing/MD persistence), which is why the payload
 shape, the `env_id` and `idempotency_key` disciplines are identical across
 both transport tiers.
 
 **Multi-party interaction** (already diagrammed in §2): the sequence
 diagram is the `Gateway → codec → TLS → ME` round trip with its decode-error
-branch — the only multi-party interaction the crate participates in.
+branch - the only multi-party interaction the crate participates in.
 
 ## 5. Cross-Cutting Concerns
 
-- **Authentication / authorization.** Not applicable inside the crate — no
+- **Authentication / authorization.** Not applicable inside the crate - no
   token inspection, no scope check, no policy decision. Frames leave the
   consumer *after* its shell ran the 8-step authorization pipeline; stream
   authentication is the M2M cert-bound TLS session the shell establishes.
@@ -206,11 +206,11 @@ branch — the only multi-party interaction the crate participates in.
   per-tenant interpretation (e.g. which `env_id` a stream serves) is the
   consumer's routing decision, not the crate's.
 - **Idempotency / exactly-once.** Enforced by the envelope's
-  `idempotency_key` — the crate carries it faithfully in both directions and
+  `idempotency_key` - the crate carries it faithfully in both directions and
   does nothing else. Deduplication happens at consumers (inbox-first for the
   bus mirror, consumer-side seq/idem tracking for direct streams).
 - **Ordering.** `seq` is a monotonic per-emitter counter that the encoder
-  transports unchanged; the crate never reorders, batches or re-sequences —
+  transports unchanged; the crate never reorders, batches or re-sequences -
   point-to-point framed streams preserve write order by construction.
 - **Rate limiting / bot protection / audit journaling / graceful drain / TLS
   posture.** All handled by the consuming service shell and the platform
@@ -218,7 +218,7 @@ branch — the only multi-party interaction the crate participates in.
   The crate contributes nothing to these concerns and must not grow there.
 - **Determinism.** Encoding is a pure function of the envelope value:
   identical envelopes always produce identical frames, so recorded-session
-  replay produces byte-identical streams — the property deterministic tests
+  replay produces byte-identical streams - the property deterministic tests
   (sim-harness, ME recovery tests) rely on.
 
 ## 6. Failure Modes & Recovery
@@ -226,23 +226,23 @@ branch — the only multi-party interaction the crate participates in.
 ```mermaid
 flowchart TD
     DEC["decode_envelope(frame)"] --> LEN{"total ≥ 4 and payload ≤ MAX_FRAME ?"}
-    LEN -->|no| SHORT["DecodeError::TooShort / TooLarge — contained, no panic"]
+    LEN -->|no| SHORT["DecodeError::TooShort / TooLarge - contained, no panic"]
     LEN -->|yes| PARSE{"payload parses as T ?"}
-    PARSE -->|no| JSON["DecodeError::Json — serde message preserved"]
+    PARSE -->|no| JSON["DecodeError::Json - serde message preserved"]
     PARSE -->|yes| OK["Ok(Envelope&lt;T&gt;)"]
 
     ENCODE["encode_envelope(env)"] --> SER{"T serializes losslessly ?"}
     SER -->|yes| FRAME["frame bytes"]
-    SER -->|no| PANICF["unreachable in practice — contract DTOs are lossless serde structs"]
+    SER -->|no| PANICF["unreachable in practice - contract DTOs are lossless serde structs"]
 
     RECV["reader: partial prefix on the stream"] --> NFL["caller buffers + validates via wire::next_frame_len"]
-    NFL -->|incomplete| WAIT["keep buffering — decode not called yet"]
+    NFL -->|incomplete| WAIT["keep buffering - decode not called yet"]
     NFL -->|complete| DEC
 ```
 
 - **Decode failure (the real failure path).** A corrupt, truncated or
   oversize frame returns a contained `DecodeError`; no panic, no silent
-  truncation, no partial value. **Recovery is the consumer's policy** — a
+  truncation, no partial value. **Recovery is the consumer's policy** - a
   direct-stream reader typically resynchronizes on the next
   `next_frame_len`-validated frame (per-frame length prefixes make framing
   self-delimiting), or tears the stream down for rejoin/replay. The crate
@@ -250,7 +250,7 @@ flowchart TD
 - **Encode failure.** Contract DTOs are plain serde structs without
   non-string-serializable fields; serialization cannot fail in the contract
   set. A hypothetical non-lossless payload type would surface as the natural
-  serde/JSON error path of `wire::encode` — not a special crate behavior.
+  serde/JSON error path of `wire::encode` - not a special crate behavior.
 - **Stream-level failures** (peer disconnect, TLS reset, backpressure) live
   entirely outside the crate: the shell owns reconnect/rejoin (ME recovery
   messages or full replay per master design §11) and the bounded-queue
@@ -265,7 +265,7 @@ flowchart TD
   service binaries (gateway order-entry stream writers, ME stream readers,
   OMS links); `encode_envelope` / `decode_envelope` are called inline on those
   tasks before/after the transport write/read.
-- **Locking strategy.** None — the functions are pure and reentrant; no
+- **Locking strategy.** None - the functions are pure and reentrant; no
   shared mutable state exists.
 - **Hot path and cost.** One `serde_json` serialization plus one 4-byte
   `Vec` prefix prepend per message; decode is one bounds check, one parse.
@@ -287,9 +287,9 @@ graph LR
     subgraph ConsumerTask["Consumer service task (tokio)"]
         WR["writer loop: outbox/queue → encode_envelope → TLS write"]
         RD["reader loop: TLS read → buffer → next_frame_len → decode_envelope"]
-        Q["bounded queue — exchange8::wire::channel (SendError on full)"]
+        Q["bounded queue - exchange8::wire::channel (SendError on full)"]
     end
-    MC["exchange8::me::client — pure functions, no tasks, no locks"]
+    MC["exchange8::me::client - pure functions, no tasks, no locks"]
     WR --> MC
     RD --> MC
     Q -. "feeds the writer loop at the call site" .-> WR
@@ -306,25 +306,25 @@ graph LR
 3. All five envelope fields (`event_type`, `env_id`, `seq`,
    `idempotency_key`, `payload`) are transported; the crate never drops or
    defaults any of them.
-4. Every codec error passes through with its original taxonomy — the crate
+4. Every codec error passes through with its original taxonomy - the crate
    defines no error type and performs no error-mapping.
 5. No panic is reachable from corrupt input: all truncation/oversize/bad-JSON
    inputs return errors.
 
 **Insecure defaults rejected:**
-- **Payload-only encoding** (envelope assembled ad hoc by callers) — rejected:
+- **Payload-only encoding** (envelope assembled ad hoc by callers) - rejected:
   it invites divergent or missing `env_id` / `idempotency_key`, the fields that
   make cross-tenant safety and dedup auditable. The whole envelope is the unit
   of encode.
-- **A crate-owned session/transport with embedded credentials** — rejected:
+- **A crate-owned session/transport with embedded credentials** - rejected:
   secrets and M2M token sourcing must stay in the service shell and platform
   crates (secret references policy); a client library holding tokens would
   create a second secret surface.
-- **Silent truncation on oversize payloads** — rejected: `MAX_FRAME` violations
+- **Silent truncation on oversize payloads** - rejected: `MAX_FRAME` violations
   surface as `DecodeError::TooLarge`, mirroring the codec's containment rule;
   silent truncation would corrupt seq/idempotency integrity downstream.
 
-**Unsafe rationale:** the crate contains **no `unsafe` code** — nothing to
+**Unsafe rationale:** the crate contains **no `unsafe` code** - nothing to
 rationale.
 
 ## 9. Testing Strategy
@@ -332,10 +332,10 @@ rationale.
 ```mermaid
 graph TD
     subgraph PYRAMID["Test layers for the crate"]
-        L1["Unit tests (in-crate) — round-trip property: encode → decode equals input<br/>framing fidelity: frame equals wire::encode output byte-for-byte"]
-        L2["Contract tests (crates/contracts) — Envelope + DTO serde golden coverage<br/>event-type naming discipline exchange8:*:*:*"]
-        L3["Integration (consumer services) — me/gateway/oms design suites exercise<br/>direct streams end-to-end incl. recovery/replay"]
-        L4["Cross-service flow — crates/sim-harness flow test drives<br/>gateway submission → me engine → clearing projection"]
+        L1["Unit tests (in-crate) - round-trip property: encode → decode equals input<br/>framing fidelity: frame equals wire::encode output byte-for-byte"]
+        L2["Contract tests (crates/contracts) - Envelope + DTO serde golden coverage<br/>event-type naming discipline exchange8:*:*:*"]
+        L3["Integration (consumer services) - me/gateway/oms design suites exercise<br/>direct streams end-to-end incl. recovery/replay"]
+        L4["Cross-service flow - crates/sim-harness flow test drives<br/>gateway submission → me engine → clearing projection"]
     end
     L1 --> L2 --> L3 --> L4
 ```
@@ -347,7 +347,7 @@ graph TD
   frame byte layout (covered by `crates/wire` golden tests), DTO fidelity
   (`crates/contracts`), stream session behavior (consumer services), and
   cross-service flow (sim-harness flow test).
-- **Deliberately NOT tested here:** TLS, tokens, backpressure, reconnect —
+- **Deliberately NOT tested here:** TLS, tokens, backpressure, reconnect -
   they are out of the crate's surface; the test pyramid stays aligned with
   the platform testing strategy doc.
 - **Property worth preserving in CI:** encoding the same envelope twice
@@ -358,7 +358,7 @@ graph TD
 
 - **Buffer-reuse encode variant.** `write_envelope`-style API writing into a
   caller-provided buffer to eliminate the per-message `Vec` allocation on the
-  hottest order-entry path — pending profiling evidence.
+  hottest order-entry path - pending profiling evidence.
 - **Typed per-family stream APIs.** Dedicated envelope sets / newtype helpers
   for the three stream families (order entry, lifecycle, recovery) to give
   ME/GW/OMS one shared typed definition per stream, instead of raw

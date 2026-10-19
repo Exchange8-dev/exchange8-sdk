@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Exchange8 contracts — the shared domain vocabulary of the exchange8
+//! Exchange8 contracts - the shared domain vocabulary of the exchange8
 //! vertical.
 //!
 //! Every service in the orders/rejects flow (gateway → risk → me →
@@ -54,7 +54,7 @@
 //! - [`enums`]: shared char-code enums (order types, sides, kill/reject reasons)
 //! - [`risk`]: Gateway → Risk authorize wire DTOs (cross-service API surface)
 //!
-//! Re-exports are explicit (no globs) — facade-level names stay collision-free.
+//! Re-exports are explicit (no globs) - facade-level names stay collision-free.
 //!
 //! # Design documents
 //!

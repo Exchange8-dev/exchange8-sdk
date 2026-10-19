@@ -1,4 +1,4 @@
-# exchange8::soup — Detailed Design Document
+# exchange8::soup - Detailed Design Document
 
 ## 1. Scope & Context
 
@@ -9,15 +9,15 @@ Accept 31 / Reject 2 bytes), the control frames (server heartbeat, client
 heartbeat, logout), sequenced-data wrapping, and the stream read support
 (`next_frame_len`/`split_frame`). It explicitly does **not** own:
 
-- sockets, connection state, heartbeat intervals, reconnection — the
+- sockets, connection state, heartbeat intervals, reconnection - the
   consuming services' session tasks (Exchange8:MD soup servers, Exchange8:VFeeds
   session paths) per the market-data design §4.3;
-- credential verification and authorization — the shell/platform
+- credential verification and authorization - the shell/platform
   (Sentin8:Auth, Sentin8:Proxy) decides; the crate only carries the
   fields (lossy-trimmed strings, tolerant numeric);
-- payload content — `S` frames carry ITCH bytes owned by
+- payload content - `S` frames carry ITCH bytes owned by
   `exchange8::itch`;
-- MoldUDP64 downstream packet framing — `exchange8::mold`.
+- MoldUDP64 downstream packet framing - `exchange8::mold`.
 
 There is no HTTP surface, no database presence, no event emission, no
 runtime of its own: the crate is a pure framing library compiled into
@@ -28,12 +28,12 @@ the facade `exchange8::soup` (package `exchange8-soup`, workspace member
 
 ```mermaid
 graph TD
-    subgraph MDSESS["Exchange8:MD — Soup session (publisher / replay side)"]
+    subgraph MDSESS["Exchange8:MD - Soup session (publisher / replay side)"]
         AUTHZ["credential + session verification<br/>(platform policy upstream)"]
         REP["replay from persisted md_message rows<br/>+ live stream continuation"]
     end
 
-    subgraph VFSESS["Exchange8:VFeeds — subscriber-side session paths"]
+    subgraph VFSESS["Exchange8:VFeeds - subscriber-side session paths"]
         HB["heartbeat supervision · logout"]
         ACC["frame accumulation loop"]
     end
@@ -114,7 +114,7 @@ sequenceDiagram
         S->>A: encode()
         A-->>C: 33 bytes [31 u16 BE][A][session 10][seq 20]
     else rejected
-        S-->>C: login_rejected('A' | 'S') — 4 bytes
+        S-->>C: login_rejected('A' | 'S') - 4 bytes
     end
 ```
 
@@ -154,7 +154,7 @@ the two handshake payloads.
 |---|---|---|
 | `LoginRequest` | `username`, `password`, `session` (`String`), `seqnumber: u32` | Frame `[47 u16 BE][L]` + payload: user[6]@payload 1..7 (frame 3), pwd[10]@7..17, session[10]@17..27, seq 20 digits@27..47 |
 | `LoginAccept` | `session` (`String`), `seqnumber: u32` | Frame `[31 u16 BE][A]` + payload: session[10]@1..11, seq 20@11..31 |
-| control frames | — | `[1 u16 BE][type]` for H/R/O; `[2 u16 BE][J][reason]` for rejection |
+| control frames | - | `[1 u16 BE][type]` for H/R/O; `[2 u16 BE][J][reason]` for rejection |
 | sequenced data | `&[u8]` ITCH payload | `[1+len u16 BE][S][payload]` |
 
 - Types derive `Debug + Clone + PartialEq + Eq`; fixed-width ASCII
@@ -183,7 +183,7 @@ erDiagram
 ## 4. API Surface
 
 Public API inventory (library audience: exchange8 services; no
-authorization gate applies — there are no endpoints, scopes, or tenant
+authorization gate applies - there are no endpoints, scopes, or tenant
 contexts to gate):
 
 | Item | Kind | Contract |
@@ -203,7 +203,7 @@ contexts to gate):
 | `SoupError { TooShort, BadLoginLen, UnknownType }` | enum | Whole failure surface; `Display` part of contract |
 
 Emissions: none. The library emits no domain events and participates in
-no outbox/trigger chain — the event-flow diagram of the service template
+no outbox/trigger chain - the event-flow diagram of the service template
 does not apply.
 
 ```mermaid
@@ -213,7 +213,7 @@ graph TD
         LIVE["live projector bytes"]
         REPQ["replay reads → ITCH rows"]
     end
-    subgraph LIB["exchange8::soup — pure frame constructors"]
+    subgraph LIB["exchange8::soup - pure frame constructors"]
         LR["LoginRequest"]
         LA["LoginAccept + login_rejected"]
         HB["heartbeat/logout frames"]
@@ -246,21 +246,21 @@ or explicitly does not apply.
   to `wire-formats.json` (`soupbin_login` block).
 - **Precision / endianness.** The one numeric wire field (frame length)
   is `u16` **big-endian**; sequence digits are ASCII decimal.
-- **Idempotency / exactly-once.** Not applicable at the library level —
+- **Idempotency / exactly-once.** Not applicable at the library level -
   replay-from-sequence and dedupe are the session model's semantics; a
   re-encoded identical handshake is byte-identical.
 - **Authentication.** The *frames* carry credentials; verification,
   policy, and any secret handling are upstream (service shell /
-  Sentin8:Auth). The crate never stores or logs credentials — fields
+  Sentin8:Auth). The crate never stores or logs credentials - fields
   cross as `String` payloads of callers.
 - **RLS / tenant context / audit / rate limiting / drain / TLS.** Not
-  applicable — no endpoints, no database, no sockets, no caller
+  applicable - no endpoints, no database, no sockets, no caller
   identity; session TLS is the service shell's (`sentin8-tls`).
 
 ## 6. Failure Modes & Recovery
 
 The library performs no I/O; failure is value-level, deterministic, and
-total — frame constructors are total, and the fallible parse/split
+total - frame constructors are total, and the fallible parse/split
 surfaces reject whole-frame.
 
 ```mermaid
@@ -280,7 +280,7 @@ flowchart TD
     DIG -- yes --> VAL["parsed value"]
 ```
 
-- **`BadLoginLen`** is the handshake's integrity gate — a non-catalog
+- **`BadLoginLen`** is the handshake's integrity gate - a non-catalog
   payload means a non-Soup peer or corruption; the caller's policy is
   connection termination.
 - **Partial frames.** `next_frame_len` returning `None` is the normal
@@ -297,14 +297,14 @@ graph LR
         T["read loop + heartbeat timer"]
         C["frame calls"]
     end
-    subgraph LIB["exchange8::soup — no shared state"]
+    subgraph LIB["exchange8::soup - no shared state"]
         F["pure fns over owned/borrowed bytes"]
     end
     T -->|"buf in → Option/Result out"| F
 ```
 
 - **No shared state.** All functions are pure over their inputs; frames
-  are small owned or borrowed byte spans — any number of connections
+  are small owned or borrowed byte spans - any number of connections
   may run concurrently in any host with zero synchronization.
 - **Allocation profile.** Encode allocates one exact-capacity `Vec`
   per frame; `split_frame` and `next_frame_len` allocate nothing
@@ -337,38 +337,38 @@ graph LR
 
 **Insecure defaults rejected:**
 
-- *Guessing frame lengths* (parsing incomplete buffers) — corrupts the
+- *Guessing frame lengths* (parsing incomplete buffers) - corrupts the
   stream cursor irrecoverably; `None`-until-ready instead.
-- *Silent length truncation of handshake payloads* — hides peer
+- *Silent length truncation of handshake payloads* - hides peer
   misbehaviour; typed `BadLoginLen` immediately.
-- *Strict rejection of non-digit sequence text* — cosmetic deviations
+- *Strict rejection of non-digit sequence text* - cosmetic deviations
   would kill sessions; tolerant 0-fallback mirrors reference behavior
   (policy question flagged in §10).
-- *Interpreting `S` payloads inside the framing crate* — layers must
+- *Interpreting `S` payloads inside the framing crate* - layers must
   not peer into each other's content; ITCH decoding stays in its crate.
-- *Secret persistence* — no credential storage anywhere; fields cross
+- *Secret persistence* - no credential storage anywhere; fields cross
   as caller-owned strings.
 
-**Unsafe rationale:** none — the crate contains no `unsafe` blocks and
+**Unsafe rationale:** none - the crate contains no `unsafe` blocks and
 no FFI; all byte access is safe slicing.
 
 ## 9. Testing Strategy
 
 ```mermaid
 graph TD
-    subgraph P1["Layer 1 — unit (in-crate #[cfg(test)] mod tests)"]
+    subgraph P1["Layer 1 - unit (in-crate #[cfg(test)] mod tests)"]
         U1["golden login request (offset-by-offset + round trip)<br/>bad-length rejection<br/>accept round trip<br/>control frames (H/R/O/J)<br/>sequenced wrap + len lookahead<br/>partial-frame branch"]
     end
-    subgraph P2["Layer 2 — integration (consumer binaries)"]
+    subgraph P2["Layer 2 - integration (consumer binaries)"]
         U2["session-path tests (publisher/replay/receive<br/>flows in Exchange8:MD / Exchange8:VFeeds tasks)"]
     end
-    subgraph P3["Layer 3 — E2E / platform"]
+    subgraph P3["Layer 3 - E2E / platform"]
         U3["subscriber E2E + replay corpora<br/>(covered by the platform testing strategy, not here)"]
     end
     U1 -->|"session contract pinned here"| U2 -->|"live sessions"| U3
 ```
 
-- **Owned here (unit):** the handshake and framing contract —
+- **Owned here (unit):** the handshake and framing contract -
   `login_request_golden` (byte-level field offsets + round trip),
   `login_bad_length_rejected`, `login_accept_layout` (+ round trip),
   `control_frames` (H/R/O/J shapes and type letters),
@@ -378,7 +378,7 @@ graph TD
 - **Deliberately NOT tested here:** socket/stream behavior, heartbeat
   timing policy, replay reads (`exchange8::mold`, Exchange8:MD session
   design), and ITCH payload semantics (`exchange8::itch`).
-- **Run:** part of the vertical workspace test pipeline — the
+- **Run:** part of the vertical workspace test pipeline - the
   `crates/soup` unit tests are compiled and executed with the
   exchange8 workspace gate (never outside the workspace Makefile).
 
@@ -394,7 +394,7 @@ graph TD
   business today; if a second consumer repeats the supervision logic, a
   shared, codec-adjacent helper may be extracted.
 - **TLS/auth posture.** Whether platform identity (token-grade
-  credentials) ever replaces fixed-width user/password on this wire — a
+  credentials) ever replaces fixed-width user/password on this wire - a
   session-service design decision, not a framing one.
 
 ## Design source map

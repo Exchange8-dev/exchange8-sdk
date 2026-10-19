@@ -4,8 +4,8 @@
 
 `exchange8::sim-harness` (package `exchange8-sim-harness`) is the exchange8
 market simulator and scenario-DSL library. It parses a one-verb-per-line
-script language — a Rust port of the platform spec's simulator command
-language with 1:1 verb parity — into typed simulation `Action`s
+script language - a Rust port of the platform spec's simulator command
+language with 1:1 verb parity - into typed simulation `Action`s
 (deposit/enter, cancel, replace, sweep, two-sided quoting, manual prints,
 quote sets, flush). The DSL is the canonical way exchange8 tests and tools
 describe market scenarios deterministically.
@@ -13,7 +13,7 @@ describe market scenarios deterministically.
 The crate is deliberately scoped to **parsing + action modeling only**: it
 depends on `exchange8-contracts` (order enums) and `exchange8-fixed`
 (price parsing), plus serde. It does not drive services itself; the
-in-repo flow test (`tests/flow_gateway_me_clearing.rs`) shows the pattern —
+in-repo flow test (`tests/flow_gateway_me_clearing.rs`) shows the pattern -
 a test harness `#[path]`-includes the real service-core modules
 (gateway submission, ME engine, clearing projectors) and *applies* parsed
 actions to them.
@@ -22,7 +22,7 @@ actions to them.
 
 - **Scenarios as text, determinism as a property.** A market scenario written
   as a script is diff-able, reviewable, versionable and replayable. Every
-  run of the same script builds the same book in the same order — the
+  run of the same script builds the same book in the same order - the
   property deterministic matching tests (price-time priority, STP,
   iceberg behavior) and recovery/replay tooling need.
 - **One command language for the whole vertical.** Order entry, book
@@ -34,8 +34,8 @@ actions to them.
   order, `X` cancel, `Z` flush, `F` aggressive enter, `R` replace,
   `E` manual execution print, `S` sweep, `2` two-sided quote, `T` tape
   print, `Q` quote set.
-- **No accidental service coupling.** The crate stays a *library* — it never
-  depends on a service binary — so it can be used by any test binary that
+- **No accidental service coupling.** The crate stays a *library* - it never
+  depends on a service binary - so it can be used by any test binary that
   `#[path]`-includes service modules (Cargo package cycles are thereby
   impossible for facade consumers; the facade does not re-export this crate
   and its consumers depend on it directly).
@@ -50,24 +50,24 @@ actions → applied by a driver (test binary, tool or future bench runner):
 ```mermaid
 graph TD
     subgraph SRC["Scenario sources"]
-        TS["Test-embedded scripts — const strings in #[path]-included flow tests"]
-        TOOL["Tools / future bench + replay runners — same DSL"]
+        TS["Test-embedded scripts - const strings in #[path]-included flow tests"]
+        TOOL["Tools / future bench + replay runners - same DSL"]
     end
 
     subgraph CRATE["exchange8::sim-harness"]
         PS["parse_script(src) → Vec&lt;Action&gt; | ParseError"]
-        ACT["Action model — Deposit / Enter / Cancel / CancelAll / Replace / Print / Sweep / TwoSided / Quote / Flush"]
-        ORD["OrderRequest — trader, symbol, side, qty, price, tif"]
+        ACT["Action model - Deposit / Enter / Cancel / CancelAll / Replace / Print / Sweep / TwoSided / Quote / Flush"]
+        ORD["OrderRequest - trader, symbol, side, qty, price, tif"]
     end
 
-    subgraph DRIVERS["Drivers — apply actions to service cores (in test binaries)"]
-        FLOW["sim-harness flow test — gateway route_order → ME MatchingEngine → clearing projectors"]
+    subgraph DRIVERS["Drivers - apply actions to service cores (in test binaries)"]
+        FLOW["sim-harness flow test - gateway route_order → ME MatchingEngine → clearing projectors"]
     end
 
     subgraph DEPS["Library dependencies"]
-        CONT["exchange8-contracts — Tif / OrderSide / OrdType enums"]
-        FIXED["exchange8-fixed — Price::parse_decimal (scaled i128 ticks)"]
-        SD["serde — Action is serializable (scripts can be checked in as data)"]
+        CONT["exchange8-contracts - Tif / OrderSide / OrdType enums"]
+        FIXED["exchange8-fixed - Price::parse_decimal (scaled i128 ticks)"]
+        SD["serde - Action is serializable (scripts can be checked in as data)"]
     end
 
     TS -- "DSL text" --> PS
@@ -86,31 +86,31 @@ and lets consumers compose actions against whatever engine they bring.
 
 ## 4. Key Traits and Data Structures
 
-- **`Action`** (serde-serializable enum) — one parsed simulation action:
-  - `Deposit(OrderRequest)` — new *resting* order (verb `D`);
-  - `Enter(OrderRequest)` — *aggressive* (crossing) order (verb `F`);
+- **`Action`** (serde-serializable enum) - one parsed simulation action:
+  - `Deposit(OrderRequest)` - new *resting* order (verb `D`);
+  - `Enter(OrderRequest)` - *aggressive* (crossing) order (verb `F`);
   - `Cancel { trader, order_id }` / `CancelAll { trader, symbol }` (verb `X`);
   - `Replace { trader, order_id, new: OrderRequest }` (verb `R`);
-  - `Print { symbol, price, qty }` — manual execution print (verb `E`);
-  - `Sweep { symbol, side, to_px }` — sweep the book on one side up to a
+  - `Print { symbol, price, qty }` - manual execution print (verb `E`);
+  - `Sweep { symbol, side, to_px }` - sweep the book on one side up to a
     price (verb `S`);
-  - `TwoSided { trader, symbol, buy_px, sell_px, qty }` — auto-quote
+  - `TwoSided { trader, symbol, buy_px, sell_px, qty }` - auto-quote
     (verb `2`);
-  - `Quote { symbol, bid, ask }` — manual consolidated quote (verb `Q`);
-  - `Flush` — book flush (verbs `Z` and `T`; tape print has no book effect
+  - `Quote { symbol, bid, ask }` - manual consolidated quote (verb `Q`);
+  - `Flush` - book flush (verbs `Z` and `T`; tape print has no book effect
     in the harness and parses to the same no-op flush).
-- **`OrderRequest`** — the DSL's order shape: `trader`, `symbol`, `side`
+- **`OrderRequest`** - the DSL's order shape: `trader`, `symbol`, `side`
   (`'B'`/`'S'` char), `qty`, `price: Option<i128>` (scaled ticks; `None` =
-  market), `tif: Tif`. Plain data, serde-derivable, `PartialEq` comparable —
+  market), `tif: Tif`. Plain data, serde-derivable, `PartialEq` comparable -
   designed for direct comparison in test assertions.
-- **`ParseError`** (thiserror enum) — contained parse diagnostics with line
+- **`ParseError`** (thiserror enum) - contained parse diagnostics with line
   numbers: `BadVerb`, `MissingField`, `BadNumber`. Never a panic: a script
   with a typo returns an error naming the line and the field.
-- **`parse_script(src: &str) -> Result<Vec<Action>, ParseError>`** — the
+- **`parse_script(src: &str) -> Result<Vec<Action>, ParseError>`** - the
   single entry point; one action per line, `#` comment lines, `key=value`
   parameters.
 - **`side_of(c: char) -> OrderSide`** and **`order_type_of(tif: Tif) ->
-  OrdType`** — mapping conveniences for drivers turning `OrderRequest` into
+  OrdType`** - mapping conveniences for drivers turning `OrderRequest` into
   engine-bound types.
 
 No traits: the model is plain data + one parse function, which keeps the
@@ -120,8 +120,8 @@ DSL testable and serde-stable.
 
 - **Text DSL over programmatic builders.** A script is reviewable in a PR and
   reusable across unit tests, flow tests and future tools without writing
-  Rust. Trade-off: a script is less expressive than code — no loops or
-  conditionals — but every capability the matching/instrument domain needs
+  Rust. Trade-off: a script is less expressive than code - no loops or
+  conditionals - but every capability the matching/instrument domain needs
   (deposits, cancels, sweeps, quoting) is expressible as finite verb
   sequences, and determinism is trivially guaranteed.
 - **Parse-only crate with external drivers.** The alternative (an embedded
@@ -129,12 +129,12 @@ DSL testable and serde-stable.
   logic the tests exist to exercise. `#[path]`-including real service-core
   modules in the driver keeps one implementation under test. Trade-off: the
   driver side is a test-crate idiom (documented in the flow test), not a
-  runtime library API — accepted, since simulation is test/tooling-only.
+  runtime library API - accepted, since simulation is test/tooling-only.
 - **`i128` scaled prices + `char` side.** Mirrors the fixed-point model
   (`exchange8-fixed` prices as scaled ticks, decimal parsing via
   `Price::parse_decimal(s, 4)`) and the DSL's terse `'B'`/`'S'` sides.
   Trade-off: `char` sides are looser than enums, but the parser normalizes
-  them through `side_of` at the driver; unknown chars default to buy — a
+  them through `side_of` at the driver; unknown chars default to buy - a
   deliberate spec-compat choice, with symbol/price validation left to the
   consuming engine.
 - **Verb `T` parses to `Flush`.** The tape-print verb carries no book effect
@@ -163,14 +163,14 @@ DSL testable and serde-stable.
   anything else → `Tif::Day`. Replace always builds `Tif::Day` requests
   (the DSL's replace verb defines resting replacements only).
 - **Invariants:**
-  1. `parse_script` never panics — every failure path returns `ParseError`
+  1. `parse_script` never panics - every failure path returns `ParseError`
      with the 1-based line number and context (verb or field name).
-  2. The action vector is in script order — drivers can rely on sequence
+  2. The action vector is in script order - drivers can rely on sequence
      (deposits before enters).
   3. Verb coverage is 1:1 with the spec set (`D X Z F R E S 2 T Q`);
      adding a verb means adding a variant + a match arm + a test in the
      same change.
-  4. `Action` and `OrderRequest` stay serde-stable and `PartialEq` — the
+  4. `Action` and `OrderRequest` stay serde-stable and `PartialEq` - the
      golden-script test pattern depends on both.
 - **No unsafe, no I/O, no time handling, no RNG.** The crate cannot be a
   source of nondeterminism (simulations are driven by the script alone);
@@ -183,7 +183,7 @@ DSL testable and serde-stable.
   that turns prints into first-class observable outputs (tape vector
   returned by a driver-run result) is pending.
 - **Multi-day / session scripts.** Scenarios spanning market-state
-  transitions (open → halt → reopen) need verb extensions (state verbs) —
+  transitions (open → halt → reopen) need verb extensions (state verbs) -
   the current DSL models trading actions only.
 - **Instrument fixtures in-script.** Symbols are free strings; a
   declarative instrument table (symbol → `InstrumentRef`) embedded in the

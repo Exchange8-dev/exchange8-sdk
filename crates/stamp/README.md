@@ -3,7 +3,7 @@
 ## 1. Summary
 
 `exchange8::stamp` is the STAMP 4.0 wire-format codec of the exchange8
-vertical: it decodes raw STAMP frames — the TSX venue-feed/order protocol —
+vertical: it decodes raw STAMP frames - the TSX venue-feed/order protocol -
 into an ordered, lossless section/field model, and encodes messages back to
 byte-identical wire output. It is a pure library: no HTTP surface, no
 database presence, no sockets, and no process of its own. Byte-frame
@@ -19,7 +19,7 @@ vendor dialects:
 
 - **Losslessness as a contract.** Field order and multi-value (indexed)
   fields (`50.1=...`, `50.2=...`) are preserved exactly as received, so a
-  decode→encode round trip reproduces the input byte-for-byte — the
+  decode→encode round trip reproduces the input byte-for-byte - the
   property replay corpora and conformance tests need.
 - **Malformed input is a typed error, never a panic and never a repair.**
   A hostile or corrupt venue frame surfaces as one of three typed errors
@@ -42,20 +42,20 @@ The exchange8 namespace facade exposes the crate as `exchange8::stamp`.
 
 ```mermaid
 graph TD
-    subgraph VENUE["External venue — untrusted edge (TSX / TSXV)"]
+    subgraph VENUE["External venue - untrusted edge (TSX / TSXV)"]
         FEED["STAMP frames<br/>multicast A/B session bytes"]
     end
 
-    subgraph CONSUMERS["exchange8 services — own transport tasks"]
+    subgraph CONSUMERS["exchange8 services - own transport tasks"]
         VF["Exchange8:VFeeds adapter task<br/>(stamp_cbbo payload kind)"]
-        SOR["Exchange8:SOR — feed codec consumer (per sor design)"]
+        SOR["Exchange8:SOR - feed codec consumer (per sor design)"]
     end
 
     subgraph FACADE["exchange8 namespace facade"]
         SDK["sdk/rust/exchange8<br/>pub use exchange8_stamp as stamp"]
     end
 
-    subgraph CRATE["exchange8::stamp — this crate (pure functions)"]
+    subgraph CRATE["exchange8::stamp - this crate (pure functions)"]
         PARSE["StampMessage::parse"]
         SECT["StampSection / StampField accessors<br/>get · get_indexed · get_all"]
         ENCODE["StampMessage::encode · build"]
@@ -64,9 +64,9 @@ graph TD
     end
 
     subgraph PEERS["peer wire crates (adjacent framing layers)"]
-        SOUP["exchange8::soup — SoupBinTCP session frames"]
-        MOLD["exchange8::mold — MoldUDP64 packet framing"]
-        FIX["exchange8::fix — FIX 4.2 codec"]
+        SOUP["exchange8::soup - SoupBinTCP session frames"]
+        MOLD["exchange8::mold - MoldUDP64 packet framing"]
+        FIX["exchange8::fix - FIX 4.2 codec"]
     end
 
     FEED -->|"STAMP session bytes (opaque to the venue)"| VF
@@ -95,28 +95,28 @@ graph TD
 
 ## 4. Key Traits and Data Structures
 
-There are no traits, no dyn dispatch, and no callbacks — the crate is
+There are no traits, no dyn dispatch, and no callbacks - the crate is
 data-oriented. Consumers drive it; nothing drives consumers.
 
-- **`StampField`** — one field: `tag` (i32), `index` (i32, `0` when
+- **`StampField`** - one field: `tag` (i32), `index` (i32, `0` when
   unindexed), `value` (verbatim UTF-8 `String`). The identity of a field on
   the wire is `tag` for unindexed fields and `tag.index` for indexed ones.
-- **`StampSection`** — an ordered `Vec<StampField>` plus lookup accessors:
+- **`StampSection`** - an ordered `Vec<StampField>` plus lookup accessors:
   `get` (first value with index 0), `get_indexed` (exact `tag.index`), and
   `get_all` (all values for a tag in stored order).
-- **`StampMessage`** — the decoded frame: `control_header`, `business`, and
+- **`StampMessage`** - the decoded frame: `control_header`, `business`, and
   the optional `control_trailer`; `business_class()` reads the
   message-type discriminator (tag 6). Static methods: `parse` (bytes →
   message), `encode` (message → bytes), `build` (business class + unindexed
   fields → message).
-- **`StampError`** — the codec's entire failure surface:
+- **`StampError`** - the codec's entire failure surface:
   `NoControlHeader`, `MissingEquals`, `InvalidUtf8`.
-- **Wire constants** — the delimiter bytes (`0x01` control header, `0x1C`
+- **Wire constants** - the delimiter bytes (`0x01` control header, `0x1C`
   business, `0x1D` trailer, `0x1E` field separator) plus the `.`/`=` field
   identifier separators and the `Version 4.0` version string.
-- **`tag` module** — the 61 numbered wire tags the exchange consumes,
+- **`tag` module** - the 61 numbered wire tags the exchange consumes,
   from `ACCOUNT_ID` (1) to `STOCK_RESUME_TIME` (132).
-- **`business_class` module** — the nine order/trade message classes:
+- **`business_class` module** - the nine order/trade message classes:
   order request, quote request, stock status request, order cancel
   request/confirm/reject, trade confirm, business reject, and order ack.
 
@@ -127,14 +127,14 @@ data-oriented. Consumers drive it; nothing drives consumers.
   stops there. Prices, volumes, and quantities stay verbatim strings;
   scale decisions (price ×10⁴ and similar conventions) belong to
   consumers, where `exchange8::fixed` owns arithmetic. Rejected
-  alternative: per-business-class typed structs — attractive ergonomics,
+  alternative: per-business-class typed structs - attractive ergonomics,
   but it would pin vendor tag semantics inside the codec, freeze scale
   decisions that belong to consumers, and turn every vocabulary addition
   into a schema migration of this crate.
 - **Owned `String` values instead of borrowed slices.** Parsing returns an
   owned `StampMessage` rather than a view borrowing the input. Frames are
   small (hundreds of bytes), allocation is one `String` per field, and
-  owned values survive the read buffer — no lifetime entanglement between
+  owned values survive the read buffer - no lifetime entanglement between
   feed buffers and consumer state machines. A zero-copy `parse` view
   remains a possible future API (see §7) but was not the default: a
   lifetime-free value type is trivially `Send`/`Sync` and store-anywhere.
@@ -142,7 +142,7 @@ data-oriented. Consumers drive it; nothing drives consumers.
   grammar violation the codec can detect is a typed, `PartialEq`
   comparable `StampError`. A "best effort" parser that defaults missing
   separators or lossily converts bytes would silently corrupt order and
-  trade content — the worst failure mode for a market-data path — so the
+  trade content - the worst failure mode for a market-data path - so the
   contract is reject-early.
 - **Field-order preservation over re-sorting.** Encoding writes fields in
   received order and lookups scan in stored order, making the codec a
@@ -150,33 +150,33 @@ data-oriented. Consumers drive it; nothing drives consumers.
   (e.g. deduplicating repeated tags) belongs to the consumer, which knows
   the business class of the frame; the codec stays schema-agnostic.
 - **Sequential delimiter scanning.** Parsing scans once for the three
-  section delimiters and once per section for fields — O(frame length)
+  section delimiters and once per section for fields - O(frame length)
   with no regular expressions and no backtracking. This keeps hot feed
   paths linear and allocation-light (one output `Vec`, one `String` per
   field value).
 
 ## 6. Internal Implementation & Invariants (Private Design)
 
-- **Frame splitting** — `StampMessage::parse` requires the first byte to
+- **Frame splitting** - `StampMessage::parse` requires the first byte to
   be the control-header constant; anything else is `NoControlHeader`
   (including the empty buffer). It then scans sequentially: the business
   section is the span between the first business delimiter and the first
   trailer delimiter; the trailer (when its delimiter is present) is the
   span after that. A frame may carry only the control header (session /
   heartbeat messages are header-only), only a trailer, or no delimiters at
-  all — each combination parses without error as long as the outermost
+  all - each combination parses without error as long as the outermost
   byte is correct.
-- **Section parsing** — `StampSection::parse` treats the section span as
+- **Section parsing** - `StampSection::parse` treats the section span as
   `FIELD_CHAR`-separated fields, tolerates empty sections, and skips empty
   spans between consecutive separators. Each field is decoded by the
   private `parse_field`: split on the **first** `=` (values may contain
   further `=` bytes), require valid UTF-8, and decode the identifier as
   either `tag` or `tag.index` decimal i32.
-- **Index discipline** — an identifier without a dot parses with `index
+- **Index discipline** - an identifier without a dot parses with `index
   = 0`; a dotted identifier parses both parts as i32. Encode writes the
   dot suffix only for non-zero indices, so wire text and parsed identity
   round-trip exactly.
-- **Encode shape** — encode emits the control-header byte, the header
+- **Encode shape** - encode emits the control-header byte, the header
   fields, then the business delimiter + fields only when the business
   section is non-empty or a trailer exists, then the trailer delimiter +
   fields when a trailer is present. `StampMessage::build` writes the
@@ -193,7 +193,7 @@ data-oriented. Consumers drive it; nothing drives consumers.
   5. The codec never interprets, trims, or numeric-decodes values; values
      keep the exact bytes carried on the wire (validated as UTF-8).
   6. Non-digit identifiers or non-integer indices surface as
-     `MissingEquals` — the crate's catch-all for malformed identifiers —
+     `MissingEquals` - the crate's catch-all for malformed identifiers -
      rather than being accepted or defaulted.
 
 ## 7. Unresolved Questions / Future Designs
@@ -209,7 +209,7 @@ data-oriented. Consumers drive it; nothing drives consumers.
   delimiter before the business delimiter can panic on the business
   section slice (an out-of-order-delimiter edge the current split logic
   does not guard); hardening the split to a typed error is a planned
-  correction — see `DESIGN.md` §6/§10.
+  correction - see `DESIGN.md` §6/§10.
 - **Zero-copy parsing.** A borrowed-view `parse` for the hottest feed
   paths would remove the per-field `String` allocation; the owned API
   remains the general-purpose contract.

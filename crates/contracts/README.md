@@ -1,7 +1,7 @@
-# README.md: exchange8::contracts — Shared Domain Vocabulary for the exchange8 Vertical
+# README.md: exchange8::contracts - Shared Domain Vocabulary for the exchange8 Vertical
 
 > Audience: anyone evaluating or onboarding to the capital-markets platform
-> vocabulary. A library crate — no HTTP, no database, no deployment. For
+> vocabulary. A library crate - no HTTP, no database, no deployment. For
 > wire-level construction read `DESIGN.md`; for business-facing functionality
 > read `BUSINESS.md`.
 
@@ -13,7 +13,7 @@ reject-code taxonomy with FIX 103 compatibility text, the char-coded enums that
 mirror the matching-engine wire constants, the event DTOs carried in
 Sentin8:Bus envelopes (naming `exchange8:{service}:{resource}:{operation}`),
 and the Gateway → Risk authorize contract. Every service in the
-orders/rejects flow — gateway → risk → me → clearing — imports its types from
+orders/rejects flow - gateway → risk → me → clearing - imports its types from
 this single crate instead of declaring its own variants.
 
 ## 2. Motivation
@@ -27,7 +27,7 @@ reject, and event types. A single shared vocabulary exists because:
   one crate means one possible drift, not several.
 - **The wire constants are fixed by the matching-engine protocol spec.** The
   char codes (`'L'`, `'B'`, `'H'`, …), reject numbers (`1…144`, `0/2/3/105`),
-  and FIX 103 texts are a contract, not an implementation choice — they are
+  and FIX 103 texts are a contract, not an implementation choice - they are
   captured once, 1:1, in this crate and anchored to the extracted
   behavior catalog at `design/behavior-catalog/messages.json` and
   `design/behavior-catalog/reject-codes.json`.
@@ -88,7 +88,7 @@ graph TD
 
 Dependency direction is one-way: services and support crates depend on the
 facade `exchange8::contracts` (or the direct workspace dependency), never the
-reverse. The transport primitives this crate's envelopes ride —
+reverse. The transport primitives this crate's envelopes ride -
 `exchange8::wire` framing and the ME client live in their own crates; they
 frame `Envelope<T>` values but add no domain vocabulary here.
 
@@ -124,7 +124,7 @@ associated functions. The conceptual model:
   `OrderRepriced`, `OrderFilled`, `OrderAccepted`, `OrderExecuted`,
   `TransactionRejected`), one Rust struct per tagged message.
 - **Char-coded wire enums** (`enums.rs`): a 1:1 mapping between Rust variants
-  (or FIX codes) and the protocol's single-character constants — order type,
+  (or FIX codes) and the protocol's single-character constants - order type,
   side, visibility, capacity, price protection, instrument/market status, kill
   reason, ME reject reason, liquidity, lot type, system event codes.
 - **The risk decision vocabulary** (`risk` module): `AuthorizeRequest` (the
@@ -138,7 +138,7 @@ associated functions. The conceptual model:
   the services; the crate only guarantees that both sides of a conversation use
   the same types. This keeps serde round-trips trivially stable and keeps the
   crate dependency-light (serde + `exchange8-fixed` only). Rejected
-  alternative: a behavior-rich `Order` value object — it would drag domain
+  alternative: a behavior-rich `Order` value object - it would drag domain
   services into a library shared by nearly every other unit.
 - **One shared `enums` module.** Every char-coded constant for the matching
   engine lives in a single module, mirroring the catalog's `me_enums` table.
@@ -149,14 +149,14 @@ associated functions. The conceptual model:
 - **Explicit re-exports, no globs.** The crate root re-exports a curated,
   collision-free name set; module paths (`reject::RejectCode`,
   `risk::AuthorizeRequest`) stay canonical for cross-service clarity. Rejected
-  alternative: glob re-exports — shorter imports, silent name collisions as the
+  alternative: glob re-exports - shorter imports, silent name collisions as the
   surface grows.
 - **Serde posture.** All types are `Serialize`/`Deserialize` with
   JSON (`serde_json`) as the interchange encoding, stable field names, and
   explicit `#[serde(rename = "type")]` only where a keyword conflicts. Enum
   variants serialize as their names; wire chars are an associated-function
   concern, not the serde form. Rejected alternative: serializing enum wire
-  chars directly — that would mix the transport encoding into payloads that are
+  chars directly - that would mix the transport encoding into payloads that are
   also stored/relayed as JSON.
 - **Scaled numerics from `exchange8-fixed`.** `Price`/`Qty` are scaled
   integers that carry their decimal scale per value (equity 4 digits, crypto 8),
@@ -166,11 +166,11 @@ associated functions. The conceptual model:
 - **`#[non_exhaustive]` only on `RejectCode`.** The reject vocabulary grows as
   risk and margin engines add reasons; downstream services must handle
   unmatched variants. The matching-engine enum set is closed by the protocol
-  spec and stays exhaustive — the compiler enforces the catalog match.
+  spec and stays exhaustive - the compiler enforces the catalog match.
 - **Envelope over raw payloads.** Carrying `event_type`, `env_id`, `seq`, and
   `idempotency_key` beside the payload duplicates a little data per frame, but
   gives consumers exactly-once dedup and tenant routing regardless of transport
-  (bus or framed stream). Rejected alternative: transport-owned metadata — one
+  (bus or framed stream). Rejected alternative: transport-owned metadata - one
   transport feature set becomes load-bearing for all consumers.
 
 ## 6. Internal Implementation & Invariants (Private Design)
@@ -181,7 +181,7 @@ associated functions. The conceptual model:
     `design/behavior-catalog/messages.json` `me_enums`, proved by the unit
     tests that iterate the full table.
   - `RejectCode::wire_code` returns `Some` for every catalog-mapped reject and
-    `None` exactly for the platform-added rejects — exhaustively matched, so a
+    `None` exactly for the platform-added rejects - exhaustively matched, so a
     new variant fails compilation until its mapping decision is encoded.
   - `Envelope::event_type` uses only `exchange8:{service}:{resource}:{operation}`
     names with colons; no dotted names are ever stored.

@@ -1,4 +1,4 @@
-# exchange8::book — Business Requirements & Functionality
+# exchange8::book - Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::book library **does for the business**. For architecture
@@ -10,7 +10,7 @@ The order-book library is where the exchange's core fairness promise lives:
 it holds every resting order, decides how incoming demand consumes that
 liquidity, and makes those decisions exactly reproducible. Every tradable
 event the exchange publishes rests on this library behaving identically
-under a replay — market participants can trust that fills are awarded by
+under a replay - market participants can trust that fills are awarded by
 the same rule set, in the same order, every time. In business terms,
 `exchange8::book` is the machinery that turns "the exchange is fair and its
 depth is truthful" from a promise into data-structure behavior.
@@ -30,9 +30,9 @@ matching engine and, through it, to every exchange participant.
 | Two-sided book keeping | Holds all resting bids and asks per instrument, ordered best-price first, arrival-correct within each price | Exchange8:ME |
 | Display-depth separation | Visible and hidden orders form distinct levels; displayed depth reflects displayable liquidity only | Exchange8:ME, Exchange8:MD mirrors |
 | Best-price queries | Instant answers to "what is the best (displayable) bid/ask" | Exchange8:ME (post-only, crossing), mirrors |
-| Depth volume queries | Cumulative volume up to a price limit — the fill-or-kill feasibility question | Exchange8:ME (FOK/IOC decisions) |
+| Depth volume queries | Cumulative volume up to a price limit - the fill-or-kill feasibility question | Exchange8:ME (FOK/IOC decisions) |
 | Order lifecycle mutations | Resting, in-place partial fills, cancels, full consumption, priority re-entry | Exchange8:ME |
-| Per-contract allocation | FIFO (equities), round-lot pro-rata (commodity futures), pro-rata with FIFO remainder (hybrid products) — all deterministic integer-share decisions | Exchange8:ME (per contract master) |
+| Per-contract allocation | FIFO (equities), round-lot pro-rata (commodity futures), pro-rata with FIFO remainder (hybrid products) - all deterministic integer-share decisions | Exchange8:ME (per contract master) |
 | Iceberg slice lifecycle | Displayed-quantity reload and time-priority reset bookkeeping per iceberg slice | Exchange8:ME |
 | Serializability | Every book state can be serialized for mirrors/replay reconstruction | journal recovery, mirrors |
 | Simulation parity | Deterministic behavior lets simulation and production share one book implementation | sim-harness, E2E suites |
@@ -74,16 +74,16 @@ matching engine and, through it, to every exchange participant.
 
 | Capability | Business rule |
 |---|---|
-| Conservation | Across every allocation policy, the total filled quantity equals exactly the lesser of the incoming quantity and the level's available quantity — participants are never over-filled or shorted by rounding. |
+| Conservation | Across every allocation policy, the total filled quantity equals exactly the lesser of the incoming quantity and the level's available quantity - participants are never over-filled or shorted by rounding. |
 | Per-order caps | No resting order is ever filled more than its resting quantity; pro-rata grants respect each participant's displayed commitment. |
-| Deterministic remainder | When a pro-rata share does not divide evenly, the indivisible remainder is awarded by a published rule — largest fractional remainder, ties broken by arrival — never by chance. |
+| Deterministic remainder | When a pro-rata share does not divide evenly, the indivisible remainder is awarded by a published rule - largest fractional remainder, ties broken by arrival - never by chance. |
 | Round-lot convention | Pro-rata allocation operates on whole integer shares, mirroring round-lot market convention for commodity futures; hybrid contracts receive pro-rata core with FIFO remainder. |
 | Reproducibility | For an identical input sequence, the allocation history is identical byte-for-byte on any host, which makes regulator and member inquiries answerable by exact replay. |
 
 ## 4. Business Events (Outbound)
 
 A library emits no events; it has no transport. The business events the
-exchange's participants observe are produced by the consuming services —
+exchange's participants observe are produced by the consuming services -
 each book operation below enables its corresponding observable effect:
 
 | Book operation | Observable business effect (emitted by the consuming engine) |
@@ -121,7 +121,7 @@ each book operation below enables its corresponding observable effect:
 9. Odd-lot liquidity never trades against board-lot liquidity.
 10. Quantity arithmetic can never produce negative depth; fills saturate.
 11. Identical accepted input sequences produce identical fill sequences and
-    identical final book states — the foundation of replay-based dispute
+    identical final book states - the foundation of replay-based dispute
     resolution.
 
 ## 6. Target-User Roles & Use Cases
@@ -142,7 +142,7 @@ each book operation below enables its corresponding observable effect:
 | KPI | Target / meaning |
 |---|---|
 | Book operation latency | Best/best-level, indexed cancel/reduce, and front consumption run effectively in constant time relative to resting order count; a scale guard test holds the contract against a large book. |
-| Allocation conservation | 100% of allocation runs conserve quantity exactly (fill sum = min(incoming, level volume)) — property-tested across every policy, level shape, and incoming size. |
+| Allocation conservation | 100% of allocation runs conserve quantity exactly (fill sum = min(incoming, level volume)) - property-tested across every policy, level shape, and incoming size. |
 | Oversell rate | Zero: no fill exceeds its resting quantity in any policy run. |
 | FIFO discipline violations | Zero: strict-prefix and deep-level arrival tests must remain permanently green. |
 | Depth accuracy | Zero incidents of hidden liquidity appearing in displayed depth in parity tests against golden event streams. |
@@ -160,7 +160,7 @@ each book operation below enables its corresponding observable effect:
 | Platform sequence plane | Trade-id sequencing and audit attribution at the engine boundary |
 
 The library itself depends on nothing external beyond those value types and
-standard-library containers — no network, no database, no platform service,
+standard-library containers - no network, no database, no platform service,
 which is what makes its guarantees testable in isolation.
 
 ## 9. Acceptance Criteria
@@ -188,11 +188,11 @@ which is what makes its guarantees testable in isolation.
 - **Pooled order storage.** If steady-state fill-path allocation costs
   become a measurable capacity constraint, pooled (arena-backed) order
   storage would trade some of the library's serialization simplicity for
-  allocation reuse — a product decision between engine throughput and
+  allocation reuse - a product decision between engine throughput and
   mirror simplicity.
 - **Depth view ownership.** Whether the library should publish an
   aggregated depth view (per price rung, book/odd partitioned) as a first
-  class capability instead of leaving the fold to each consumer — reduces
+  class capability instead of leaving the fold to each consumer - reduces
   duplication, but adds a derived surface whose divergence from raw levels
   must be governed.
 - **Additional allocation policies.** Size-priority or other regional

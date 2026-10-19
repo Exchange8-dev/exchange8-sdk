@@ -9,7 +9,7 @@
 //! resting orders, orders them best-price-first (visible before hidden at
 //! an equal price), FIFO by arrival within each level, and hands the
 //! matching engine deterministic within-level allocation policies. It is a
-//! pure domain library: no I/O, no threads, no persistence — consumers own
+//! pure domain library: no I/O, no threads, no persistence - consumers own
 //! the lifecycle and the single-writer schedule. The authoritative consumer
 //! is the matching engine (Exchange8:ME); market-data mirrors and the simulation
 //! harness consume the same structures so displayed depth and simulation
@@ -63,7 +63,7 @@
 //! (§4.2 book structure, §4.4 matching algorithm) defines the consuming
 //! context.
 //!
-//! **Data-structure contract** — the hot path is sub-linear in the level
+//! **Data-structure contract** - the hot path is sub-linear in the level
 //! count L (distinct price × visibility buckets):
 //!
 //! | Operation | Complexity |
@@ -76,13 +76,13 @@
 //!
 //! Implementation: one `BTreeMap<PriceKey, PriceLevel>` per side where the
 //! key's `price_rank` is inverted for bids, so **map iteration order is
-//! best-first on both sides** — the matching walk advances through the map
+//! best-first on both sides** - the matching walk advances through the map
 //! with zero rescans. Each level's FIFO queue is a `VecDeque` (tail insert,
 //! front consume). An `order_id → PriceKey` index makes cancel/reduce O(1)
 //! to locate.
 //!
 //! **Display semantics**: visible and hidden orders at the same price form
-//! **separate levels**, visible first at equal price — hidden liquidity is
+//! **separate levels**, visible first at equal price - hidden liquidity is
 //! never part of displayed depth and bypass flow only touches visible levels.
 //!
 //! **Within-level discipline**: the book stores orders FIFO by arrival
@@ -168,7 +168,7 @@ pub struct RestingOrder {
     /// STP key (customer/location/connection/account).
     pub stp_key: Option<u64>,
     /// Arrival sequence (time priority within a level); minted by the
-    /// `SideBook` on insert — monotone per side, caller-supplied values
+    /// `SideBook` on insert - monotone per side, caller-supplied values
     /// are overwritten.
     pub seq: u64,
 }
@@ -187,7 +187,7 @@ impl RestingOrder {
     ///
     /// Holds for every iceberg with an undisplayed reserve (and for any
     /// order resting with `visible == remaining.raw` when `remaining`
-    /// is fully displayed — the predicate is the hidden-part test only,
+    /// is fully displayed - the predicate is the hidden-part test only,
     /// not the iceberg test).
     ///
     /// # Examples
@@ -250,7 +250,7 @@ impl PriceKey {
 /// Visible and hidden orders at the same price live in distinct levels:
 /// at an equal price the visible level sorts ahead of the hidden one,
 /// displayed depth aggregates visible levels only, and bypass-style flows
-/// touch visible levels only. A level exists only while it has orders —
+/// touch visible levels only. A level exists only while it has orders -
 /// the owning `SideBook` prunes a level whose queue drains.
 ///
 /// # Examples
@@ -268,7 +268,7 @@ pub struct PriceLevel {
     pub price: Price,
     /// This level holds displayable (`true`) or hidden (`false`) orders.
     pub visible: bool,
-    /// FIFO by arrival (`seq`) — front = oldest = next to fill.
+    /// FIFO by arrival (`seq`) - front = oldest = next to fill.
     pub orders: VecDeque<RestingOrder>,
 }
 
@@ -301,7 +301,7 @@ impl PriceLevel {
 /// One side of a book (bids or asks), best-first.
 ///
 /// Iteration order (BTreeMap values) is best-first: bids descending by
-/// price, asks ascending — with visible-before-hidden at equal prices.
+/// price, asks ascending - with visible-before-hidden at equal prices.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SideBook {
     side: Side,
@@ -340,7 +340,7 @@ impl SideBook {
     /// Insert a resting order (FIFO tail) at its (price, visibility).
     ///
     /// Visibility derives from the order's `visible` qty (`0` = hidden):
-    /// the order joins the visible or hidden level at its price — hidden
+    /// the order joins the visible or hidden level at its price - hidden
     /// and visible orders at one price never merge into one level. The
     /// arrival sequence (`seq`) is minted here as the next monotone value,
     /// so a caller's `seq` never influences time priority; an order that
@@ -405,8 +405,8 @@ impl SideBook {
     ///
     /// This is the displayed top-of-book: hidden levels never surface,
     /// even when they hold the strictly best price. Price still dominates
-    /// the walk — a hidden better-price level is passed, not traded
-    /// through — so the first visible non-empty level may sit behind it.
+    /// the walk - a hidden better-price level is passed, not traded
+    /// through - so the first visible non-empty level may sit behind it.
     pub fn best_visible(&self) -> Option<&PriceLevel> {
         self.levels.values().find(|l| l.visible && !l.is_empty())
     }
@@ -427,7 +427,7 @@ impl SideBook {
     }
 
     /// True when no order rests on any level of this side (levels may
-    /// still exist as empty if not pruned — see [`remove`]/[`prune`]).
+    /// still exist as empty if not pruned - see [`remove`]/[`prune`]).
     ///
     /// [`remove`]: SideBook::remove
     /// [`prune`]: SideBook::prune
@@ -543,7 +543,7 @@ impl SideBook {
         true
     }
 
-    /// The front (oldest) order of a level at `price`, if present — the
+    /// The front (oldest) order of a level at `price`, if present - the
     /// O(1) pickup for the matching walk.
     ///
     /// `visible` selects the visible or hidden level at `price`; hidden
@@ -552,7 +552,7 @@ impl SideBook {
     ///
     /// # Returns
     /// `None` when no level exists at that (price, visibility) pair; the
-    /// front order otherwise — the next to fill under time priority.
+    /// front order otherwise - the next to fill under time priority.
     pub fn front_at(&self, price: Price, visible: bool) -> Option<&RestingOrder> {
         let key = PriceKey::new(price, visible, self.side);
         self.levels.get(&key).and_then(|l| l.orders.front())
@@ -563,7 +563,7 @@ impl SideBook {
     ///
     /// The walk consumes best-first levels until the limit price is
     /// reached, so a strictly worse book contributes nothing. Iceberg
-    /// reserve is counted — a fill-or-kill commitment is matched against
+    /// reserve is counted - a fill-or-kill commitment is matched against
     /// all executable liquidity, not only the display.
     ///
     /// # Examples
@@ -601,7 +601,7 @@ impl SideBook {
 
 /// Full instrument book (both sides).
 ///
-/// One `SideBook` per side, fully independent — insertion never rejects or
+/// One `SideBook` per side, fully independent - insertion never rejects or
 /// crosses (matching decisions belong to the engine); cross detection is
 /// an explicit read used by parity checks and market-status logic.
 ///

@@ -25,11 +25,11 @@
 //!
 //! # Overview
 //!
-//! - `Price` — scale-carrying fixed-point price with lossless rescale,
+//! - `Price` - scale-carrying fixed-point price with lossless rescale,
 //!   checked arithmetic, and parse from decimal strings.
-//! - `Qty` — scale-carrying quantity with checked operations and
+//! - `Qty` - scale-carrying quantity with checked operations and
 //!   board-lot/odd-lot decomposition.
-//! - Tick-rule functions — equity band ticks, doubled midpoint grid,
+//! - Tick-rule functions - equity band ticks, doubled midpoint grid,
 //!   FX pip and half-pip grids.
 //!
 //! Detailed design: [`DESIGN.md`](../../DESIGN.md); crate overview:
@@ -179,7 +179,7 @@ impl Price {
 
     /// Notional = price × qty, computed overflow-safely.
     ///
-    /// **Semantics**: the result is expressed in the **price's** tick units —
+    /// **Semantics**: the result is expressed in the **price's** tick units -
     /// e.g. an equity price ×10⁴ times an integer qty yields the notional
     /// scaled ×10⁴ (1.00 × 100 = 100.00 → `1_000_000`). A fractional qty is
     /// applied as `price.raw × qty.raw / 10^qty.scale` (multiply first, then
@@ -285,7 +285,7 @@ impl Qty {
     /// Split a quantity into (whole-lot count, odd-lot volume).
     ///
     /// **Semantic care**: returns the *count* of whole lots first and the
-    /// odd-lot *volume* second — multiply the count by lot size to get board
+    /// odd-lot *volume* second - multiply the count by lot size to get board
     /// volume (mixed-lot split convention; see `DESIGN.md` §4).
     /// Only meaningful at scale 0 (integer quantities); a fractional qty is
     /// all-odd.
@@ -317,7 +317,7 @@ pub fn on_equity_tick(price: Price) -> bool {
 }
 
 /// Doubled-tick validation for midpoint/dark peg prices (OMS
-/// `tick_size()` ×2 — a midpoint can land on a half-tick).
+/// `tick_size()` ×2 - a midpoint can land on a half-tick).
 pub fn on_doubled_equity_tick(price: Price) -> bool {
     let tick = equity_tick(price) * 2;
     price.raw % tick == 0
@@ -331,7 +331,7 @@ pub fn on_fx_pip_tick(price: Price) -> bool {
     price.raw % FX_PIP_TICKS == 0
 }
 
-/// FX pipette rule: half-pip increments (0.00005) allowed — used by
+/// FX pipette rule: half-pip increments (0.00005) allowed - used by
 /// venues that stream fifth-digit prices.
 pub fn on_fx_half_pip_tick(price: Price) -> bool {
     debug_assert_eq!(price.scale, FX_SCALE);
@@ -357,15 +357,15 @@ mod tests {
 
     #[test]
     fn fx_pip_tick_rules() {
-        // 1.08450 — whole pip (raw 108450 % 10 == 0).
+        // 1.08450 - whole pip (raw 108450 % 10 == 0).
         let pip = Price::from_scaled(108_450, FX_SCALE);
         assert!(on_fx_pip_tick(pip));
         assert!(on_fx_half_pip_tick(pip));
-        // 1.08455 — a pipette: valid half-pip, NOT a whole pip.
+        // 1.08455 - a pipette: valid half-pip, NOT a whole pip.
         let pipette = Price::from_scaled(108_455, FX_SCALE);
         assert!(!on_fx_pip_tick(pipette));
         assert!(on_fx_half_pip_tick(pipette));
-        // 1.08452 — sub-half-pip: invalid under both rules.
+        // 1.08452 - sub-half-pip: invalid under both rules.
         let odd = Price::from_scaled(108_452, FX_SCALE);
         assert!(!on_fx_pip_tick(odd));
         assert!(!on_fx_half_pip_tick(odd));

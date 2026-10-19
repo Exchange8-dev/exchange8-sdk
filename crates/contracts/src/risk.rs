@@ -3,26 +3,26 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Risk authorize wire DTOs — the Gateway → Risk contract
+//! Risk authorize wire DTOs - the Gateway → Risk contract
 //! (Risk design §7, master design §4.1 namespace rule).
 //!
 //! Cross-service API surface lives in the shared contracts crate, not in a
 //! single-service client crate. The facade re-exports this module as
-//! `exchange8::contracts::risk` (explicit, no glob — keeps facade-level
+//! `exchange8::contracts::risk` (explicit, no glob - keeps facade-level
 //! names collision-free).
 //!
-//! Design: `crates/contracts/DESIGN.md` §4 (API surface — risk contract).
+//! Design: `crates/contracts/DESIGN.md` §4 (API surface - risk contract).
 
 use serde::{Deserialize, Serialize};
 
-/// `POST /v1/authorize` request — the normalized order.
+/// `POST /v1/authorize` request - the normalized order.
 ///
 /// The gateway decodes the client session into an [`ExchangeOrder`] and
 /// submits it unchanged; Risk's decision applies to exactly this
 /// representation (no side-channel fields).
 pub type AuthorizeRequest = crate::order::ExchangeOrder;
 
-/// `POST /v1/authorize` response — the pre-trade decision.
+/// `POST /v1/authorize` response - the pre-trade decision.
 ///
 /// `code` is `Some` exactly when `decision` is [`Decision::Reject`]; the
 /// code comes from the shared reject vocabulary.
@@ -34,7 +34,7 @@ pub struct AuthorizeResponse {
     pub code: Option<crate::reject::RejectCode>,
 }
 
-/// Wire decision (allow/reject — the wire protocol's two outcomes).
+/// Wire decision (allow/reject - the wire protocol's two outcomes).
 ///
 /// Fail-closed vocabulary (`RiskUnavailable`, `RateLimited`, …) is carried
 /// on [`AuthorizeResponse::code`], not as extra decision variants.

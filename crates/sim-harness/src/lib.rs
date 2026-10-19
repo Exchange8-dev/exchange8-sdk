@@ -5,7 +5,7 @@
 
 //! Exchange8 market simulator + scenario DSL.
 //!
-//! Parses the platform spec tool command language verbatim — 1:1 verb
+//! Parses the platform spec tool command language verbatim - 1:1 verb
 //! parity: `D` deposit/new order, `X` cancel, `Z` flush book, `F`
 //! aggressive enter, `R` replace, `E` manual exec print, `S` sweep,
 //! `2` two-sided quote, `T` tape print, `Q` quote set. Line syntax:
@@ -13,7 +13,7 @@
 //!
 //! The crate is parse-only: it models scenarios, it never drives an
 //! engine itself. Drivers (test binaries, tools) `#[path]`-include
-//! service-core modules and apply the parsed actions — the canonical
+//! service-core modules and apply the parsed actions - the canonical
 //! pattern is `tests/flow_gateway_me_clearing.rs` (gateway submission →
 //! ME matching → clearing projection, DB-free).
 //!
@@ -44,7 +44,7 @@ use thiserror::Error;
 ///
 /// Actions are produced in script order by [`parse_script`] and applied by
 /// a driver (a test binary or tool) that maps them onto real service-core
-/// calls — the crate attaches no execution semantics of its own. The enum
+/// calls - the crate attaches no execution semantics of its own. The enum
 /// is serde-stable (`Serialize`/`Deserialize`) and `PartialEq`, so
 /// golden-script assertions compare whole action plans directly and
 /// checked-in scenario files stay replayable.
@@ -123,7 +123,7 @@ pub enum Action {
 
 /// Order request built by the DSL (`D`, `F`, `R` verbs).
 ///
-/// Plain data — no behavior — so drivers can compare parsed plans directly
+/// Plain data - no behavior - so drivers can compare parsed plans directly
 /// and build engine-bound structures (`AddOrder`, `ExchangeOrder`) without
 /// any harness-side interpretation of the fields.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -143,7 +143,7 @@ pub struct OrderRequest {
     pub tif: Tif,
 }
 
-/// Contained scenario-parse failure — always names the 1-based line.
+/// Contained scenario-parse failure - always names the 1-based line.
 ///
 /// [`parse_script`] never panics: a malformed line stops the whole script
 /// (all-or-nothing, so a driver never runs a partially parsed plan) and
@@ -193,7 +193,7 @@ fn parse_px(s: &str) -> Option<i128> {
     Price::parse_decimal(s, 4).map(|p| p.raw)
 }
 
-/// Parse one DSL script — one action per line, `#` comments.
+/// Parse one DSL script - one action per line, `#` comments.
 ///
 /// Lines are processed in order; empty and `#`-prefixed lines are skipped.
 /// Each action line is `VERB key=value ...`; unknown parameters are
@@ -218,7 +218,7 @@ fn parse_px(s: &str) -> Option<i128> {
 /// Returns [`ParseError`] with the 1-based line number: `BadVerb` for an
 /// unknown verb, `MissingField` for an absent required parameter,
 /// `BadNumber` for an unparseable numeric value. A failing line fails the
-/// whole script — no partial action vector is returned.
+/// whole script - no partial action vector is returned.
 pub fn parse_script(src: &str) -> Result<Vec<Action>, ParseError> {
     let mut out = Vec::new();
     for (idx, raw_line) in src.lines().enumerate() {
@@ -469,7 +469,7 @@ pub fn parse_script(src: &str) -> Result<Vec<Action>, ParseError> {
 /// Map a DSL side char to `OrderSide`.
 ///
 /// The DSL's spec-faithful sides are `'B'` (buy) and `'S'` (sell); any
-/// other character falls through to buy — a deliberate spec-compat choice,
+/// other character falls through to buy - a deliberate spec-compat choice,
 /// with validation left to the consuming engine.
 ///
 /// # Examples
@@ -489,7 +489,7 @@ pub fn side_of(c: char) -> OrderSide {
 
 /// Map a DSL order to its engine order type.
 ///
-/// Deposit (`D`) and enter (`F`) actions are limit orders in the harness —
+/// Deposit (`D`) and enter (`F`) actions are limit orders in the harness -
 /// the engine decides market semantics from `price: None` on the request.
 /// The `Tif` parameter exists for signature stability with the
 /// `OrderRequest` it accompanies; the mapping does not read it.

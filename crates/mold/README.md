@@ -5,7 +5,7 @@
 `exchange8::mold` is the MoldUDP64 downstream packet codec of the exchange8
 vertical: it builds outbound multicast packets (header + length-prefixed
 message blocks), parses inbound packets back into header + block ranges, and
-formats retransmission requests. It is a pure library — no sockets, no
+formats retransmission requests. It is a pure library - no sockets, no
 database, no endpoints, and no process of its own. Packet framing is
 everything it owns; the session lifecycle, heartbeat intervals, A/B legs,
 and socket I/O belong to the consuming services (Exchange8:MD publisher,
@@ -24,7 +24,7 @@ of that framing:
   upgrade can never silently drift the wire.
 - **Gap recovery as a first-class frame.** The count-0 heartbeat carrying
   the next-expected sequence and the 20-byte retransmission request are
-  produced by dedicated helpers — the recovery conversation is codec, not
+  produced by dedicated helpers - the recovery conversation is codec, not
   ad-hoc bytes.
 - **Malformed input is typed, never repaired.** A short packet or a block
   that overruns the buffer is a `MoldError`, not a panic and not a
@@ -51,7 +51,7 @@ graph TD
         SDK["sdk/rust/exchange8<br/>pub use exchange8_mold as mold"]
     end
 
-    subgraph CRATE["exchange8::mold — this crate (pure framing)"]
+    subgraph CRATE["exchange8::mold - this crate (pure framing)"]
         BUILD["MoldPacket<br/>new · add_message · buffer_left<br/>encode · heartbeat"]
         PARSEFN["parse → ParsedPacket<br/>session · sequence · count · block_ranges"]
         RETR["retransmission_request"]
@@ -85,25 +85,25 @@ graph TD
 
 ## 4. Key Traits and Data Structures
 
-There are no traits, no dyn dispatch — data-oriented builders and a
+There are no traits, no dyn dispatch - data-oriented builders and a
 parse result.
 
-- **`MoldPacket`** — the outbound builder: `session` (fixed 10-byte
+- **`MoldPacket`** - the outbound builder: `session` (fixed 10-byte
   ASCII, space-padded), `sequence` (first block's), private `blocks`.
   `new` pads/claims the session; `buffer_left` reports remaining
   1400-byte budget; `add_message(seq, payload)` appends a block
-  (returning `false` when it does not fit or the payload is empty —
+  (returning `false` when it does not fit or the payload is empty -
   the protocol's "null message" is ignored); `message_count` reports
   the block count; `encode` serializes header + length-prefixed blocks.
   `heartbeat(session, next_seq)` builds the count-0 keepalive packet.
-- **`ParsedPacket`** — the inbound view: `session` (trimmed `String`),
+- **`ParsedPacket`** - the inbound view: `session` (trimmed `String`),
   `sequence` (`u64`), `count` (`u16`), and `block_ranges`
   (`Vec<(start, end)>` byte offsets into the original buffer for each
   block, decodable by the caller or the ITCH crate).
-- **`MoldError`** — the codec's whole failure surface: `TooShort(len)`
+- **`MoldError`** - the codec's whole failure surface: `TooShort(len)`
   (under 20-byte header), `BlockOverrun(offset)` (declared block length
   exceeds the packet), `TooLarge`.
-- **Wire constants** — `MAX_MOLD_MSG_LENGTH` (1400), `SESSION_LEN` (10),
+- **Wire constants** - `MAX_MOLD_MSG_LENGTH` (1400), `SESSION_LEN` (10),
   `SEQ_OFFSET` (10), `SEQ_LEN` (8), `COUNT_OFFSET` (18), `COUNT_LEN`
   (2), `BLOCK_OFFSET` (20), `BLOCK_LEN_LEN` (2), and `ITCH_SPACE`
   (`0x20` padding).
@@ -115,20 +115,20 @@ parse result.
   parsing yields *offset ranges* into the caller's buffer rather than
   owned copies. Mixed approach chosen deliberately: build-side packets
   are small, frequently mutated buffers (owned is simplest and safe),
-  while the receive side stays allocation-free where it matters — the
+  while the receive side stays allocation-free where it matters - the
   hot fan-out path copies nothing but the ranges (`Vec` of 2-tuples).
 - **1400-byte cap checked at build time.** `buffer_left` +
   `add_message`'s fit check keep the builder under the wire maximum
   structurally; `MoldError::TooLarge` documents the constraint for
   external callers who bypass the builder. A silently-overflowing UDP
   datagram would be dropped by the NIC or fragmented (loss amplification)
-  — reject-early is the only safe default.
+  - reject-early is the only safe default.
 - **Null message (empty payload) rejections.** A zero-length block is
   not representable in the wire grammar (`AddMessageData` ignores
   count-0/empty blocks per the protocol); the builder refuses it rather
   than encoding an unparseable packet.
 - **Heartbeats as a separate constructor, not a mode.** A heartbeat is a
-  count-0 packet — the same header, no blocks — so a dedicated function
+  count-0 packet - the same header, no blocks - so a dedicated function
   avoids a builder state machine and makes "heartbeat == next-expected
   sequence" explicit at the call site.
 - **`String::from_utf8_lossy` on session echo.** Parsing adopts the
@@ -142,21 +142,21 @@ parse result.
 
 ## 6. Internal Implementation & Invariants (Private Design)
 
-- **Session fields** — `new`/`heartbeat`/`retransmission_request` all
+- **Session fields** - `new`/`heartbeat`/`retransmission_request` all
   copy up to 10 bytes of the caller's session string into a space-filled
   (0x20) fixed array; `parse` trims trailing spaces back. A session is
   echoed, never interpreted.
-- **`add_message` sequence capture** — only the first non-zero sequence
+- **`add_message` sequence capture** - only the first non-zero sequence
   is stored as the packet's `sequence` (subsequent blocks belong to
   consecutive sequence positions by protocol contract; the builder
   records the packet start). An empty payload is refused (protocol null
   message) and an over-budget block returns `false` without mutating
   state.
-- **Encode layout** — `session[0..10]`, `sequence.to_be_bytes()`
+- **Encode layout** - `session[0..10]`, `sequence.to_be_bytes()`
   (big-endian, 8 bytes) at 10, `message_count` (`u16` BE) at 18, then
   per block `(len u16 BE, payload)`. Heartbeat is exactly `BLOCK_OFFSET`
   (20) bytes with count 0.
-- **Parse walks the block index** — it validates each declared block
+- **Parse walks the block index** - it validates each declared block
   against the actual packet length as it walks, so the *first* bad block
   is reported (with its offset), not an aggregate.
 - **Invariants held across encode/parse:**
@@ -178,7 +178,7 @@ parse result.
 - **Retransmission server support.** The crate emits the 20-byte
   retransmission *request* format; the ring-buffer server side (which
   answers requests) lives in the MD publisher design and is not
-  represented by a builder in this crate — whether it needs one is open
+  represented by a builder in this crate - whether it needs one is open
   until that service work lands.
 - **Zero-copy parse API.** `ParsedPacket` already references buffers by
   offset; a borrowed-view accessor (payload `&[u8]` per block with the

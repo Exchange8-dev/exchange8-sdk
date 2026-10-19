@@ -3,13 +3,13 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Exchange8 reject-code catalog with FIX 103 text — 1:1 port of the
+//! Exchange8 reject-code catalog with FIX 103 text - 1:1 port of the
 //! protocol's rejection numbers.
 //!
 //! Truth: `design/behavior-catalog/reject-codes.json` (the `order_reject`,
 //! `base_reject`, and `cancel_reject` families). Codes the platform adds on
 //! top (risk unavailability, rate limiting, Greeks limits, margin,
-//! malformed, internal) deliberately carry no numeric wire code — they are
+//! malformed, internal) deliberately carry no numeric wire code - they are
 //! internal failure vocabulary, never presented as legacy numeric codes.
 //!
 //! Design: `crates/contracts/DESIGN.md` §4 (API surface), §5 (error-code
@@ -35,125 +35,125 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum RejectCode {
-    // -- order_reject family (numeric codes 1–8, 100–144) -------------------
-    /// `1` — unknown symbol (instrument not provisioned).
+    // -- order_reject family (numeric codes 1-8, 100-144) -------------------
+    /// `1` - unknown symbol (instrument not provisioned).
     UnknownSymbol,
-    /// `2` — the exchange is closed.
+    /// `2` - the exchange is closed.
     ExchangeClosed,
-    /// `3` — the order exceeds the capitalization limit.
+    /// `3` - the order exceeds the capitalization limit.
     OrderExceedsLimit,
-    /// `4` — outside the order-entry window.
+    /// `4` - outside the order-entry window.
     TooLateToEnter,
-    /// `5` — unknown order (id not on the book).
+    /// `5` - unknown order (id not on the book).
     UnknownOrder,
-    /// `6` — duplicate order reference.
+    /// `6` - duplicate order reference.
     DuplicateOrder,
-    /// `7` — duplicate verbal order reference.
+    /// `7` - duplicate verbal order reference.
     DuplicateVerbalOrder,
-    /// `8` — stale order (sequence number too old).
+    /// `8` - stale order (sequence number too old).
     StaleOrder,
-    /// `100` — unknown security exchange (MIC unrecognized).
+    /// `100` - unknown security exchange (MIC unrecognized).
     InvalidSecurityExchange,
-    /// `101` — the stock is not shortable.
+    /// `101` - the stock is not shortable.
     StockNotShortable,
-    /// `102` — invalid security id (instrument snapshot mismatch).
+    /// `102` - invalid security id (instrument snapshot mismatch).
     InvalidSecurityId,
-    /// `103` — invalid symbol (unparseable or empty).
+    /// `103` - invalid symbol (unparseable or empty).
     InvalidSymbol,
-    /// `104` — wrong order type for the session/instrument.
+    /// `104` - wrong order type for the session/instrument.
     WrongOrderType,
-    /// `105` — the client is suspended.
+    /// `105` - the client is suspended.
     ClientSuspended,
-    /// `106` — wrong account for this session.
+    /// `106` - wrong account for this session.
     WrongAccount,
-    /// `107` — wrong broker/company id.
+    /// `107` - wrong broker/company id.
     WrongBrokerId,
-    /// `108` — the exchange is halted.
+    /// `108` - the exchange is halted.
     ExchangeHalted,
-    /// `109` — the security is halted on the ATS book.
+    /// `109` - the security is halted on the ATS book.
     SecurityHaltedAts,
-    /// `110` — the security is halted on the primary book.
+    /// `110` - the security is halted on the primary book.
     SecurityHaltedPrimary,
-    /// `111` — the security is under holiday trading rules.
+    /// `111` - the security is under holiday trading rules.
     SecurityHoliday,
-    /// `112` — the security's trading session is closed.
+    /// `112` - the security's trading session is closed.
     SecurityTradingClosed,
-    /// `113` — the exchange postponed the session.
+    /// `113` - the exchange postponed the session.
     ExchangePostponed,
-    /// `114` — the exchange is in the pre-open period.
+    /// `114` - the exchange is in the pre-open period.
     ExchangePreopen,
-    /// `115` — invalid routing destination.
+    /// `115` - invalid routing destination.
     InvalidRouting,
-    /// `116` — wrong visibility flag (hidden/display inconsistency).
+    /// `116` - wrong visibility flag (hidden/display inconsistency).
     WrongVisibleFlag,
-    /// `117` — order not large-in-scale (LIS threshold not met).
+    /// `117` - order not large-in-scale (LIS threshold not met).
     NotLargeInScale,
-    /// `118` — wrong order capacity (agency/principal inconsistency).
+    /// `118` - wrong order capacity (agency/principal inconsistency).
     WrongOrderCapacity,
-    /// `119` — wrong currency for the instrument.
+    /// `119` - wrong currency for the instrument.
     WrongCurrency,
-    /// `120` — wrong price (off-tick or non-positive).
+    /// `120` - wrong price (off-tick or non-positive).
     WrongPrice,
-    /// `121` — wrong quantity (lot-size or scaling violation).
+    /// `121` - wrong quantity (lot-size or scaling violation).
     WrongQuantity,
-    /// `122` — consolidated (EBBO) pegging not allowed on this book.
+    /// `122` - consolidated (EBBO) pegging not allowed on this book.
     EbboNotAllowed,
-    /// `123` — wrong post-only marker (side or session rules).
+    /// `123` - wrong post-only marker (side or session rules).
     WrongPostOnly,
-    /// `124` — wrong user id for the session.
+    /// `124` - wrong user id for the session.
     WrongUserId,
-    /// `130` — wrong time in force for the session/instrument.
+    /// `130` - wrong time in force for the session/instrument.
     WrongTimeInForce,
-    /// `131` — wrong bypass marker (hidden-level matching misuse).
+    /// `131` - wrong bypass marker (hidden-level matching misuse).
     WrongBypassMarker,
-    /// `132` — price does not match the instrument's tick size.
+    /// `132` - price does not match the instrument's tick size.
     MismatchPriceTicksize,
-    /// `133` — wrong price-protection marker.
+    /// `133` - wrong price-protection marker.
     WrongPriceProtection,
-    /// `134` — wrong cross type for the cross order.
+    /// `134` - wrong cross type for the cross order.
     WrongCrossType,
-    /// `135` — session lacks the required entitlement.
+    /// `135` - session lacks the required entitlement.
     InvalidEntitlement,
-    /// `136` — wrong obligor account type id.
+    /// `136` - wrong obligor account type id.
     WrongAccountTypeId,
-    /// `137` — invalid jitney (carry broker) reference.
+    /// `137` - invalid jitney (carry broker) reference.
     InvalidJitney,
-    /// `138` — wrong short-marking-exempt marker.
+    /// `138` - wrong short-marking-exempt marker.
     WrongShortMarkingExempt,
-    /// `140` — wrong iceberg max-floor value.
+    /// `140` - wrong iceberg max-floor value.
     WrongMaxFloor,
-    /// `141` — wrong peg difference (scale or sign).
+    /// `141` - wrong peg difference (scale or sign).
     WrongPegDifference,
-    /// `142` — wrong order book (book token not enabled).
+    /// `142` - wrong order book (book token not enabled).
     WrongOrderBook,
-    /// `143` — wrong order side for the operation.
+    /// `143` - wrong order side for the operation.
     WrongOrderSide,
-    /// `144` — wrong execution-instruction combination.
+    /// `144` - wrong execution-instruction combination.
     WrongExecInst,
-    // -- base_reject family (numeric codes 125–129, 200) ---------------------
-    /// `125` — odd lot not accepted on this book.
+    // -- base_reject family (numeric codes 125-129, 200) ---------------------
+    /// `125` - odd lot not accepted on this book.
     OddLot,
-    /// `126` — mixed odd/board lot composition not allowed.
+    /// `126` - mixed odd/board lot composition not allowed.
     MixedLot,
-    /// `127` — short sale restricted by the uptick rule.
+    /// `127` - short sale restricted by the uptick rule.
     UptickRule,
-    /// `128` — below the half-penny tick restriction.
+    /// `128` - below the half-penny tick restriction.
     HalfPennyTick,
-    /// `129` — below the full-penny tick restriction.
+    /// `129` - below the full-penny tick restriction.
     FullPennyTick,
-    /// `200` — unspecified/legacy reason without a specific variant.
+    /// `200` - unspecified/legacy reason without a specific variant.
     UnknownReason,
     // -- cancel_reject family (numeric codes 0, 2, 3, 105) -------------------
-    /// cancel `0` — too late to cancel (already executing or done).
+    /// cancel `0` - too late to cancel (already executing or done).
     TooLate,
-    /// cancel `2` — rejected at the broker's discretion.
+    /// cancel `2` - rejected at the broker's discretion.
     BrokerOption,
-    /// cancel `3` — a cancel/replace is already pending on the order.
+    /// cancel `3` - a cancel/replace is already pending on the order.
     AlreadyPending,
-    /// cancel `105` — replacement quantity invalid.
+    /// cancel `105` - replacement quantity invalid.
     WrongReplaceQty,
     // -- platform-added (no numeric wire code) -------------------------------
-    /// The risk authorization service is unavailable — fail-closed by
+    /// The risk authorization service is unavailable - fail-closed by
     /// design (Risk service design §9).
     RiskUnavailable,
     /// The per-session rate guard rejected the request (Risk design §5.3).
@@ -245,7 +245,7 @@ impl RejectCode {
         })
     }
 
-    /// FIX 103 (OrdRejReason) human-readable text — matches the
+    /// FIX 103 (OrdRejReason) human-readable text - matches the
     /// catalog's rejection text strings.
     ///
     /// The returned text is static per variant; clients may rely on it

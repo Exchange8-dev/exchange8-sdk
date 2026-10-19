@@ -1,4 +1,4 @@
-# exchange8::soup — Business Requirements & Functionality
+# exchange8::soup - Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::soup library **does for the business**. For architecture
@@ -8,7 +8,7 @@
 
 - Give market-data subscribers a standard session protocol
   (SoupBinTCP) over which they authenticate, request replay from a
-  sequence position, and receive the live tape — with one tested byte
+  sequence position, and receive the live tape - with one tested byte
   definition on the platform side.
 - Make the handshake an exact contract: credentials, requested session,
   and replay-start sequence travel in fixed-width fields every
@@ -16,7 +16,7 @@
 - Keep sessions observable and healthy: heartbeats in both directions
   and clean logout frames let publishers and receivers maintain idle
   connections without protocol ambiguity.
-- Wrap the published stream so a session is self-consistent — the
+- Wrap the published stream so a session is self-consistent - the
   server's login accept names the session and the exact first sequence
   the client will receive.
 
@@ -24,7 +24,7 @@
 
 | Capability | What it delivers (business terms) |
 |---|---|
-| Login request encoding/decoding | The 49-byte client handshake: username, password, requested session, replay-from sequence — typed struct both directions |
+| Login request encoding/decoding | The 49-byte client handshake: username, password, requested session, replay-from sequence - typed struct both directions |
 | Login accept encoding/decoding | The 33-byte server grant: session name and the sequence the stream starts at |
 | Login rejection frames | Exact short rejection frames with the two reason codes (not authorized / session unavailable) |
 | Heartbeat frames | Server and client 3-byte keepalives for idle connection supervision |
@@ -49,20 +49,20 @@
 
 | Area | Capability | Business rule |
 |---|---|---|
-| Authentication surface | Fixed-width handshake | A subscriber's request carries exactly 6-byte user, 10-byte password, 10-byte session, and a 20-character right-aligned sequence number — over-length input truncates per protocol contract |
+| Authentication surface | Fixed-width handshake | A subscriber's request carries exactly 6-byte user, 10-byte password, 10-byte session, and a 20-character right-aligned sequence number - over-length input truncates per protocol contract |
 | Session establishment | Accept grant | The server answers with the session and the starting sequence; the client resumes exactly there |
-| Access control signaling | Rejection | Two reasons: not authorized, or session not available — distinct, explicit, typed |
+| Access control signaling | Rejection | Two reasons: not authorized, or session not available - distinct, explicit, typed |
 | Liveness | Heartbeats | Either side emits a 3-byte keepalive; silence beyond the interval is the session task's disconnect policy |
 | Clean exit | Logout | A client requests disconnection with one unambiguous frame |
 | Data delivery | Sequenced data | Market-data payloads ride inside `S` frames; the framing layer treats content as opaque |
-| Robustness | Exact-length handshake | A login payload of any other length is a typed error — never truncated or guessed |
+| Robustness | Exact-length handshake | A login payload of any other length is a typed error - never truncated or guessed |
 | Robustness | Stream discipline | A reader knows how many bytes make a complete frame before touching payload content |
 
 ## 4. Business Events (Outbound)
 
 - None. The library emits no events and holds no state. **Observable
   effects it enables:** subscriber sessions (authentication, replay from
-  a historical sequence, live continuation, liveness) — those are
+  a historical sequence, live continuation, liveness) - those are
   Exchange8:MD / Exchange8:VFeeds behaviors on top of these frames.
 
 ### Inbound (consumed)
@@ -79,7 +79,7 @@
 3. Control frames (heartbeats, logout) are exactly 3 bytes; the login
    rejection is exactly 4.
 4. Credentials and session fields are blank-padded to fixed widths
-   and blanks-trimmed on parse — inputs longer than the width truncate
+   and blanks-trimmed on parse - inputs longer than the width truncate
    by protocol contract.
 5. The sequence travels as a 20-character right-aligned decimal string;
    non-numeric text decodes tolerantly to 0 rather than failing the
@@ -108,13 +108,13 @@
 
 ## 8. Dependencies & Reliance on Other Services
 
-- **`exchange8::itch`** — the market-data payloads this framing wraps in
+- **`exchange8::itch`** - the market-data payloads this framing wraps in
   sequenced data.
-- **Consuming services (Exchange8:MD, Exchange8:VFeeds)** — own sockets, heartbeat
+- **Consuming services (Exchange8:MD, Exchange8:VFeeds)** - own sockets, heartbeat
   schedules, reconnection, replay reads, and credential verification;
   the library cannot connect, listen, or authenticate.
-- **`thiserror`** — the typed failure surface.
-- No reliance on Sentin8 platform planes — no identity, authorization,
+- **`thiserror`** - the typed failure surface.
+- No reliance on Sentin8 platform planes - no identity, authorization,
   persistence, or delivery work is performed inside the library.
 
 ## 9. Acceptance Criteria
@@ -135,16 +135,16 @@
 
 ## 10. Open Business Questions
 
-- **Unsequenced-data (`U`) flows** — whether any subscriber class will
+- **Unsequenced-data (`U`) flows** - whether any subscriber class will
   submit data upstream, which would add an encode/decode pair for that
   frame family.
-- **Sequence decode strictness** — the tolerant `0` fallback on
+- **Sequence decode strictness** - the tolerant `0` fallback on
   non-digit text is current policy; whether callers must distinguish
   "client asked for 0" from "client sent garbage" is undecided.
 - **Additional classic-Soup event types** (end-of-session, debug/debug-
   plus) are represented only by knowledge of their letters; supporting
   them awaits a consumer need.
-- **Compression / auth extensions** — the codec implements the classic
+- **Compression / auth extensions** - the codec implements the classic
   fixed handshake; any platform decision to extend authentication (e.g.
   token-carrying login fields) is a session-service design, not this
   wire contract.

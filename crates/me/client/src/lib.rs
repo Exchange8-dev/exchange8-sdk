@@ -3,12 +3,12 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Exchange8 ME client — typed client library for the Exchange8:ME direct
+//! Exchange8 ME client - typed client library for the Exchange8:ME direct
 //! streams (order entry + lifecycle + recovery).
 //!
 //! Two functions over one shape: `encode_envelope` / `decode_envelope`
 //! turn `exchange8::contracts::Envelope<T>` values into `exchange8::wire`
-//! frames and back — the typed codec surface for the point-to-point
+//! frames and back - the typed codec surface for the point-to-point
 //! trading hot path (ME ↔ Gateway ↔ OMS), which rides Sentin8:TLS with
 //! cert-bound M2M tokens instead of the inbox-first bus (master design
 //! §7.2). The same envelope shape feeds the bus mirror, so a message is
@@ -17,7 +17,7 @@
 //! Scope: ME-stream client concerns only. Service-agnostic transport
 //! primitives (framed codec, bounded channels, sequence leases) live in
 //! `exchange8::wire`; the Gateway → Risk authorize DTOs live in
-//! `exchange8::contracts::risk` — cross-service API surface belongs to the
+//! `exchange8::contracts::risk` - cross-service API surface belongs to the
 //! shared contracts crate (principles §2.1, master design §4.1).
 //!
 //! # Quickstart
@@ -54,7 +54,7 @@ use serde::Serialize;
 
 /// Encode a typed envelope into a wire frame (`exchange8::wire` codec).
 ///
-/// The *whole envelope* is the unit of encoding — `event_type`, `env_id`,
+/// The *whole envelope* is the unit of encoding - `event_type`, `env_id`,
 /// `seq`, `idempotency_key` and the payload travel together, never the
 /// payload alone, so tenant attribution, ordering and idempotency stay
 /// inside the one shape both transport tiers (direct stream and bus
@@ -86,7 +86,7 @@ pub fn encode_envelope<T: Serialize>(value: &Envelope<T>) -> Vec<u8> {
 /// Decode a wire frame into a typed envelope.
 ///
 /// Framing errors surface as the `exchange8::wire::DecodeError` taxonomy
-/// (`TooShort`, `TooLarge`, `Json`) — never a panic, never silent
+/// (`TooShort`, `TooLarge`, `Json`) - never a panic, never silent
 /// truncation. Recovery policy belongs to the consumer: a direct-stream
 /// reader typically resynchronizes on the next length-validated frame
 /// (`exchange8::wire::next_frame_len`) or tears the stream down for a

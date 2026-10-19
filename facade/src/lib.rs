@@ -3,13 +3,13 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! # exchange8 — exchange8 workspace namespace facade
+//! # exchange8 - exchange8 workspace namespace facade
 //!
 //! Every exchange8 crate is named `exchange8::{leaf}` and is imported through this
 //! facade. See `sentin8/design/sentin8-architecture-principles.md` §2.1.
 //!
 //! Not re-exported: `exchange8-sim-harness` (a dev/simulation tool whose
-//! tests #[path]-include service modules — a facade re-export would create
+//! tests #[path]-include service modules - a facade re-export would create
 //! a Cargo package cycle). Sim-harness consumers depend on it directly.
 
 pub use exchange8_book as book;

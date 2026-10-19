@@ -3,10 +3,10 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Exchange8 cross-service flow test — the sim-harness pattern.
+//! Exchange8 cross-service flow test - the sim-harness pattern.
 //!
 //! Drives the real service-core crates across the submit→match→project
-//! chain — layers unit tests only ever see in isolation:
+//! chain - layers unit tests only ever see in isolation:
 //!
 //!   Gateway submission policy (`submission.rs::route_order` accept +
 //!   reject) → ME matching (`me::engine::MatchingEngine`) → `MeEvent`
@@ -27,7 +27,7 @@
 #![cfg(feature = "tree_flows")]
 
 // The REAL service cores, embedded via `include!` inside feature-gated
-// inline mods — `include!` is opaque to rustfmt (single-repo CI fmt
+// inline mods - `include!` is opaque to rustfmt (single-repo CI fmt
 // stays green) and resolves only under the tree layout
 // (exchange8-{gateway,me,clearing} checked out side by side).
 
@@ -123,7 +123,7 @@ fn gateway_order(mutate: impl FnOnce(&mut ExchangeOrder)) -> ExchangeOrder {
     o
 }
 
-/// ME add-order fixture — identical to `engine.rs`'s own test fixture.
+/// ME add-order fixture - identical to `engine.rs`'s own test fixture.
 fn add(order_id: u64, side: Side, px: i128, qty: u64, connection: u16) -> AddOrder {
     AddOrder {
         price: Price::equity(px),
@@ -150,14 +150,14 @@ fn add(order_id: u64, side: Side, px: i128, qty: u64, connection: u16) -> AddOrd
 
 /// Happy path end-to-end: Gateway routes → ME matches. The aggressor is
 /// a BID into a resting ASK (the engine matches aggressive buys against
-/// the ask book — mirrors `engine.rs`'s price_time test).
+/// the ask book - mirrors `engine.rs`'s price_time test).
 #[test]
 fn gateway_submit_me_match_happy_path() {
-    // 1 — GATEWAY: a plain limit routes to the matching engine.
+    // 1 - GATEWAY: a plain limit routes to the matching engine.
     let route = submission::route_order(&gateway_order(|_| {}));
     assert!(matches!(route, Ok(submission::Route::MatchingEngine)));
 
-    // 2 — ME: two asks rest, aggressive bid crosses the first fully.
+    // 2 - ME: two asks rest, aggressive bid crosses the first fully.
     let mut me = engine::MatchingEngine::new();
     me.add_order(&add(1, Side::Ask, 10_100, 100, 7));
     me.add_order(&add(2, Side::Ask, 10_100, 100, 7));

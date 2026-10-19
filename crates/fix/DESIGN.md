@@ -1,4 +1,4 @@
-# exchange8::fix — Detailed Design Document
+# exchange8::fix - Detailed Design Document
 
 ## 1. Scope & Context
 
@@ -8,7 +8,7 @@
   (`SOH`, `FIX_42_BEGIN_STRING`, heartbeat bounds), the complete-frame
   codec (`FixMessage::encode` / `FixMessage::parse`), the message value
   model (`FixMessage`), the MsgType (35) vocabulary (`msg_type`), the tag
-  vocabulary (`tag` — standard, venue-dialect custom 6749–9730, FX quote
+  vocabulary (`tag` - standard, venue-dialect custom 6749-9730, FX quote
   family), and the parse-error taxonomy (`FixError`).
 - The FX RFQ quote message shapes as constructors: `quote_request`,
   `quote`, `quote_accept`, `quote_status`.
@@ -50,7 +50,7 @@ graph TD
 ```
 
 Container-level note: as a library, `exchange8::fix` runs **inside**
-Exchange8:Gateway's process — there is no separate deployment, database, or
+Exchange8:Gateway's process - there is no separate deployment, database, or
 network surface. The container diagram is therefore the process-internal
 component view in §2.
 
@@ -76,7 +76,7 @@ items plus three private helpers.
 ### Parse → use → encode lifecycle
 
 One full round in the gateway session loop. Error and buffering branches
-are drawn explicitly — they are part of the contract.
+are drawn explicitly - they are part of the contract.
 
 ```mermaid
 sequenceDiagram
@@ -89,17 +89,17 @@ sequenceDiagram
     TCP->>SH: bytes (accumulated buffer)
     SH->>FX: FixMessage::parse(buf)
     alt frame shorter than 16 bytes, starts with "8="
-        FX-->>SH: Ok(None) — keep buffering
+        FX-->>SH: Ok(None) - keep buffering
     else no "10=nnn|" trailer yet
-        FX-->>SH: Ok(None) — keep buffering
+        FX-->>SH: Ok(None) - keep buffering
     else field malformed (no "=", bad tag)
-        FX-->>SH: Err(BadField(index)) — session-level reject path
+        FX-->>SH: Err(BadField(index)) - session-level reject path
     else BeginString missing / ≠ FIX.4.2
         FX-->>SH: Err(NoBeginString)
     else BodyLength ≠ frame.len() - body_start
-        FX-->>SH: Err(BodyLength) — disconnect
+        FX-->>SH: Err(BodyLength) - disconnect
     else CheckSum ≠ Σ frame[..ck_start] % 256
-        FX-->>SH: Err(Checksum) — disconnect
+        FX-->>SH: Err(Checksum) - disconnect
     else valid frame
         FX-->>SH: Ok(Some(FixMessage))
     end
@@ -141,7 +141,7 @@ end     CheckSum         "10=<nnn>" + SOH      (nnn = Σ before 10= % 256)
 Validation gate on `parse`: field 0 = tag 8 = `FIX.4.2`; field 1 = tag 9
 (else `BadField(1)`); `declared == frame.len() - body_start` (the trailer
 included); CheckSum equality. Failure of any gate returns the matching
-`FixError` — see §6.
+`FixError` - see §6.
 
 ### Vocabularies
 
@@ -151,10 +151,10 @@ included); CheckSum equality. Failure of any gate returns the matching
   OrderStatusRequest, `8` ExecutionReport, `9` OrderCancelReject, `j`
   BusinessMessageReject, `R` QuoteRequest, `s` Quote, `aj` QuoteResponse,
   `AJ` QuoteStatusReport.
-- `tag`: standard FIX 4.2 tags 1–373 as used by the gateway; venue-dialect
-  custom tags 6749–9730 (UMIR identity/program-trade cluster 6749–6763,
-  bypass/protection 6791–6821, book/match 6888–6889, display/routing
-  9303–9501, liquidity 9730); FX quote tags 131, 299, 693, 694, 537, 297,
+- `tag`: standard FIX 4.2 tags 1-373 as used by the gateway; venue-dialect
+  custom tags 6749-9730 (UMIR identity/program-trade cluster 6749-6763,
+  bypass/protection 6791-6821, book/match 6888-6889, display/routing
+  9303-9501, liquidity 9730); FX quote tags 131, 299, 693, 694, 537, 297,
   132, 133, 62, 64, 15, 38, 193, 32.
 - FX message shapes: `quote_request` sets 35=R + QuoteReqID(131), 55
   symbol, 54 side, 38 qty, 58 tenor; `quote` sets 35=s + 131/299/55/132/
@@ -163,7 +163,7 @@ included); CheckSum equality. Failure of any gate returns the matching
 
 ## 4. API Surface
 
-Library crate — no HTTP, no endpoints, no bus events. The public API
+Library crate - no HTTP, no endpoints, no bus events. The public API
 inventory:
 
 | Item | Signature (essentials) | Used by |
@@ -203,7 +203,7 @@ re-exports `exchange8_fix as fix`); Exchange8:Gateway declares the
   modulo-256 sum of everything before `10=`. These are the platform wire
   spec's numbers (`design/behavior-catalog/wire-formats.json`) and are
   pinned by tests (`encode_parse_round_trip`, checksum-corruption tests).
-- Trailing delimiter: every frame ends with a SOH after the CheckSum —
+- Trailing delimiter: every frame ends with a SOH after the CheckSum -
   the checksum locator relies on this to distinguish a complete frame from
   a partial one.
 
@@ -215,7 +215,7 @@ re-exports `exchange8_fix as fix`); Exchange8:Gateway declares the
   The codec therefore never rounds or re-scales a counterparty value.
 - `String::from_utf8_lossy` in parse means invalid UTF-8 in a value
   replaces bytes with the replacement character rather than failing
-  framing — values are validated by the semantic layer, framing by the
+  framing - values are validated by the semantic layer, framing by the
   codec.
 
 ### Message-validation posture
@@ -228,7 +228,7 @@ re-exports `exchange8_fix as fix`); Exchange8:Gateway declares the
   keeps the 8-step authorization pipeline (Gateway) as the single semantic
   gate.
 - Session protocol gating (message before logon, low sequence, gaps) is
-  likewise outside the codec — `FixSession` in the gateway performs it on
+  likewise outside the codec - `FixSession` in the gateway performs it on
   the parsed message.
 
 ### Concurrency note for callers
@@ -239,29 +239,29 @@ re-entrant; no global state exists.
 
 ## 6. Failure Modes & Recovery
 
-As a library the crate cannot crash, retry, or lose data — failure
+As a library the crate cannot crash, retry, or lose data - failure
 signalling is `Result<Option<_>, FixError>` and recovery is the consumer's
 policy. The full taxonomy and its meaning for the session loop:
 
 | Variant | Trigger | Gateway recovery |
 |---|---|---|
 | `Ok(None)` (not an error) | < 16 bytes starting with `8=`, or no `10=nnn|` trailer yet | Accumulate more bytes and re-parse |
-| `TooShort` | < 16 bytes and not starting with `8=` | Non-FIX garbage — reject at the framing layer |
-| `NoBeginString` | Field 0 missing/mis-typed/wrong version | Protocol mismatch — the shell's logout decision |
+| `TooShort` | < 16 bytes and not starting with `8=` | Non-FIX garbage - reject at the framing layer |
+| `NoBeginString` | Field 0 missing/mis-typed/wrong version | Protocol mismatch - the shell's logout decision |
 | `BadField(index)` | Field without `=`, non-numeric tag; field 1 not `9=` | Session-level reject (`35=3`) or disconnect per gateway dialect |
-| `BodyLength` | Declared ≠ computed (includes trailer) | Framing corruption — disconnect |
-| `Checksum` | Declared ≠ Σ % 256 | Byte corruption in transit — disconnect; peer re-sends |
+| `BodyLength` | Declared ≠ computed (includes trailer) | Framing corruption - disconnect |
+| `Checksum` | Declared ≠ Σ % 256 | Byte corruption in transit - disconnect; peer re-sends |
 
 ```mermaid
 flowchart TD
     A["bytes in buffer"] --> B{"len ≥ 16 or starts with 8= ?"}
-    B -->|"short, not 8=..."| E1["Err(TooShort) — reject"]
-    B -->|"short, starts with 8="| N1["Ok(None) — buffer more"]
+    B -->|"short, not 8=..."| E1["Err(TooShort) - reject"]
+    B -->|"short, starts with 8="| N1["Ok(None) - buffer more"]
     B -->|"long enough"| C{"trailer 10=nnn| present?"}
     C -->|"no"| N1
     C -->|"yes"| D["split fields on SOH"]
     D --> F{"every field: tag=... ; tag parses i32?"}
-    F -->|"no"| E2["Err(BadField) — reject"]
+    F -->|"no"| E2["Err(BadField) - reject"]
     F -->|"yes"| G{"field 0 = 8=FIX.4.2, field 1 = 9=?"}
     G -->|"no"| E3["Err(NoBeginString / BadField(1))"]
     G -->|"yes"| H{"BodyLength == frame.len() - body_start?"}
@@ -273,11 +273,11 @@ flowchart TD
 
 Malformed-framing branch semantics (gateway session loop contract):
 
-- `Err(...)` is a **hard structural reject** — the gateway drops the frame
+- `Err(...)` is a **hard structural reject** - the gateway drops the frame
   and applies its dialect (session Reject for recoverable defects,
   disconnect for length/checksum corruption). No half-parsed message
   reaches the business layer.
-- `Ok(None)` is **not** an error — the shell keeps the buffer and retries
+- `Ok(None)` is **not** an error - the shell keeps the buffer and retries
   after more bytes arrive (a frame may legitimately arrive across TCP
   segments).
 
@@ -286,13 +286,13 @@ Malformed-framing branch semantics (gateway session loop contract):
 - **No tasks, locks, channels, or pools.** The crate has no interior
   state; every call is a pure transformation on caller-owned data.
 - **Async context**: methods are synchronous plain functions; callers
-  invoke them from tokio tasks on raw byte slices — no async runtime
+  invoke them from tokio tasks on raw byte slices - no async runtime
   interaction, no `await` points, no blocking risk.
 - **Allocation profile**: `parse` allocates one `String` per field value;
   `encode` allocates one body buffer plus one frame buffer
   (`Vec::with_capacity(32 + body.len())` for the frame). No per-call
   temporary string formatting beyond the field serialization.
-- **Hot path**: `get` is a linear first-match scan of the field list —
+- **Hot path**: `get` is a linear first-match scan of the field list -
   FIX bodies are small (tens of fields), so `O(n)` find is fast in
   practice and cache-friendly; no index/hash is maintained (correctness
   and order preservation preferred over `O(1)` lookup at this `n`).
@@ -336,7 +336,7 @@ graph LR
   constant only; logon credentials ride the transport's secure channel
   (Sentin8 session keys), never reconstructed from codec fields.
 - No "trust declared length/ checksum" mode: a consumer cannot opt out of
-  length/checksum validation to gain throughput — the checks are
+  length/checksum validation to gain throughput - the checks are
   unconditional, so a corrupted frame can never be decoded and processed.
 - No permissive BeginString acceptance: parse accepts exactly
   `FIX.4.2`; version negotiation for other dialects is the session layer's
@@ -361,10 +361,10 @@ session tests).
 
 ```mermaid
 graph TD
-    PY["E2E — e2e-ts (UI orders through the BFF)"]
-    HAR["Cross-unit — sim-harness gateway/ME/clearing flows"]
-    INT["Consumer integration — gateway session + submission tests"]
-    UNIT["Unit + doctests — this crate (8 tests + 17 doctests)"]
+    PY["E2E - e2e-ts (UI orders through the BFF)"]
+    HAR["Cross-unit - sim-harness gateway/ME/clearing flows"]
+    INT["Consumer integration - gateway session + submission tests"]
+    UNIT["Unit + doctests - this crate (8 tests + 17 doctests)"]
 
     PY --> HAR
     HAR --> INT
@@ -373,7 +373,7 @@ graph TD
 
 Deliberately NOT tested here: FIX 5.0 framing (not negotiated on this
 codec's path), transport/TCP behaviour, session sequence semantics, and
-order-semantic validation — each belongs to its owning unit (gateway
+order-semantic validation - each belongs to its owning unit (gateway
 shell, gateway session, gateway submission).
 
 ## 10. Open Questions
@@ -387,7 +387,7 @@ shell, gateway session, gateway submission).
   required as reporting richness grows.
 - **Trailer strictness**: the checksum locator's fallback scan tolerates
   non-canonical trailing `10=` placements; tightening this risks
-  interop friction with counterparty dialects — an interop decision, not
+  interop friction with counterparty dialects - an interop decision, not
   an implementation one.
 - **Binary encodings**: SBE/FAST are out of scope for this vertical's
   current surface; if a market-data-grade binary path is ever required to

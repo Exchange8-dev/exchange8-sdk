@@ -24,7 +24,7 @@ becomes a reconnect-storm or drop-reason incident. A single codec owns:
   modulo-256 byte sum of everything before `10=`);
 - the header contract (8, 9, 35 in order, tag 35 hoisted ahead of the body);
 - the MsgType and tag vocabularies (standard FIX 4.2, the venue-dialect
-  custom tags 6749–9730, and the FX quote family);
+  custom tags 6749-9730, and the FX quote family);
 - streaming-friendliness: a truncated but recognizable frame yields
   `Ok(None)` instead of an error, so callers simply keep buffering.
 
@@ -39,17 +39,17 @@ facade (`exchange8::fix`).
 ```mermaid
 graph TD
     subgraph codec["exchange8::fix (this crate)"]
-        FM["FixMessage — ordered (tag, value) field list"]
+        FM["FixMessage - ordered (tag, value) field list"]
         EN["encode() → complete frame 8=|9=|35=…|10=nnn|"]
         PA["parse() → validated FixMessage / None / FixError"]
-        MT["msg_type — MsgType (35) vocabulary"]
-        TG["tag — standard + venue-dialect + FX tag numbers"]
-        FE["FixError — framing failure taxonomy"]
+        MT["msg_type - MsgType (35) vocabulary"]
+        TG["tag - standard + venue-dialect + FX tag numbers"]
+        FE["FixError - framing failure taxonomy"]
     end
 
     GW["Exchange8:Gateway session engine (session.rs)"]
     RFQ["FX RFQ quote flow (QuoteReq / Quote / aj / AJ constructors)"]
-    WIRE["TCP — FIX counterparty"]
+    WIRE["TCP - FIX counterparty"]
 
     EN --> FM
     PA --> FM
@@ -67,35 +67,35 @@ graph TD
 
 ## 4. Key Traits and Data Structures
 
-- **`struct FixMessage`** — the single message representation: a
+- **`struct FixMessage`** - the single message representation: a
   `pub fields: Vec<(i32, String)>` in wire order. Derived
   `Debug/Clone/PartialEq/Eq/Default`. Schema-less by design; repeating
   groups are stored as repeated list entries.
-  - `FixMessage::new()` — empty message.
-  - `FixMessage::typed(msg_type)` — empty message with MsgType (35) preset.
-  - `set(tag, value)` — set/replace the first occurrence of a tag; chains
+  - `FixMessage::new()` - empty message.
+  - `FixMessage::typed(msg_type)` - empty message with MsgType (35) preset.
+  - `set(tag, value)` - set/replace the first occurrence of a tag; chains
     via `&mut Self`.
-  - `get(tag)` / `msg_type()` / `as_i64(tag)` — first-occurrence accessors.
-  - `encode()` — full frame write (framing recomputed, never trusted).
-  - `parse(frame)` — full frame read with length + checksum validation.
+  - `get(tag)` / `msg_type()` / `as_i64(tag)` - first-occurrence accessors.
+  - `encode()` - full frame write (framing recomputed, never trusted).
+  - `parse(frame)` - full frame read with length + checksum validation.
   - FX quote constructors: `quote_request` (35=R), `quote` (35=s),
     `quote_accept` (35=aj), `quote_status` (35=AJ).
-- **`pub const SOH: u8 = 0x01`** — the sole field delimiter on the wire.
-- **`pub const FIX_42_BEGIN_STRING`** — `FIX.4.2`, the only accepted
+- **`pub const SOH: u8 = 0x01`** - the sole field delimiter on the wire.
+- **`pub const FIX_42_BEGIN_STRING`** - `FIX.4.2`, the only accepted
   BeginString.
-- **Heartbeat bounds** — `DEFT_HEART_BT_INT` (30 s default), `MIN_HEART_BT_INT`
+- **Heartbeat bounds** - `DEFT_HEART_BT_INT` (30 s default), `MIN_HEART_BT_INT`
   (10 s lower clamp), `MAX_HEART_BT_INT` (120 s upper clamp); the session
   shell (Exchange8:Gateway) applies the clamps.
-- **`pub mod msg_type`** — MsgType (35) string constants: session admin
+- **`pub mod msg_type`** - MsgType (35) string constants: session admin
   (`0`, `1`, `2`, `3`, `4`, `5`, `A`), order entry (`D`, `F`, `G`, `H`),
   lifecycle reports (`8`, `9`, `j`), and the FIX 4.4 FX RFQ family
   (`R`, `s`, `aj`, `AJ`).
-- **`pub mod tag`** — FIX tag numbers as `i32` constants: the standard FIX
-  4.2 tags the gateway speaks (1–373), the venue-dialect custom tags
-  6749–9730 (`UMIR_*`, `BOOK_CODE`, `PROTECTION`, `ORDER_POST_ONLY`,
+- **`pub mod tag`** - FIX tag numbers as `i32` constants: the standard FIX
+  4.2 tags the gateway speaks (1-373), the venue-dialect custom tags
+  6749-9730 (`UMIR_*`, `BOOK_CODE`, `PROTECTION`, `ORDER_POST_ONLY`,
   `LIQUIDITY_FLAG`, …), and the FX quote tags (131/299/693/694/537/297/
   132/133/62/64/15/38/193/32).
-- **`pub enum FixError`** — `TooShort`, `NoBeginString`, `BadField(index)`,
+- **`pub enum FixError`** - `TooShort`, `NoBeginString`, `BadField(index)`,
   `BodyLength { declared, computed }`, `Checksum { declared, computed }`
   (a `thiserror::Error`).
 
@@ -124,19 +124,19 @@ The FIX wire format as implemented:
   (`as_i64` as the typed escape hatch). No precision loss, no parsing
   surprises for identifiers that look numeric.
 - **`Ok(None)` for `Option<FixMessage>` parse results.** A half-received
-  frame is not an error — it is "keep buffering". Returning
+  frame is not an error - it is "keep buffering". Returning
   `Result<Option<_>, FixError>` lets the socket loop distinguish partial
   frames (`None`) from malformed frames (`Err`) without sentinel values.
 - **Whole-frame `parse` over incremental header parsing.** Frames are small
   (dozens to hundreds of bytes) relative to the socket loop; locating the
   trailer first and parsing once is simpler and avoids mid-header state
-  machine bugs. Rejected alternative: a streaming parser — unjustified
+  machine bugs. Rejected alternative: a streaming parser - unjustified
   complexity at the observed message sizes.
 - **CheckSum recomputed, never trusted.** Encoding ignores any BodyLength/
   CheckSum already present in the field list, eliminating stale-digest
   corruption (a classic failure mode when messages are cached for resend).
 - **No transport, no session state in the library.** Rejected alternative:
-  a full FIX engine crate — Exchange8:Gateway already owns sequence/resend/
+  a full FIX engine crate - Exchange8:Gateway already owns sequence/resend/
   logout semantics against its DB-persisted counters; embedding session
   state in a codec would couple it to a transport and block the gateway
   testability (pure `FixSession` over an abstract transport).
@@ -149,7 +149,7 @@ The FIX wire format as implemented:
   everything written so far, and `10=%03u|` appended.
 - **Parse pipeline**: (1) frames shorter than 16 bytes return `Ok(None)` if
   they start with `8=` (still possibly a valid frame prefix) else
-  `TooShort`; (2) the `10=` trailer is located (`find_checksum_start` —
+  `TooShort`; (2) the `10=` trailer is located (`find_checksum_start` -
   exact tail match `10=nnn|`, falling back to the last `10=` occurrence for
   resend-restamped frames); a frame without a trailer yet returns `Ok(None)`;
   (3) fields are split on SOH, each requiring at least one `=` and a

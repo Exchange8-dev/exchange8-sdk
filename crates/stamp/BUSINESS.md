@@ -1,4 +1,4 @@
-# exchange8::stamp — Business Requirements & Functionality
+# exchange8::stamp - Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::stamp library **does for the business**. For architecture
@@ -7,8 +7,8 @@
 ## 1. Business Purpose
 
 - Provide the one exact, tested definition of the TSX STAMP 4.0 wire
-  protocol so every exchange component — feed adapters, routers, replay
-  tooling, and tests — reads and writes the same bytes.
+  protocol so every exchange component - feed adapters, routers, replay
+  tooling, and tests - reads and writes the same bytes.
 - Protect downstream market state: the venue feed is an untrusted edge, so
   every frame must either decode faithfully or fail loudly with a typed
   error.
@@ -49,7 +49,7 @@
 | Decoding | Session messages (header-only frames) | Heartbeat and session-control frames decode from the control header alone; empty business content is expected, not an error |
 | Decoding | Business messages | The business section carries the class discriminator (order request, ack, cancel, trade confirm…) plus the domain fields, in wire order |
 | Decoding | Multi-value fields | A field can repeat (`50.1`, `50.2`, …); every occurrence is kept, never merged |
-| Encoding | Round-trip fidelity | What is decoded can be re-emitted byte-for-byte — no reordering, no rewriting |
+| Encoding | Round-trip fidelity | What is decoded can be re-emitted byte-for-byte - no reordering, no rewriting |
 | Authoring | Outbound construction | A message is built from a business class plus name/field pairs; the class is always the first business field |
 | Vocabulary | Tag constants | Tag numbers are the venue's numbering; the crate names the exact subset the exchange consumes |
 | Error contract | Rejections | Malformed input produces one of three typed errors; the codec never repairs or defaults silently |
@@ -104,16 +104,16 @@
 
 ## 8. Dependencies & Reliance on Other Services
 
-- **The venue (TSX/TSXV)** — the protocol authority: tag numbering, class
+- **The venue (TSX/TSXV)** - the protocol authority: tag numbering, class
   codes, and framing grammar are the venue's wire contract.
-- **Consuming services (Exchange8:VFeeds, Exchange8:SOR)** — own transport, session
+- **Consuming services (Exchange8:VFeeds, Exchange8:SOR)** - own transport, session
   supervision, and the translation of decoded fields into business events;
   the library cannot emit anything business-shaped by itself.
-- **Adjacent codec crates** — `exchange8::soup` and `exchange8::mold` frame
+- **Adjacent codec crates** - `exchange8::soup` and `exchange8::mold` frame
   the session and packet layers STAMP bytes ride in; `exchange8::fixed`
   owns the price/quantity arithmetic that decoded text values feed.
-- **Error-definition crate (`thiserror`)** — the typed failure surface.
-- No reliance on Sentin8 platform planes — the library performs no
+- **Error-definition crate (`thiserror`)** - the typed failure surface.
+- No reliance on Sentin8 platform planes - the library performs no
   identity, authorization, persistence, or delivery work.
 
 ## 9. Acceptance Criteria
@@ -129,7 +129,7 @@
    documented, distinct error.
 5. A constructed order-class message serializes with the class
    discriminator as the first business field.
-6. No decoding path panics, defaults, or reorders fields — including for
+6. No decoding path panics, defaults, or reorders fields - including for
    hostile input at the section/field grammar level.
 
 ## 10. Open Business Questions
@@ -143,7 +143,7 @@
 - **First direct consumer.** Which service ships the first production
   adapter bound to this codec: the feeds adapter (`stamp_cbbo` payload
   kind) declared in the venue-feed design, or the router's feed path?
-- **Order-entry direction.** The codec can author order-class messages —
+- **Order-entry direction.** The codec can author order-class messages -
   is inbound STAMP order entry in scope for the exchange, or is STAMP
   decode-only (quote/status) for the foreseeable product?
 

@@ -1,4 +1,4 @@
-# exchange8::wire — Business Requirements & Functionality
+# exchange8::wire - Business Requirements & Functionality
 
 > Audience: product owners, business analysts, and anyone evaluating what
 > the exchange8::wire library **does for the business**. For architecture
@@ -16,7 +16,7 @@ trustworthy and fast:
 - Every service-to-service hand-off runs through a **bounded queue that never
   loses a message silently** and never blocks the trading hot path.
 - Every order id, trade id and child-order id is handed out from an
-  **in-process block of leased, unique, strictly increasing ids** — so the
+  **in-process block of leased, unique, strictly increasing ids** - so the
   business gets platform-global uniqueness at in-memory speed.
 
 The business value: market operations that can (1) prove every trade and order
@@ -28,12 +28,12 @@ re-inventing framing, queueing or id allocation.
 
 | # | Capability | What the business gets |
 |---|---|---|
-| 1 | Framed message encoding (`encode`) | A standard envelope for internal trading messages — inspectable JSON payloads with a self-describing length prefix. |
+| 1 | Framed message encoding (`encode`) | A standard envelope for internal trading messages - inspectable JSON payloads with a self-describing length prefix. |
 | 2 | Framed message decoding (`decode`) | Trustworthy intake: corrupt, truncated or oversize traffic is contained as a typed error, never silent corruption, never a crash. |
 | 3 | Frame size containment (`MAX_FRAME`, 4 MiB) | A hostile or broken peer cannot force the platform into unbounded memory on the internal tier. |
-| 4 | Partial frame length inspection (`next_frame_len`) | Streamed readers can size the next read before data arrives — the basis of orderly stream handling. |
+| 4 | Partial frame length inspection (`next_frame_len`) | Streamed readers can size the next read before data arrives - the basis of orderly stream handling. |
 | 5 | Bounded in-process queues (`channel`) | Controlled hand-off between service components with an explicit, fixed queue depth. |
-| 6 | Backpressure with value preservation (`BoundedSender.try_send` / `SendError`) | Under load, the sender learns *immediately* and the message is handed back — no stall on the hot path, no lost work. |
+| 6 | Backpressure with value preservation (`BoundedSender.try_send` / `SendError`) | Under load, the sender learns *immediately* and the message is handed back - no stall on the hot path, no lost work. |
 | 7 | In-process id lease blocks (`SequenceLease`) | Business ids (orders, trades, child orders, rfq trades) are issued unique and increasing at in-memory speed, in platform-leased blocks of 10 000. |
 | 8 | Lease exhaustion as an explicit, observable condition | The business rule "never issue an id twice" is structural: an exhausted block simply stops, and the owning service decides to refill or fail-stop. |
 
@@ -45,7 +45,7 @@ re-inventing framing, queueing or id allocation.
 | Lease refill policy (when and how blocks are re-armed) | Consuming service shells (`sentin8::shell`) | Refill timing is an availability decision of each service (e.g. matching engine fail-stop vs gateway refill-and-continue). |
 | Typed trading messages and event envelopes | `exchange8::contracts` | Domain DTOs and event naming live in the shared contracts crate. |
 | The ME stream client (connection, envelope composition) | `exchange8::me::client` | Wire provides framing primitives; the client owns connection semantics. |
-| External market protocols (FIX, ITCH, MoldUDP64, SoupBinTCP, STAMP) | dedicated codec crates | Distinct wire formats with their own fidelity requirements — deliberately separate. |
+| External market protocols (FIX, ITCH, MoldUDP64, SoupBinTCP, STAMP) | dedicated codec crates | Distinct wire formats with their own fidelity requirements - deliberately separate. |
 | Transport security, sockets and TLS | consuming services / platform `sentin8::shell` | A library cannot own the network. |
 | Authorization, tenant isolation, audit | Sentin8:Auth / Shield / Sentin8:Sys and the service shells | The library runs strictly post-authorization, inside an already-authorized process. |
 
@@ -55,26 +55,26 @@ re-inventing framing, queueing or id allocation.
 
 | Capability | Business rule behind it |
 |---|---|
-| Uniqueness of business ids | An in-process block hands out each id at most once; blocks are received disjoint from the platform facility, so no two services — or two instances of one service — can ever mint the same id. |
-| Monotonicity of ids | Ids hand out strictly increasing; across restarts they continue from the platform's value and never reset within an environment — trade sequences read as a stable, auditable history. |
-| Gap tolerance | Gaps may appear between blocks (e.g. an abandoned block); the business accepts gaps because duplicates are impossible — uniqueness outranks density. |
+| Uniqueness of business ids | An in-process block hands out each id at most once; blocks are received disjoint from the platform facility, so no two services - or two instances of one service - can ever mint the same id. |
+| Monotonicity of ids | Ids hand out strictly increasing; across restarts they continue from the platform's value and never reset within an environment - trade sequences read as a stable, auditable history. |
+| Gap tolerance | Gaps may appear between blocks (e.g. an abandoned block); the business accepts gaps because duplicates are impossible - uniqueness outranks density. |
 | Throughput economics | One platform interaction leases 10 000 ids; id issuance on the hot path is then pure arithmetic, keeping matching latency within its budget. |
-| Fail-stop on exhaustion | When a block is spent, no further ids appear until the owning service refills — the platform guarantees no fabrication beyond the leased window. |
+| Fail-stop on exhaustion | When a block is spent, no further ids appear until the owning service refills - the platform guarantees no fabrication beyond the leased window. |
 | Identity scoping | Each block carries its environment, service and sequence type, so id spaces are separated per environment and per purpose (order ids vs trade ids). |
 
 ### Transport framing and delivery hand-off
 
 | Capability | Business rule behind it |
 |---|---|
-| Standard internal framing | One framing decision for the internal trading tier; services do not each invent their own — integration defects become impossible rather than merely rare. |
+| Standard internal framing | One framing decision for the internal trading tier; services do not each invent their own - integration defects become impossible rather than merely rare. |
 | Corruption containment | A broken frame degrades to a typed error; the exchange never silently processes half a message. |
 | Bounded queues | Queue depth is an explicit capacity decision per hand-off, making load behavior observable and tunable rather than accidental. |
 | Backpressure, not loss | A full queue hands the message back to its sender; the business rule is "pressure is an event, never a silent drop". |
-| Hot-path non-blocking sends | Matching-tier traffic never waits on a queue — order latency is protected at the library level. |
+| Hot-path non-blocking sends | Matching-tier traffic never waits on a queue - order latency is protected at the library level. |
 
 ## 4. Business Events (Outbound)
 
-**Not applicable — a library emits no events and consumes none.** It holds no
+**Not applicable - a library emits no events and consumes none.** It holds no
 database tables, no outbox and no bus connection; nothing in
 `exchange8::wire` is observable on Sentin8:Bus.
 
@@ -87,24 +87,24 @@ events, not ours):
   events (`exchange8:me:order:*`, `exchange8:me:trade:executed`, …) are emitted
   by the owning services;
 - a service's failure events may reference lease exhaustion or frame decode
-  errors when operators investigate — the causes, never the events, originate
+  errors when operators investigate - the causes, never the events, originate
   here.
 
 ## 5. Business Rules & Invariants
 
-1. A business id issued from a lease block is unique — it can never be issued
+1. A business id issued from a lease block is unique - it can never be issued
    again by the same block, and blocks never overlap between lessees.
 2. Ids hand out in strictly increasing order within a block and never reset
    within an environment across restarts or rollovers.
 3. Gaps between issued ids are permitted; duplicates are structurally
    impossible.
-4. When a lease block is exhausted, the library stops issuing ids — it never
+4. When a lease block is exhausted, the library stops issuing ids - it never
    fabricates ids beyond the leased window, and the owning service decides
    between refill and fail-stop.
 5. Every leased block is tied to exactly one environment, one service and one
    sequence type; id spaces never blend.
 6. Corrupt, truncated or oversize traffic is always reported as a typed
-   error — the system never processes a silently truncated frame.
+   error - the system never processes a silently truncated frame.
 7. A full or closing queue always returns the message to its sender; no
    internal hand-off ever loses a message silently.
 8. The hot path never blocks on a queue or waits on the platform: blockage is
@@ -112,7 +112,7 @@ events, not ours):
 9. Every frame obeys the 4 MiB payload bound; oversize traffic cannot force
    unbounded memory allocation.
 10. The library performs no network, database, authorization or audit
-    actions of its own — it operates strictly inside an already-authorized
+    actions of its own - it operates strictly inside an already-authorized
     service process.
 
 ## 6. Target-User Roles & Use Cases
@@ -131,7 +131,7 @@ Representative use cases:
   the order envelope, and sends it over a bounded channel into the direct
   stream to the matching engine.
 - *Trade sequencing*: the matching engine hands out trade ids from an in-process
-  block; on exhaustion it fail-stops new fills until a fresh block is leased —
+  block; on exhaustion it fail-stops new fills until a fresh block is leased -
   no id is ever reused.
 - *Component decoupling*: an OMS supervisor hands quotes to slice logic through
   a bounded queue; under a burst the excess is explicitly returned rather than
@@ -159,13 +159,13 @@ Representative use cases:
 
 Upstream in the dependency graph the crate sits beside the vertical's codec
 crates and under the typed ME client; downward it depends on the platform lease
-facility only through the *shells that refill blocks* — never directly from the
+facility only through the *shells that refill blocks* - never directly from the
 library itself.
 
 ## 9. Acceptance Criteria
 
 1. A frame produced by `encode` is always decodable by `decode` to the identical
-   value — proven by the in-crate round-trip test.
+   value - proven by the in-crate round-trip test.
 2. A truncated or corrupt input is always reported as a typed error
    (`TooShort` / `TooLarge` / `Json`) with no panic and no partial value.
 3. An input whose declared payload exceeds 4 MiB is rejected before any
@@ -176,7 +176,7 @@ library itself.
    observable (`None`, zero remaining) and never yields an id beyond the block.
 6. Two independently created blocks for the same identity triple can never
    overlap, because both originate from the platform facility's disjoint blocks.
-7. The library remains free of network, database, token, scope or audit logic —
+7. The library remains free of network, database, token, scope or audit logic -
    reviewers can verify this in a single source file.
 8. All public items are documented with usage-gated doc comments; the crate
    builds warning-free within the vertical's workspace build.

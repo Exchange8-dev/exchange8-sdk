@@ -3,18 +3,18 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Exchange8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Exchange8 transport primitives — service-agnostic wiring for the
+//! Exchange8 transport primitives - service-agnostic wiring for the
 //! internal direct-stream tier (master design §5.2/§7.2).
 //!
 //! Contents:
 //! - framed codec (4-byte LE length + JSON): `encode`/`decode`/`next_frame_len`
 //! - bounded in-process MPSC channels: `channel`/`BoundedSender`/`Stream`
 //! - id-lease blocks: `SequenceLease` (in-process windows filled from the
-//!   platform sequence-lease facility — see the data-model design §2a)
+//!   platform sequence-lease facility - see the data-model design §2a)
 //!
 //! Nothing here is tied to one service identity, so the crate sits at one
 //! facade level (`exchange8::wire`) per principles §2.1. SoupBinTCP has its
-//! own framing in `crates/soup` — distinct wire format, kept separate.
+//! own framing in `crates/soup` - distinct wire format, kept separate.
 //!
 //! # Quick start
 //!
@@ -54,7 +54,7 @@ pub enum DecodeError {
     Json(String),
 }
 
-/// Maximum frame payload (4 MiB) — guards against corrupt length prefixes.
+/// Maximum frame payload (4 MiB) - guards against corrupt length prefixes.
 pub const MAX_FRAME: usize = 4 * 1024 * 1024;
 
 /// Encode `value` into a framed buffer: 4-byte LE length + JSON.
@@ -112,7 +112,7 @@ pub struct BoundedSender<T> {
 impl<T> BoundedSender<T> {
     /// Attempt a non-blocking send; returns the value on a full channel.
     ///
-    /// A closed receiver is indistinguishable from a full one in the type —
+    /// A closed receiver is indistinguishable from a full one in the type -
     /// the value is handed back either way.
     pub fn try_send(&self, value: T) -> Result<(), SendError<T>> {
         match self.tx.try_send(value) {
@@ -163,7 +163,7 @@ pub fn channel<T>(queue_depth: usize) -> (BoundedSender<T>, Stream<T>) {
 /// An in-process lease block of ids from a platform sequence lease.
 ///
 /// The block covers the half-open id window `[next, end)` for one identity
-/// triple (`env_id`, `service`, `seq_type` — e.g. `('env-1', 'me', 'trade')`).
+/// triple (`env_id`, `service`, `seq_type` - e.g. `('env-1', 'me', 'trade')`).
 /// The host service fills blocks from the platform sequence-lease facility
 /// (disjoint batch leases; see the vertical data-model design §2a) and re-arms
 /// hand-out here when a block is exhausted.

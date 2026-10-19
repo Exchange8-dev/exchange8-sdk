@@ -95,17 +95,17 @@ impl BookToken {
 /// Order side. FIX 54 codes preserved.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum OrderSide {
-    /// `'1'` — buy.
+    /// `'1'` - buy.
     Buy,
-    /// `'2'` — sell (unmarked).
+    /// `'2'` - sell (unmarked).
     Sell,
-    /// `'5'` — short sell (locate assumed upstream).
+    /// `'5'` - short sell (locate assumed upstream).
     ShortSell,
-    /// `'6'` — short sale exempt.
+    /// `'6'` - short sale exempt.
     ShortExempt,
-    /// `'8'` — cross (both sides on this symbol).
+    /// `'8'` - cross (both sides on this symbol).
     Cross,
-    /// `'9'` — cross short leg.
+    /// `'9'` - cross short leg.
     CrossShort,
 }
 
@@ -188,19 +188,19 @@ impl OrderSide {
 /// Time in force (FIX 59).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Tif {
-    /// `'0'` — valid for the session only (default).
+    /// `'0'` - valid for the session only (default).
     Day,
-    /// `'1'` — good till canceled.
+    /// `'1'` - good till canceled.
     Gtc,
-    /// `'2'` — execute at the opening auction, cancel otherwise.
+    /// `'2'` - execute at the opening auction, cancel otherwise.
     AtOpen,
-    /// `'3'` — immediate-or-cancel.
+    /// `'3'` - immediate-or-cancel.
     Ioc,
-    /// `'4'` — fill-or-kill.
+    /// `'4'` - fill-or-kill.
     Fok,
-    /// `'5'` — valid for the crossing session only.
+    /// `'5'` - valid for the crossing session only.
     Crossing,
-    /// `'6'` — good till date.
+    /// `'6'` - good till date.
     Gtd,
 }
 
@@ -243,9 +243,9 @@ impl Tif {
 /// FIX 40 OrdType (exchange8 subset).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum OrdType {
-    /// `"2"` — limit at the given price.
+    /// `"2"` - limit at the given price.
     Limit,
-    /// `"P"` — pegged to a reference price + peg difference.
+    /// `"P"` - pegged to a reference price + peg difference.
     Pegged,
 }
 
@@ -281,13 +281,13 @@ impl OrdType {
 /// Peg type (FIX ExecInst 18 chars: M/P/R/D).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PegType {
-    /// `'M'` — midpoint.
+    /// `'M'` - midpoint.
     Midpoint,
-    /// `'P'` — market peg (join opposite side).
+    /// `'P'` - market peg (join opposite side).
     Market,
-    /// `'R'` — primary peg (join own side).
+    /// `'R'` - primary peg (join own side).
     Primary,
-    /// `'D'` — darkpool (midpoint, always hidden).
+    /// `'D'` - darkpool (midpoint, always hidden).
     Darkpool,
 }
 
@@ -323,7 +323,7 @@ impl PegType {
     }
 }
 
-/// Self-trade prevention action — explicit per-order instead of a
+/// Self-trade prevention action - explicit per-order instead of a
 /// signed-counterparty identifier.
 ///
 /// Determines what happens to both sides when an order's STP key matches
@@ -353,7 +353,7 @@ pub enum StpKeyType {
     Account,
 }
 
-/// The normalized gateway order — the single collapsed order type produced
+/// The normalized gateway order - the single collapsed order type produced
 /// by session decoding and consumed by Risk and the matching engine.
 ///
 /// Lifecycle fields (`ord_status`, `cum_qty`, `leaves_qty`, `avg_px`) are
@@ -480,12 +480,12 @@ impl ExchangeOrder {
     /// ```
     ///
     /// # Panics
-    /// Never panics — a `const` field read.
+    /// Never panics - a `const` field read.
     pub const fn connection_id(&self) -> u16 {
         self.connection_id
     }
 
-    /// Reject code when the instrument cannot be resolved — the gateway
+    /// Reject code when the instrument cannot be resolved - the gateway
     /// resolved a symbol but Risk's snapshot disagrees (stale cache or an
     /// unknown id).
     ///
