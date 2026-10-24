@@ -1,4 +1,4 @@
-# README.md: exchange8::wire
+# exchange8::wire
 
 ## 1. Summary
 
@@ -199,4 +199,4 @@ Concepts the crate exposes (plain synchronous types and functions - no traits):
 
 ---
 
-**Design attribution:** exchange8:wire and its underlying concepts were designed by Hamid Jahanzad <Hamid@Jahanzad.com>.
+**Architecture & Design:** exchange8:wire and its underlying concepts were designed by [Hamid Jahanzad](https://www.linkedin.com/in/hamidjahanzad/).

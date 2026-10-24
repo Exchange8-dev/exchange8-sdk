@@ -1,4 +1,4 @@
-# README.md: exchange8::itch
+# exchange8::itch
 
 ## 1. Summary
 
@@ -187,4 +187,4 @@ No traits, no dyn dispatch - value structs plus module tables.
 
 ---
 
-**Design attribution:** exchange8:itch and its underlying concepts were designed by Hamid Jahanzad <Hamid@Jahanzad.com>.
+**Architecture & Design:** exchange8:itch and its underlying concepts were designed by [Hamid Jahanzad](https://www.linkedin.com/in/hamidjahanzad/).

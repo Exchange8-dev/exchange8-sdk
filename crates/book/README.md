@@ -1,4 +1,4 @@
-# README.md: exchange8::book
+# exchange8::book
 
 ## 1. Summary
 
@@ -251,4 +251,4 @@ is unconditionally true.
 
 ---
 
-**Design attribution:** exchange8:book and its underlying concepts were designed by Hamid Jahanzad <Hamid@Jahanzad.com>.
+**Architecture & Design:** exchange8:book and its underlying concepts were designed by [Hamid Jahanzad](https://www.linkedin.com/in/hamidjahanzad/).

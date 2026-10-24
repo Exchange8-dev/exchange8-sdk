@@ -1,4 +1,4 @@
-# README.md: exchange8::contracts - Shared Domain Vocabulary for the exchange8 Vertical
+# exchange8::contracts - Shared Domain Vocabulary for the exchange8 Vertical
 
 > Audience: anyone evaluating or onboarding to the capital-markets platform
 > vocabulary. A library crate - no HTTP, no database, no deployment. For
@@ -222,4 +222,4 @@ associated functions. The conceptual model:
 
 ---
 
-**Design attribution:** exchange8:contracts and its underlying concepts were designed by Hamid Jahanzad <Hamid@Jahanzad.com>.
+**Architecture & Design:** exchange8:contracts and its underlying concepts were designed by [Hamid Jahanzad](https://www.linkedin.com/in/hamidjahanzad/).

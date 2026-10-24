@@ -1,4 +1,4 @@
-# README.md: exchange8::sim-harness
+# exchange8::sim-harness
 
 ## 1. Summary
 
@@ -196,4 +196,4 @@ DSL testable and serde-stable.
 
 ---
 
-**Design attribution:** exchange8:sim-harness and its underlying concepts were designed by Hamid Jahanzad <Hamid@Jahanzad.com>.
+**Architecture & Design:** exchange8:sim-harness and its underlying concepts were designed by [Hamid Jahanzad](https://www.linkedin.com/in/hamidjahanzad/).

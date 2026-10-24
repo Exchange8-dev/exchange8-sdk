@@ -1,4 +1,4 @@
-# README.md: exchange8::me::client
+# exchange8::me::client
 
 ## 1. Summary
 
@@ -176,4 +176,4 @@ site and get a typed envelope back.
 
 ---
 
-**Design attribution:** exchange8:me and its underlying concepts were designed by Hamid Jahanzad <Hamid@Jahanzad.com>.
+**Architecture & Design:** exchange8:me and its underlying concepts were designed by [Hamid Jahanzad](https://www.linkedin.com/in/hamidjahanzad/).
