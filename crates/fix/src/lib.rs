@@ -166,7 +166,7 @@ pub mod msg_type {
     pub const CANCEL_REJECT: &str = "9";
     /// BusinessMessageReject (j).
     pub const BUSINESS_REJECT: &str = "j";
-    // -- FIX 4.4 FX quote flow (design §3.6) -------------------------
+    // -- FIX 4.4 FX quote flow (design §3.6) ----------------------
     /// QuoteRequest (R) - client → venue RFQ.
     pub const QUOTE_REQUEST: &str = "R";
     /// Quote (s) - venue → client tradeable price.
@@ -324,7 +324,7 @@ pub mod tag {
     pub const REF_MSG_TYPE: i32 = 372;
     /// SessionRejectReason (373) - session-reject reason code.
     pub const SESSION_REJECT_REASON: i32 = 373;
-    // -- Venue-dialect custom tags (`FixConst.h:137-171`) -------------
+    // -- Venue-dialect custom tags (`FixConst.h:137-171`) ----------
     /// STP no-match id (6749) - self-cross prevention token.
     pub const UMIR_NO_MATCH_ID: i32 = 6749;
     /// UMIR account type (6750).
@@ -359,7 +359,7 @@ pub mod tag {
     pub const ROUTING_STRATEGY: i32 = 9501;
     /// Liquidity flag (9730) - added/removed on ExecutionReport fills.
     pub const LIQUIDITY_FLAG: i32 = 9730;
-    // -- FIX 4.4 FX quote / RFQ tags (fx design §3.6) ------------------
+    // -- FIX 4.4 FX quote / RFQ tags (fx design §3.6) ---------------
     /// QuoteReqID (131) - correlates the QuoteRequest/Quote/QuoteResponse/
     /// QuoteStatusReport chain.
     pub const QUOTE_REQ_ID: i32 = 131;

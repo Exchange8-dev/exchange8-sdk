@@ -20,9 +20,9 @@
 
 use serde::{Deserialize, Serialize};
 
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // ME order type - the catalog `order_type` table (`MEMsgs.h:32-36`)
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /// ME order type - how the engine may match and what happens to the
 /// remainder.
@@ -85,9 +85,9 @@ impl OrderType {
     }
 }
 
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // ME book side - the catalog `side` table (`MEMsgs.h:27-28`)
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /// ME book side - which side of the internal book the order joins.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -146,9 +146,9 @@ impl Side {
     }
 }
 
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // Visibility - the catalog `visible` table (`MEMsgs.h:38-39`)
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /// Visible vs hidden quantity handling on the ME book.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -206,9 +206,9 @@ impl Visibility {
     }
 }
 
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // Capacity - the catalog `capacity` table (`MEMsgs.h:44-45`)
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /// Order capacity - agency (client order) vs principal (own-house order).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -254,9 +254,9 @@ impl Capacity {
     }
 }
 
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // Price protection - the catalog `price_protection` table
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /// Price-protection behavior when a marketable order breaches the
 /// protection band.
@@ -303,9 +303,9 @@ impl PriceProtection {
     }
 }
 
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // Instrument status - the catalog `instrument_status` table
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /// Per-instrument trading state (catalog `instrument_status`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -355,10 +355,10 @@ impl InstrumentStatus {
     }
 }
 
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // Market status - the catalog `market_status` table (the identical code
 // set is shared by the ME and feed messages)
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /// Per-book market state (catalog `market_status`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -415,10 +415,10 @@ impl MarketStatus {
     }
 }
 
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // Kill reason - the catalog `kill_reason` table
 // (`order_cancel::Reason`)
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /// Why a resting order left the book (catalog `kill_reason`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -496,9 +496,9 @@ impl KillReason {
     }
 }
 
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // ME transaction-reject reason - the catalog `reject_reason` table
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /// ME transaction-reject reason (catalog `reject_reason`).
 ///
@@ -540,9 +540,9 @@ impl MeRejectReason {
     }
 }
 
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // Liquidity / lot type - the catalog `liquidity` / `lot_type` tables
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /// Liquidity role in an execution - added (passive) vs removed (aggressor).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -594,9 +594,9 @@ impl LotType {
     }
 }
 
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // System event codes - the ITCH `S` message payload (`FeedMsgs.h`)
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /// ITCH system event codes - session lifecycle markers on the feed
 /// (catalog `feed_messages` `S` message payload).

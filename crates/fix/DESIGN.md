@@ -130,7 +130,7 @@ in-memory message list and the on-wire frame layout.
 
 ```
 Offset  Field            Bytes
-------  ---------------  ----------------------------------
+------ ------------ -------------------------------
 start   BeginString      "8=FIX.4.2" + SOH
 next    BodyLength       "9=<len>" + SOH       (len = body + 7)
 next    MsgType          "35=<MsgType>" + SOH  (hoisted first in body)

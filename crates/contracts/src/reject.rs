@@ -35,7 +35,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub enum RejectCode {
-    // -- order_reject family (numeric codes 1-8, 100-144) -------------------
+    // -- order_reject family (numeric codes 1-8, 100-144) ----------------
     /// `1` - unknown symbol (instrument not provisioned).
     UnknownSymbol,
     /// `2` - the exchange is closed.
@@ -130,7 +130,7 @@ pub enum RejectCode {
     WrongOrderSide,
     /// `144` - wrong execution-instruction combination.
     WrongExecInst,
-    // -- base_reject family (numeric codes 125-129, 200) ---------------------
+    // -- base_reject family (numeric codes 125-129, 200) ------------------
     /// `125` - odd lot not accepted on this book.
     OddLot,
     /// `126` - mixed odd/board lot composition not allowed.
@@ -143,7 +143,7 @@ pub enum RejectCode {
     FullPennyTick,
     /// `200` - unspecified/legacy reason without a specific variant.
     UnknownReason,
-    // -- cancel_reject family (numeric codes 0, 2, 3, 105) -------------------
+    // -- cancel_reject family (numeric codes 0, 2, 3, 105) ----------------
     /// cancel `0` - too late to cancel (already executing or done).
     TooLate,
     /// cancel `2` - rejected at the broker's discretion.
@@ -152,7 +152,7 @@ pub enum RejectCode {
     AlreadyPending,
     /// cancel `105` - replacement quantity invalid.
     WrongReplaceQty,
-    // -- platform-added (no numeric wire code) -------------------------------
+    // -- platform-added (no numeric wire code) ----------------------------
     /// The risk authorization service is unavailable - fail-closed by
     /// design (Risk service design §9).
     RiskUnavailable,
