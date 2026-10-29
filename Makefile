@@ -34,3 +34,4 @@ tag: ## Print this SDK's pin tag (RS §7.1: sdk-vX / exchange8-vX)
 
 clean: ## cargo clean
 	@$(CARGO) clean
+	@rm -rf .run .run/logs .tmp
