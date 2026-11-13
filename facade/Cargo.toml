@@ -5,7 +5,7 @@
 
 [package]
 name = "exchange8"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 license = "UNLICENSED"
 description = "exchange8 namespace facade - every exchange8 crate imports as exchange8::{leaf} (architecture-principles §2.1)."
