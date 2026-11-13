@@ -32,7 +32,7 @@ dependencies = [
 
 [[package]]
 name = "exchange8"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "exchange8-book",
  "exchange8-contracts",
